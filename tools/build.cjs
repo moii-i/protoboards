@@ -1,0 +1,2 @@
+const {spawnSync}=require('node:child_process');const fs=require('node:fs');fs.mkdirSync('work',{recursive:true});
+for(const args of [['build-door-ls.cjs'],['build-door-sinuln.cjs'],['build-door-redes.cjs'],['build-door-layout.cjs'],['build-door-layout.cjs','--ls'],['build-door-layout.cjs','--sinuln'],['build-door-layout.cjs','--redes'],['build-door-guide.cjs'],['build-door-viewer.cjs']]){const r=spawnSync(process.execPath,args,{stdio:'inherit'});if(r.status!==0)process.exit(r.status||1);}

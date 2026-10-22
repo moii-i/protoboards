@@ -1,0 +1,14 @@
+node_modules/
+work/
+outputs/
+.vercel/
+.env
+.env.*
+!.env.example
+.codex/
+.agents/
+*.log
+.DS_Store
+Thumbs.db
+protoboard-ah/puerta.js
+protoboard-ah/puerta-viewer.js

@@ -1,0 +1,19 @@
+{
+  "name": "protoboards",
+  "version": "1.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "description": "Guías educativas de montaje en protoboard, cable por cable, en 2D y 3D.",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "dev": "node tools/dev-server.cjs",
+    "build": "node tools/build.cjs",
+    "test": "node tools/test.cjs",
+    "check": "npm run build && npm test"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "linkedom": "0.18.12",
+    "three": "0.186.1"
+  }
+}

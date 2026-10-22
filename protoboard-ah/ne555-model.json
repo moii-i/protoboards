@@ -1,0 +1,553 @@
+{
+  "id": "ne555",
+  "layoutVersion": "ne555-v1",
+  "boards": {
+    "A": {
+      "columns": 30,
+      "xOffset": 0,
+      "yOffset": 0,
+      "railBreak": null
+    }
+  },
+  "starts": [
+    10
+  ],
+  "bounds": [
+    0,
+    0,
+    1100,
+    850
+  ],
+  "pinNames": {
+    "1": "GND",
+    "2": "TRIG · Tiempo",
+    "3": "OUT · Salida",
+    "4": "RESET · +9 V",
+    "5": "CONTROL · libre",
+    "6": "THRESH · Tiempo",
+    "7": "DISCH · Descarga",
+    "8": "VCC · +9 V"
+  },
+  "colors": {
+    "VCC": "#d3383d",
+    "GND": "#293d52",
+    "Tiempo": "#1c8757",
+    "Descarga": "#c17814",
+    "Salida": "#087f93",
+    "LED": "#7950a0"
+  },
+  "items": [
+    {
+      "id": "C001",
+      "stage": 1,
+      "net": "VCC",
+      "a": [
+        "FUENTE",
+        "+",
+        0
+      ],
+      "b": [
+        "A",
+        "+T",
+        1
+      ],
+      "label": "Batería (+) al riel +9 V",
+      "kind": "wire",
+      "value": "",
+      "note": ""
+    },
+    {
+      "id": "C002",
+      "stage": 1,
+      "net": "GND",
+      "a": [
+        "FUENTE",
+        "-",
+        0
+      ],
+      "b": [
+        "A",
+        "-T",
+        1
+      ],
+      "label": "Batería (−) al riel GND",
+      "kind": "wire",
+      "value": "",
+      "note": ""
+    },
+    {
+      "id": "C003",
+      "stage": 1,
+      "net": "VCC",
+      "a": [
+        "A",
+        "+T",
+        30
+      ],
+      "b": [
+        "A",
+        "+B",
+        30
+      ],
+      "label": "Une los dos rieles positivos",
+      "kind": "wire",
+      "value": "",
+      "note": ""
+    },
+    {
+      "id": "C004",
+      "stage": 1,
+      "net": "GND",
+      "a": [
+        "A",
+        "-T",
+        30
+      ],
+      "b": [
+        "A",
+        "-B",
+        30
+      ],
+      "label": "Une los dos rieles negativos",
+      "kind": "wire",
+      "value": "",
+      "note": ""
+    },
+    {
+      "id": "C005",
+      "stage": 1,
+      "net": "VCC",
+      "a": [
+        "A",
+        "a",
+        10
+      ],
+      "b": [
+        "A",
+        "+T",
+        10
+      ],
+      "label": "Pata 8 (VCC) a +9 V",
+      "kind": "wire",
+      "value": "",
+      "note": ""
+    },
+    {
+      "id": "C006",
+      "stage": 1,
+      "net": "GND",
+      "a": [
+        "A",
+        "j",
+        10
+      ],
+      "b": [
+        "A",
+        "-B",
+        10
+      ],
+      "label": "Pata 1 (GND) al negativo",
+      "kind": "wire",
+      "value": "",
+      "note": ""
+    },
+    {
+      "id": "C007",
+      "stage": 1,
+      "net": "VCC",
+      "a": [
+        "A",
+        "j",
+        13
+      ],
+      "b": [
+        "A",
+        "+B",
+        13
+      ],
+      "label": "Pata 4 (RESET) a +9 V",
+      "kind": "wire",
+      "value": "",
+      "note": ""
+    },
+    {
+      "id": "C008",
+      "stage": 2,
+      "net": "Descarga",
+      "a": [
+        "A",
+        "+T",
+        11
+      ],
+      "b": [
+        "A",
+        "b",
+        11
+      ],
+      "label": "R1 · 1 kΩ: +9 V a Descarga",
+      "kind": "res",
+      "value": "1 kΩ",
+      "note": ""
+    },
+    {
+      "id": "C009",
+      "stage": 2,
+      "net": "Tiempo",
+      "a": [
+        "A",
+        "g",
+        11
+      ],
+      "b": [
+        "A",
+        "d",
+        12
+      ],
+      "label": "Une patas 2 (TRIG) y 6 (THRESH)",
+      "kind": "wire",
+      "value": "",
+      "note": ""
+    },
+    {
+      "id": "C010",
+      "stage": 2,
+      "net": "Tiempo",
+      "a": [
+        "A",
+        "f",
+        6
+      ],
+      "b": [
+        "A",
+        "f",
+        8
+      ],
+      "label": "C1 · 100 µF: positivo a la izquierda",
+      "kind": "cap",
+      "value": "100 µF",
+      "note": "Pata positiva en A:f6; pata negativa, marcada con la franja, en A:f8. Usa un capacitor de 16 V o mayor."
+    },
+    {
+      "id": "C011",
+      "stage": 2,
+      "net": "Tiempo",
+      "a": [
+        "A",
+        "g",
+        6
+      ],
+      "b": [
+        "A",
+        "h",
+        11
+      ],
+      "label": "Positivo de C1 a Tiempo",
+      "kind": "wire",
+      "value": "",
+      "note": ""
+    },
+    {
+      "id": "C012",
+      "stage": 2,
+      "net": "GND",
+      "a": [
+        "A",
+        "g",
+        8
+      ],
+      "b": [
+        "A",
+        "-B",
+        8
+      ],
+      "label": "Negativo de C1 a GND",
+      "kind": "wire",
+      "value": "",
+      "note": ""
+    },
+    {
+      "id": "C013",
+      "stage": 3,
+      "net": "Tiempo",
+      "a": [
+        "A",
+        "a",
+        17
+      ],
+      "b": [
+        "A",
+        "a",
+        19
+      ],
+      "label": "RV1 · 20 kΩ: coloca sus tres patas",
+      "kind": "pot",
+      "value": "20 kΩ",
+      "note": "Extremo izquierdo A:a17, cursor central A:a18 y extremo derecho A:a19. Si tu pieza tiene otra disposición, identifica el cursor y conserva estas tres conexiones."
+    },
+    {
+      "id": "C014",
+      "stage": 3,
+      "net": "Tiempo",
+      "a": [
+        "A",
+        "b",
+        17
+      ],
+      "b": [
+        "A",
+        "b",
+        18
+      ],
+      "label": "Une extremo izquierdo y cursor de RV1",
+      "kind": "wire",
+      "value": "",
+      "note": ""
+    },
+    {
+      "id": "C015",
+      "stage": 3,
+      "net": "Tiempo",
+      "a": [
+        "A",
+        "c",
+        18
+      ],
+      "b": [
+        "A",
+        "b",
+        12
+      ],
+      "label": "Cursor de RV1 a Tiempo (pata 6)",
+      "kind": "wire",
+      "value": "",
+      "note": ""
+    },
+    {
+      "id": "C016",
+      "stage": 3,
+      "net": "Descarga",
+      "a": [
+        "A",
+        "c",
+        19
+      ],
+      "b": [
+        "A",
+        "c",
+        11
+      ],
+      "label": "Extremo derecho de RV1 a Descarga (pata 7)",
+      "kind": "wire",
+      "value": "",
+      "note": ""
+    },
+    {
+      "id": "C017",
+      "stage": 4,
+      "net": "LED",
+      "a": [
+        "A",
+        "f",
+        20
+      ],
+      "b": [
+        "A",
+        "f",
+        21
+      ],
+      "label": "D1 · ánodo (+) izquierda, cátodo (−) derecha",
+      "kind": "led",
+      "value": "D1",
+      "note": "Ánodo/pata larga en A:f20; cátodo/pata corta o lado plano en A:f21."
+    },
+    {
+      "id": "C018",
+      "stage": 4,
+      "net": "Salida",
+      "a": [
+        "A",
+        "i",
+        21
+      ],
+      "b": [
+        "A",
+        "i",
+        24
+      ],
+      "label": "R2 · 680 Ω: D1 a Salida",
+      "kind": "res",
+      "value": "680 Ω",
+      "note": ""
+    },
+    {
+      "id": "C019",
+      "stage": 4,
+      "net": "VCC",
+      "a": [
+        "A",
+        "g",
+        20
+      ],
+      "b": [
+        "A",
+        "+B",
+        20
+      ],
+      "label": "Ánodo de D1 a +9 V",
+      "kind": "wire",
+      "value": "",
+      "note": ""
+    },
+    {
+      "id": "C020",
+      "stage": 4,
+      "net": "Salida",
+      "a": [
+        "A",
+        "h",
+        12
+      ],
+      "b": [
+        "A",
+        "h",
+        24
+      ],
+      "label": "Pata 3 (OUT) a la salida de R2",
+      "kind": "wire",
+      "value": "",
+      "note": ""
+    },
+    {
+      "id": "C021",
+      "stage": 4,
+      "net": "LED",
+      "a": [
+        "A",
+        "f",
+        26
+      ],
+      "b": [
+        "A",
+        "f",
+        27
+      ],
+      "label": "D2 · ánodo (+) izquierda, cátodo (−) derecha",
+      "kind": "led",
+      "value": "D2",
+      "note": "Ánodo/pata larga en A:f26; cátodo/pata corta o lado plano en A:f27."
+    },
+    {
+      "id": "C022",
+      "stage": 4,
+      "net": "GND",
+      "a": [
+        "A",
+        "i",
+        27
+      ],
+      "b": [
+        "A",
+        "i",
+        30
+      ],
+      "label": "R3 · 680 Ω: D2 a GND",
+      "kind": "res",
+      "value": "680 Ω",
+      "note": ""
+    },
+    {
+      "id": "C023",
+      "stage": 4,
+      "net": "Salida",
+      "a": [
+        "A",
+        "g",
+        24
+      ],
+      "b": [
+        "A",
+        "g",
+        26
+      ],
+      "label": "Salida al ánodo de D2",
+      "kind": "wire",
+      "value": "",
+      "note": ""
+    },
+    {
+      "id": "C024",
+      "stage": 4,
+      "net": "GND",
+      "a": [
+        "A",
+        "j",
+        30
+      ],
+      "b": [
+        "A",
+        "-B",
+        29
+      ],
+      "label": "Salida de R3 a GND",
+      "kind": "wire",
+      "value": "",
+      "note": ""
+    }
+  ],
+  "potPins": [
+    [
+      "A",
+      "a",
+      17
+    ],
+    [
+      "A",
+      "a",
+      18
+    ],
+    [
+      "A",
+      "a",
+      19
+    ]
+  ],
+  "stages": [
+    [
+      "0. Coloca el 555",
+      "Usa una sola protoboard de 30 columnas, o las primeras 30 de tu placa grande. Coloca el NE555 cruzando la ranura, con la muesca a la izquierda: patas 1–4 en f10–f13 y patas 8–5 en e10–e13. La batería permanece desconectada durante el montaje."
+    ],
+    [
+      "1. Alimentación de 9 V",
+      "Con la batería desconectada, lleva los cables de su conector a los rieles. Une los superiores e inferiores y conecta el 555: pata 8 al positivo, pata 1 al negativo y pata 4 al positivo. GND significa negativo de la batería. En esta guía usamos solo las columnas 1–30; comprueba que los rieles de tu placa sean continuos en esa zona."
+    ],
+    [
+      "2. Resistencia y capacitor de tiempo",
+      "Coloca R1 de 1 kΩ entre +9 V y la tira de la pata 7. Une las patas 2 y 6. Coloca C1 de 100 µF: positivo hacia Tiempo y negativo hacia GND. Su franja marca el negativo. Estos dos nodos fijan el ritmo del 555."
+    ],
+    [
+      "3. Potenciómetro de 20 kΩ",
+      "Coloca las tres patas del potenciómetro en a17, a18 y a19. La pata central es el cursor: une la central y la externa izquierda a Tiempo; la externa derecha va a Descarga, en la pata 7 del 555. Empieza con el ajuste a la mitad."
+    ],
+    [
+      "4. Los dos LED y sus resistencias",
+      "Coloca D1 y D2 con ánodo (+, pata larga) a la izquierda y cátodo (−, pata corta/lado plano) a la derecha. D1 recibe +9 V y vuelve a Salida a través de R2; D2 recibe Salida y vuelve a GND a través de R3. Cada resistencia es de 680 Ω."
+    ],
+    [
+      "5. Revisa antes de encender",
+      "Confirma la muesca del 555, la franja negativa de C1 y la orientación de ambos LED. Revisa que las patas 2 y 6 estén unidas, que la 4 vaya a +9 V y que la 5 quede libre. Las dos patas de cada resistencia deben ocupar tiras distintas."
+    ],
+    [
+      "6. Circuito completo: prueba los LED",
+      "Conecta la batería de 9 V y empieza con el potenciómetro a la mitad: los LED deben encenderse uno después del otro. En la prueba visual de abajo puedes variar el ajuste. Cerca del 100 % un pulso es muy breve y uno parece fijo; para el montaje físico conserva el ajuste intermedio."
+    ]
+  ],
+  "checkpoints": [
+    "La muesca mira a la izquierda. Las dos filas de patas quedan separadas por la ranura central.",
+    "555: pata 8 y pata 4 a +9 V; pata 1 a GND. Este circuito usa 9 V; el circuito A–H conserva sus 5 V.",
+    "C1: positivo a Tiempo y franja negativa a GND. Patas 2 y 6 unidas; R1 llega a la pata 7.",
+    "Cursor + extremo izquierdo a Tiempo; extremo derecho a Descarga. Ajuste inicial: 50 %.",
+    "D1: +9 V → LED → 680 Ω → Salida. D2: Salida → LED → 680 Ω → GND.",
+    "Batería desconectada mientras revisas. Pata 5 libre; cada resistencia entre dos tiras diferentes.",
+    "La prueba visual muestra el ritmo esperado; comprueba el funcionamiento en tu circuito real."
+  ]
+}
