@@ -22,6 +22,7 @@ Abre http://127.0.0.1:4173/puerta. El servidor escucha únicamente en tu equipo.
 - Paso por paso: sigue una etapa del montaje.
 - Cable por cable: avanza por todas las conexiones. Avanzar no las marca como realizadas.
 - Encuadre: montaje completo, placa completa o acercamiento por cable. La elección se recuerda.
+- Visor 2D de puerta: rueda para zoom, arrastrar para desplazar y doble clic para ajustar. Botón Motor externo en las versiones LS151.
 - Lupa 2D: consulta la conexión o sus extremos mientras conservas la vista general.
 - 3D: arrastra para girar y usa la rueda para acercar. El contorno seleccionado permanece visible con las animaciones apagadas. Puedes aislar un cable.
 - Ampliar mapa: la isla superior conserva la etapa y el progreso al alternar 2D/3D. Escape restaura la vista.

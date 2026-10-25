@@ -211,7 +211,7 @@ export function createViewer({container, model, point, hole, onConnection, onPin
       const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTexture,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));glow.position.copy(center).setY(1.47);glow.scale.set(2.6,2.6,1);glow.visible=false;group.add(glow);ledGlows.set(it.value,glow);contactShadow(center,1.7,1.7,group);
       const label=topLabel(it.value+'  +  −',center.clone().setY(.06).add(new THREE.Vector3(0,0,.95)),2,.55,{background:'#faf9ef',color:'#345349',size:58});group.add(label);
     }
-    if(it.kind==='motor'){
+    if(it.kind==='motor'&&!it.externalMotor){
       const center=mid.clone().setY(1.2),housing=new THREE.MeshStandardMaterial({color:0xa1adb2,metalness:.78,roughness:.28}),body=mesh(new THREE.CylinderGeometry(.9,.9,2.4,32),housing,center,group);body.rotation.z=Math.PI/2;
       for(const offset of [-1.17,1.17]){const cap=mesh(new THREE.CylinderGeometry(.86,.86,.14,32),offset<0?dark:metal,center.clone().add(new THREE.Vector3(offset,0,0)),group);cap.rotation.z=Math.PI/2;}
       const shaft=mesh(new THREE.CylinderGeometry(.12,.12,1,16),metal,center.clone().add(new THREE.Vector3(1.65,0,0)),group);shaft.rotation.z=Math.PI/2;
@@ -219,6 +219,23 @@ export function createViewer({container, model, point, hole, onConnection, onPin
       [a,b].forEach((h,i)=>{const terminal=center.clone().add(new THREE.Vector3(-1.27,i?.28:-.28,0));box(.12,.2,.3,terminal,metal,group);lead([h,h.clone().setY(.5),terminal],group);});
       const label=topLabel('MOTOR CC · EXTERNO',center.clone().add(new THREE.Vector3(0,1.22,0)),3.2,.6,{background:'#53676e',color:'#fff',size:36});group.add(label);
     }
+
+    if(it.kind==='motor'&&it.externalMotor){
+      const e=it.externalMotor,c=toWorld(e.center,3.7),yellow=new THREE.MeshStandardMaterial({color:0xf2d548,roughness:.4}),edge=new THREE.MeshStandardMaterial({color:0xd6b932,roughness:.55}),silver=new THREE.MeshStandardMaterial({color:0xb8c2c6,metalness:.82,roughness:.28});
+      const gearbox=roundedBox(13.2,7.1,7.3,c.clone().add(new THREE.Vector3(-3.4,0,0)),yellow,group,.55);
+      gearbox.userData={id:it.id};pickables.push(gearbox);contactShadow(c,29,12,group);
+      roundedBox(12.2,.16,6.4,c.clone().add(new THREE.Vector3(-3.4,3.62,0)),edge,group,.12);
+      const can=mesh(new THREE.CylinderGeometry(2.65,2.65,8.8,40),silver,c.clone().add(new THREE.Vector3(7.1,0,0)),group);can.rotation.z=Math.PI/2;can.userData={id:it.id};pickables.push(can);
+      const rear=mesh(new THREE.CylinderGeometry(2.56,2.56,1.25,32),dark,c.clone().add(new THREE.Vector3(11.9,0,0)),group);rear.rotation.z=Math.PI/2;
+      for(const z of [-1.2,1.2])roundedBox(3.3,.12,.65,c.clone().add(new THREE.Vector3(9,2.3,z)),dark,group,.08);
+      for(const x of [-7.8,1.1])for(const z of [-2.75,2.75]){const screw=mesh(new THREE.CylinderGeometry(.24,.24,.08,16),metal,c.clone().add(new THREE.Vector3(x,3.74,z)),group);box(.32,.02,.06,screw.position.clone().add(new THREE.Vector3(0,.06,0)),dark,group);}
+      const boss=mesh(new THREE.CylinderGeometry(1.3,1.3,.65,28),edge,c.clone().add(new THREE.Vector3(-3.6,0,3.92)),group);boss.rotation.x=Math.PI/2;
+      const axle=mesh(new THREE.CylinderGeometry(.78,.78,3.1,28),plastic,c.clone().add(new THREE.Vector3(-3.6,0,5.55)),group);axle.rotation.x=Math.PI/2;box(1.1,.18,2.7,c.clone().add(new THREE.Vector3(-3.6,.71,5.55)),plastic,group);
+      const terminals=e.terminals.map(p=>toWorld(p,2.15));
+      terminals.forEach((t,i)=>{box(.18,.55,.65,t,metal,group);const pin=i?b:a,path=new THREE.CatmullRomCurve3([pin,pin.clone().setY(.55),toWorld([point(i?it.b:it.a)[0],790+i*28],1.2),t],false,'centripetal');mesh(new THREE.TubeGeometry(path,42,.13,10,false),new THREE.MeshStandardMaterial({color:i?0x33495a:0xd85c51,roughness:.45}),new THREE.Vector3(),group);});
+      const label=topLabel('MOTORREDUCTOR TT · EXTERNO',toWorld([e.center[0],e.bounds[1]+24],.12),22,.9,{background:'#f3f2e8',color:'#345349',size:35});group.add(label);
+    }
+
     if(it.kind==='switch'){
       const center=(it.spdt?a.clone().lerp(hpos(it.third),.5):mid.clone()).setY(.65),body=roundedBox(it.spdt?2.8:1.8,.9,1.35,center,new THREE.MeshStandardMaterial({color:0x344943}),group,.12);
       const rocker=roundedBox(1.12,.28,.9,center.clone().add(new THREE.Vector3(0,.58,0)),new THREE.MeshStandardMaterial({color:0x245f95}),group,.08);rocker.userData={bit:it.value||it.id};pickables.push(rocker);switches.push(rocker);rocker.userData.switchId=it.value||it.id;

@@ -10,7 +10,7 @@ window.DOOR_VARIANT=mux|| (sin?'sinuln':ls?'ls':red?'redes':'comunes');for(const
 const run=code=>vm.runInContext(code,ctx),state=()=>window.doorGuide.getState();
 assert.equal(state().step,0);assert.equal(document.querySelectorAll('.pin').length,mux?68:sin?80:ls?90:78);assert.equal(document.querySelectorAll('.connection').length,window.doorGuide.model.items.length);
 assert.equal(document.querySelectorAll('.breadboard').length,2);assert.equal(document.querySelectorAll('[data-view="C"],[data-view="D"]').length,0);
-assert.equal(run('stateKey'), 'protoboard:puerta:'+(mux|| (sin?'sinuln':ls?'ls':red?'redes':'comunes'))+':routing:v2');
+assert.equal(run('stateKey'), 'protoboard:puerta:'+(mux|| (sin?'sinuln':ls?'ls':red?'redes':'comunes'))+(mux?':placement:v3':':routing:v2'));
 assert.equal(document.querySelector('#wireClarity').checked,true);assert(document.querySelector('#map').classList.contains('wire-clarity'));document.querySelector('#wireClarity').checked=false;document.querySelector('#wireClarity').onchange();assert(!document.querySelector('#map').classList.contains('wire-clarity'));assert.equal(storage.get('protoboard:puerta:clarity:v1'),'false');document.querySelector('#wireClarity').checked=true;document.querySelector('#wireClarity').onchange();
 run('selectStep(1);setMode("cable");');const first=state().selected;assert(first);assert.equal(state().mode,'cable');assert(document.querySelector('#fromHole').textContent.startsWith('A:'));
 run('markConnection(selected,true);advanceCable(1);');assert(state().marked.includes(first));assert.notEqual(state().selected,first);assert.equal(document.querySelector('#mapNav').hidden,false);

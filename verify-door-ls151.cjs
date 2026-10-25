@@ -28,6 +28,8 @@ for(const variant of ['ls151','ls151-compacto']){
  assert.equal(getValue(values,'LY.2'),M?0:1);assert.equal(getValue(values,'LG.2'),message==='OP'?0:1);
  assert.equal(getValue(values,'U5.1'),M);if(M)assert.notEqual(getValue(values,'U5.2'),getValue(values,'U5.7'));
  cases++;}
+ assert.equal(m.externalMotor.model,'tt-yellow');assert(m.externalMotor.bounds[1]>750,'Motor body must be outside board');assert(m.bounds[3]>=m.externalMotor.bounds[3],'Motor must fit camera');assert(m.viewBoxes.motor,'Dedicated motor view');
+ const shared=m.items.filter(it=>it.kind==='link'&&/^R(1[3-9]|2[0-6])\.2$/.test(it.fromRef||'')&&/^D[12]\./.test(it.toRef||''));assert.equal(shared.length,14,'All fourteen segment resistors should share a strip with their display pin');
  const compact=variant.endsWith('compacto'),r=src.components.filter(c=>c.type==='resistor');assert.equal(r.length,compact?26:28);assert.equal(src.components.filter(c=>c.type==='dip').length,5);
  if(compact){assert(!src.components.some(c=>['R5','R9'].includes(c.id)));assert(r.filter(c=>c.role==='segment'||c.role==='pullup').every(c=>c.ohms===4700));}
  const electrical=compact?{M:6*3.75/4.465+5.25/4.465+.9,NM:2*3.75/4.465+5.25/4.465,H:3.75/4.465+5.25/4.465+.8,NY:3.75/.95+5.25/4.465}:{M:(6*3.75/(.95+6*.95))+5.25/2.09+.9,NM:(2*3.75/(.95+2*.95))+5.25/2.09,NY:3.75/.95+5.25/2.09};

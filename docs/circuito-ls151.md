@@ -70,3 +70,17 @@ Finales: NC=5 V, NO=GND, COM=PA/PC. Permiso=1 lejos del extremo, 0 al llegar. Ma
 - https://www.ti.com/lit/ds/symlink/sn74ls04.pdf
 - https://www.ti.com/lit/ds/symlink/ne555.pdf
 - https://www.ti.com/lit/ds/symlink/l293.pdf
+
+## Distribución v3 y navegación
+
+El motorreductor TT amarillo se muestra fuera de la placa A; sus dos cables llegan a A:j59/j60 y de allí al L293D. El cuerpo no se inserta en agujeros. Hay un botón Motor externo en ambos visores.
+
+Las resistencias de segmentos se colocan alrededor de D1/D2: una pata comparte la tira de su segmento, sin jumper adicional. Se ahorran 14 cables: 149→135 en LS151 y 147→133 en compacto. La guía identifica esas uniones como tiras compartidas. Los pull-up y los límites se agrupan en B; R2/C4 se acercan al NE555. Permanecen los mismos valores y nodos eléctricos.
+
+Cruces entre pares de rutas: 219→146 y 225→110, respectivamente. Las rutas son ortogonales, conservan el contacto libre de alimentación más cercano y se separan en altura en 3D. Los cruces de jumpers aislados no son uniones eléctricas.
+
+En 2D: rueda para zoom centrado en el cursor, arrastrar con ratón para desplazar, doble clic o tecla 0 para ajustar. +/− también acercan/alejan. El desplazamiento no selecciona cables. La rueda fuera del SVG conserva el scroll de la página. En pantalla táctil se conserva el desplazamiento normal.
+
+La colocación cambió: el avance se guarda en un espacio nuevo placement:v3 para no marcar como realizadas conexiones de la distribución anterior. Los otros circuitos conservan su progreso.
+
+Prueba de navegador reproducible: con npm run dev activo, ejecuta node tools/verify-door-browser.cjs. Requiere Chrome local (PROTOBOARD_CHROME permite indicar su ruta). Comprueba rueda, cursor, arrastre, doble clic, enfoque de motor y render 3D de ambos perfiles; guarda resultados internos en work/qa.

@@ -46,6 +46,10 @@ if(variant==='ls'||variant==='sinuln'){
 
 if(variant.startsWith('ls151')){
  Object.assign(layout.pinNames,src.pinNames);
+ layout.externalMotor=src.externalMotor;
+ const palette={ABRIR:'#3679b5',CERRAR:'#b7664a',STOP:'#c33a60',PA:'#8272ad',PC:'#a58636',M:'#14897e',NM:'#428fc0',H:'#8462ac',I:'#5a6fba',NT:'#9b658c',NY:'#b58b21',NG:'#47885e',G:'#26795b',FA:'#827eaf',T:'#ad833c',Q:'#bd5660'};
+ for(const it of layout.items)if(it.kind==='wire'&&palette[it.signal])it.color=palette[it.signal];
+ for(const it of layout.items)if(it.kind==='motor'){it.externalMotor=src.externalMotor;it.note='Motorreductor TT amarillo externo: no se inserta en la placa. Sus dos cables llegan a los puntos A:j59 y A:j60 y desde allí a OUT1/OUT2 del L293D. La carcasa se muestra fuera de la protoboard.';}
  layout.stages[0][1]=src.placementDescription;
  layout.stages[9][1]='Prueba OF, rU, OP y SP. STOP pausa sin borrar el mando enclavado. Al terminar libera el mando antes de pedir el opuesto. '+(variant==='ls151'?'Esquema funcional observado en los videos de Proteus; montaje físico pendiente.':'Adaptación de resistencias calculada; prueba eléctrica y física pendientes.');
  layout.checkpoints[9]=layout.stages[9][1];

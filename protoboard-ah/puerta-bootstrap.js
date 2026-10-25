@@ -113,6 +113,7 @@
     await loadScript('./'+prefix+'-model.js');
     showAssembly(window.DOOR_MODEL);showMaterials(window.DOOR_MODEL);
     await loadScript('./'+prefix+'-layout.js');
+    if(variant.startsWith('ls151')){const b=document.createElement('button');b.type='button';b.dataset.view='motor';b.textContent='Motor externo';b.setAttribute('aria-pressed','false');document.querySelector('.view-buttons').appendChild(b);const badge=document.createElement('span');badge.textContent='14 jumpers menos · resistencias junto al display';document.querySelector('.assembly-badges').appendChild(badge);}
     await loadScript('./puerta-map.js');
     await loadScript('./puerta-guide.js');
     if(!window.doorGuide)throw new Error('La guía no terminó de iniciar.');
