@@ -1,16 +1,16 @@
 import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';import {parseHTML} from 'linkedom/worker';
-const sin=process.argv.includes('--sinuln'),ls=process.argv.includes('--ls'),red=process.argv.includes('--redes'),stem=sin?'puerta-sinuln':ls?'puerta-ls':red?'puerta-redes':'puerta';const html=fs.readFileSync('protoboard-ah/puerta.html','utf8');const {window}=parseHTML(html),{document}=window;
+const mux=process.argv.includes('--ls151-compacto')?'ls151-compacto':process.argv.includes('--ls151')?'ls151':null,sin=process.argv.includes('--sinuln'),ls=process.argv.includes('--ls'),red=process.argv.includes('--redes'),stem=mux?'puerta-'+mux:sin?'puerta-sinuln':ls?'puerta-ls':red?'puerta-redes':'puerta';const html=fs.readFileSync('protoboard-ah/puerta.html','utf8');const {window}=parseHTML(html),{document}=window;
 let now=1000,rafId=0;const queue=new Map(),storage=new Map();
 for(const el of document.querySelectorAll('*')){el.scrollIntoView=()=>{};el.focus=()=>{};el.getBoundingClientRect=()=>({width:960,height:680,left:0,top:0});el.getClientRects=()=>[{}];el.getTotalLength=()=>100;}
 const selectProto=Object.getPrototypeOf(document.querySelector('select'));Object.defineProperty(selectProto,'value',{get(){return this.getAttribute('data-value')||this.querySelector('option')?.getAttribute('value')||''},set(v){this.setAttribute('data-value',String(v))},configurable:true});
 const requestAnimationFrame=fn=>{queue.set(++rafId,fn);return rafId},cancelAnimationFrame=id=>queue.delete(id);
 Object.getPrototypeOf(document.createElementNS('http://www.w3.org/2000/svg','path')).getTotalLength=()=>100;
 const ctx=vm.createContext({window,document,console,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},matchMedia:()=>({matches:false,addEventListener(){}}),requestAnimationFrame,cancelAnimationFrame,performance:{now:()=>now},setTimeout:()=>0,clearTimeout(){},MouseEvent:window.Event,URL,Blob});
-window.DOOR_VARIANT=sin?'sinuln':ls?'ls':red?'redes':'comunes';for(const f of [stem+'-model.js',stem+'-layout.js','puerta-map.js','puerta-guide.js'])vm.runInContext(fs.readFileSync('protoboard-ah/'+f,'utf8'),ctx,{filename:f});
+window.DOOR_VARIANT=mux|| (sin?'sinuln':ls?'ls':red?'redes':'comunes');for(const f of [stem+'-model.js',stem+'-layout.js','puerta-map.js','puerta-guide.js'])vm.runInContext(fs.readFileSync('protoboard-ah/'+f,'utf8'),ctx,{filename:f});
 const run=code=>vm.runInContext(code,ctx),state=()=>window.doorGuide.getState();
-assert.equal(state().step,0);assert.equal(document.querySelectorAll('.pin').length,sin?80:ls?90:78);assert.equal(document.querySelectorAll('.connection').length,window.doorGuide.model.items.length);
+assert.equal(state().step,0);assert.equal(document.querySelectorAll('.pin').length,mux?68:sin?80:ls?90:78);assert.equal(document.querySelectorAll('.connection').length,window.doorGuide.model.items.length);
 assert.equal(document.querySelectorAll('.breadboard').length,2);assert.equal(document.querySelectorAll('[data-view="C"],[data-view="D"]').length,0);
-assert.equal(run('stateKey'), 'protoboard:puerta:'+(sin?'sinuln':ls?'ls':red?'redes':'comunes')+':routing:v2');
+assert.equal(run('stateKey'), 'protoboard:puerta:'+(mux|| (sin?'sinuln':ls?'ls':red?'redes':'comunes'))+':routing:v2');
 assert.equal(document.querySelector('#wireClarity').checked,true);assert(document.querySelector('#map').classList.contains('wire-clarity'));document.querySelector('#wireClarity').checked=false;document.querySelector('#wireClarity').onchange();assert(!document.querySelector('#map').classList.contains('wire-clarity'));assert.equal(storage.get('protoboard:puerta:clarity:v1'),'false');document.querySelector('#wireClarity').checked=true;document.querySelector('#wireClarity').onchange();
 run('selectStep(1);setMode("cable");');const first=state().selected;assert(first);assert.equal(state().mode,'cable');assert(document.querySelector('#fromHole').textContent.startsWith('A:'));
 run('markConnection(selected,true);advanceCable(1);');assert(state().marked.includes(first));assert.notEqual(state().selected,first);assert.equal(document.querySelector('#mapNav').hidden,false);

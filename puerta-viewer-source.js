@@ -180,7 +180,7 @@ export function createViewer({container, model, point, hole, onConnection, onPin
       const bodyCenter=a.clone().setY(1.65),body=mesh(new THREE.CylinderGeometry(.39,.39,2.3,24),new THREE.MeshStandardMaterial({color:0x80b5b9,roughness:.6}),bodyCenter,group);body.userData={id:it.id};pickables.push(body);
       const firstLead=lead([a,a.clone().setY(.5)],group),returnLead=lead([a.clone().setY(2.8),a.clone().setY(3.14),b.clone().setY(3.14),b.clone().setY(2.7),b],group);
       firstLead.userData=returnLead.userData={id:it.id};pickables.push(firstLead,returnLead);
-      const value=String(it.value),colors=/100\s*k/i.test(value)?[0x714b31,0x202626,0xf0c53b,0xc9a145]:/68\s*k/i.test(value)?[0x176eb2,0x65777d,0xe58a32,0xc9a145]:/10\s*k/i.test(value)?[0x714b31,0x202626,0xe58a32,0xc9a145]:/2[.,]2\s*k/i.test(value)?[0xc73b42,0xc73b42,0xc73b42,0xc9a145]:/^470\b/.test(value)?[0xf0c53b,0x874b9a,0x714b31,0xc9a145]:[0x714b31,0x202626,0xc73b42,0xc9a145];colors.forEach((color,i)=>{mesh(new THREE.CylinderGeometry(.4,.4,.12,24),new THREE.MeshStandardMaterial({color}),bodyCenter.clone().setY([.82,1.2,1.58,2.4][i]),group);});
+      const value=String(it.value),colors=/4[.,]7\s*k/i.test(value)?[0xf0c53b,0x874b9a,0xc73b42,0xc9a145]:/100\s*k/i.test(value)?[0x714b31,0x202626,0xf0c53b,0xc9a145]:/68\s*k/i.test(value)?[0x176eb2,0x65777d,0xe58a32,0xc9a145]:/10\s*k/i.test(value)?[0x714b31,0x202626,0xe58a32,0xc9a145]:/2[.,]2\s*k/i.test(value)?[0xc73b42,0xc73b42,0xc73b42,0xc9a145]:/^470\b/.test(value)?[0xf0c53b,0x874b9a,0x714b31,0xc9a145]:[0x714b31,0x202626,0xc73b42,0xc9a145];colors.forEach((color,i)=>{mesh(new THREE.CylinderGeometry(.4,.4,.12,24),new THREE.MeshStandardMaterial({color}),bodyCenter.clone().setY([.82,1.2,1.58,2.4][i]),group);});
       const label=topLabel((it.label.match(/^[A-Za-z0-9]+/)||['R'])[0]+' · '+it.value,mid.clone().add(new THREE.Vector3(0,.1,-.55)),2.7,.5,{background:'#faf9ef',color:'#345349',size:43});group.add(label);
     }
     if(it.kind==='cap'&&!/^(10|100)\s*(µ|μ|u)/i.test(it.value)){const center=mid.clone().setY(.95);const body=mesh(new THREE.SphereGeometry(.43,20,14),new THREE.MeshStandardMaterial({color:0xc88c41,roughness:.72}),center,group);body.scale.set(1,1,.38);body.userData={id:it.id};pickables.push(body);for(const [i,h] of [a,b].entries())lead([h,h.clone().setY(.32),center.clone().add(new THREE.Vector3(i?.2:-.2,-.2,0))],group);const label=topLabel(it.value,center.clone().add(new THREE.Vector3(0,.5,0)),1.8,.5,{background:'#c88c41',color:'#30271c',size:43});group.add(label);}
@@ -220,10 +220,10 @@ export function createViewer({container, model, point, hole, onConnection, onPin
       const label=topLabel('MOTOR CC · EXTERNO',center.clone().add(new THREE.Vector3(0,1.22,0)),3.2,.6,{background:'#53676e',color:'#fff',size:36});group.add(label);
     }
     if(it.kind==='switch'){
-      const center=mid.clone().setY(.65),body=roundedBox(1.8,.9,1.35,center,new THREE.MeshStandardMaterial({color:0x344943}),group,.12);
+      const center=(it.spdt?a.clone().lerp(hpos(it.third),.5):mid.clone()).setY(.65),body=roundedBox(it.spdt?2.8:1.8,.9,1.35,center,new THREE.MeshStandardMaterial({color:0x344943}),group,.12);
       const rocker=roundedBox(1.12,.28,.9,center.clone().add(new THREE.Vector3(0,.58,0)),new THREE.MeshStandardMaterial({color:0x245f95}),group,.08);rocker.userData={bit:it.value||it.id};pickables.push(rocker);switches.push(rocker);rocker.userData.switchId=it.value||it.id;
-      [a,b].forEach(h=>lead([h,h.clone().setY(.5)],group));const label=topLabel(it.value||it.id,center.clone().add(new THREE.Vector3(0,.18,-1)),3,.5,{background:'#faf9ef',color:'#345349',size:43});group.add(label);
-      if(it.contact==='NC'){
+      [a,b,...(it.third?[hpos(it.third)]:[])].forEach(h=>lead([h,h.clone().setY(.5)],group));const label=topLabel(it.value||it.id,center.clone().add(new THREE.Vector3(0,.18,-1)),3,.5,{background:'#faf9ef',color:'#345349',size:43});group.add(label);
+      if(it.contact==='NC'||it.contact==='limit-spdt'){
         rocker.visible=false;
         const lever=box(2.45,.085,.24,center.clone().add(new THREE.Vector3(.5,.58,0)),metal,group);lever.rotation.z=-.15;
         const roller=mesh(new THREE.CylinderGeometry(.22,.22,.36,20),dark,center.clone().add(new THREE.Vector3(1.65,.41,0)),group);roller.rotation.x=Math.PI/2;

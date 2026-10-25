@@ -34,6 +34,8 @@ Todos usan dos protoboards de 63 columnas. Los conteos excluyen fuentes, placas 
 
 | URL / montaje | Integrados | Piezas principales | Resistencias |
 | --- | ---: | ---: | --- |
+| ?montaje=ls151 · nuevo, esquema Proteus | 5 | 52 | 28 individuales |
+| ?montaje=ls151-compacto · adaptación calculada | 5 | 50 | 26 individuales |
 | `/puerta` o `?montaje=sinuln` | 6 | 53 | 28 individuales |
 | `?montaje=ls` · LS02/LS08 con ULN | 6 | 49 | 25 individuales |
 | `?montaje=comunes` · 74HC153 con ULN | 5 | 45 | 23 individuales |
@@ -42,6 +44,8 @@ Todos usan dos protoboards de 63 columnas. Los conteos excluyen fuentes, placas 
 Sin ULN se usan SN74LS02N, SN74LS08N, **74HC02 y 74HC14**, NE555 y L293D. El NE555 solo genera el parpadeo rojo; las compuertas HC controlan los retornos de los displays con corriente limitada. Se agregan tres resistencias de 1 kΩ y un capacitor de 100 nF respecto a la variante LS con ULN. El brillo será menor. Consulta [conexiones y límites](docs/circuito-sin-uln.md).
 
 Las órdenes se conservan mediante botones de enclavamiento mecánico: mantén ABRIR/CERRAR durante STOP para reanudar. Soltar la orden cancela su dirección pendiente. Libera la orden anterior al terminar el recorrido y antes de invertir. Ambas órdenes simultáneas inhiben el motor. Los finales de carrera usan COM y NC, que abre al llegar al extremo. El reposo entre extremos muestra OF por defecto y no acredita una puerta cerrada.
+
+La nueva versión usa **SN74LS151N, SN74LS02N, SN74LS04N, NE555 y L293D**, sin ULN ni lógica HC. Los cinco contactos son SPDT de tres terminales: COM elige 5 V o GND. Consulta [el esquema LS151 y la reducción de resistencias](docs/circuito-ls151.md). El modo de 28 resistencias conserva los valores observados en los videos de Proteus; la adaptación de 26 necesita su propia prueba eléctrica. Ambos requieren validación física.
 
 ## Código y generación
 

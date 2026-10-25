@@ -1,4 +1,4 @@
-const fs=require('fs');const variant=process.argv.includes('--sinuln')?'sinuln':process.argv.includes('--ls')?'ls':process.argv.includes('--redes')?'redes':'comunes',stem=variant==='sinuln'?'puerta-sinuln':variant==='ls'?'puerta-ls':variant==='redes'?'puerta-redes':'puerta';global.window={};require('./protoboard-ah/'+stem+'-model.js');const src=window.DOOR_MODEL;
+const fs=require('fs');const variant=process.argv.includes('--ls151-compacto')?'ls151-compacto':process.argv.includes('--ls151')?'ls151':process.argv.includes('--sinuln')?'sinuln':process.argv.includes('--ls')?'ls':process.argv.includes('--redes')?'redes':'comunes',stem=variant.startsWith('ls151')?'puerta-'+variant:variant==='sinuln'?'puerta-sinuln':variant==='ls'?'puerta-ls':variant==='redes'?'puerta-redes':'puerta';global.window={};require('./protoboard-ah/'+stem+'-model.js');const src=window.DOOR_MODEL;
 const boards={A:{columns:63,xOffset:0,yOffset:0,railBreak:31},B:{columns:63,xOffset:2070,yOffset:0,railBreak:31}};
 const boardNames={1:'A',2:'B',3:'C',4:'D'},comps=src.components;
 function ph(ref){const [id,pin]=ref.split('.'),c=comps.find(c=>c.id===id);if(!c)return null;const p=+pin,h=c.holes?.[p],half=Math.ceil(c.pins/2);return {board:c.board,col:h?h.col:c.col+(p<=half?p-1:c.pins-p),row:h?h.row:p<=half?'f':'e'}}
@@ -15,7 +15,7 @@ function endpoint(ref,other,direct){if(['VCC','GND','VM'].includes(ref)){const o
 // Labels identify wires in Proteus; every connection still has physical endpoints.
 const parents=new Map(),findNet=r=>{if(!parents.has(r))parents.set(r,r);if(parents.get(r)!==r)parents.set(r,findNet(parents.get(r)));return parents.get(r);};
 for(const w of src.connections)parents.set(findNet(w.from),findNet(w.to));
-const aliases=new Map();for(const [name,ref] of [...Object.entries(src.nodes||{}),...(variant==='sinuln'?[]:[['K_NM','U4.18'],['K_I','U4.17'],['K_NS','U4.16'],['K_H','U4.15'],['K_T','U4.14'],['K_M','U4.13'],['K_ROJO','U4.12'],...(variant!=='redes'?[['K_VERDE','U4.11']]:[])]),['VCC','VCC'],['GND','GND'],['VM','VM']]){aliases.set(findNet(ref),({PA:'P_A',PC:'P_C'})[name]||name);}
+const aliases=new Map();for(const [name,ref] of [...Object.entries(src.nodes||{}),...((variant==='sinuln'||variant.startsWith('ls151'))?[]:[['K_NM','U4.18'],['K_I','U4.17'],['K_NS','U4.16'],['K_H','U4.15'],['K_T','U4.14'],['K_M','U4.13'],['K_ROJO','U4.12'],...(variant!=='redes'?[['K_VERDE','U4.11']]:[])]),['VCC','VCC'],['GND','GND'],['VM','VM']]){aliases.set(findNet(ref),(variant.startsWith('ls151')?name:({PA:'P_A',PC:'P_C'})[name]||name));}
 function namedWire(ref){return aliases.get(findNet(ref));}
 const supplyPins={'JP1.1':['+5','+',4],'JP1.3':['G5','-',9],'JP1.5':['+6','VM',52],'JP1.13':['G6','-',57]};
 const items=src.connections.map(c=>{const a=ph(c.from),b=ph(c.to),direct=Boolean(a&&b&&!isRail(a)&&strip(a)===strip(b)),feed=supplyPins[c.from];let ends;if(feed&&['VCC','GND','VM'].includes(c.to)){ends=[['FUENTE',feed[0],0],railHole(1,feed[1],feed[2])];}else if(/^JP1\.[24]$/.test(c.from)&&/^JP2\./.test(c.to)){ends=[h(a),railHole(2,a.row,1)];}else ends=[endpoint(c.from,c.to,direct),endpoint(c.to,c.from,direct)];return {id:c.id,stage:c.stage,net:c.to==='VM'?'VM':c.to==='VCC'?'VCC':c.to==='GND'?'GND':'Signal',a:ends[0],b:ends[1],kind:direct?'link':'wire',value:'',label:c.label,note:direct?'Estos dos terminales ya comparten la misma tira de cinco contactos. No insertes un cable adicional.':c.note,fromRef:c.from,toRef:c.to,color:c.color}});
@@ -41,6 +41,17 @@ if(variant==='ls'||variant==='sinuln'){
  for(const it of layout.items.filter(it=>it.kind==='res')){
   if(/^470\b/.test(it.value))it.note+=' 470 Ω, cuatro bandas: amarillo, violeta, café y oro. Pull-down: su extremo libre va a GND.';
   if(/^2[.,]2\s*k/.test(it.value))it.note+=' 2.2 kΩ, cuatro bandas: rojo, rojo, rojo y oro. Pull-up: su extremo libre va a +5 V.';
+ }
+}
+
+if(variant.startsWith('ls151')){
+ Object.assign(layout.pinNames,src.pinNames);
+ layout.stages[0][1]=src.placementDescription;
+ layout.stages[9][1]='Prueba OF, rU, OP y SP. STOP pausa sin borrar el mando enclavado. Al terminar libera el mando antes de pedir el opuesto. '+(variant==='ls151'?'Esquema funcional observado en los videos de Proteus; montaje físico pendiente.':'Adaptación de resistencias calculada; prueba eléctrica y física pendientes.');
+ layout.checkpoints[9]=layout.stages[9][1];
+ for(const it of layout.items){
+  if(it.kind==='switch'){const c=comps.find(c=>c.id===it.partId);it.spdt=true;it.third=h(ph(c.id+'.3'));it.note='Interruptor externo SPDT de 3 terminales: 1=contacto a +5 V; 2=COM/señal; 3=contacto a GND. En finales: NC=+5 V y NO=GND. Comprueba el común del modelo real; no copies el orden físico sin identificarlo.';}
+  if(it.kind==='res')it.note+=' '+(it.value==='4.7 kΩ'?'4.7 kΩ: amarillo, violeta, rojo, oro.':it.value==='2.2 kΩ'?'2.2 kΩ: rojo, rojo, rojo, oro.':it.value==='100 kΩ'?'100 kΩ: café, negro, amarillo, oro.':'1 kΩ: café, negro, rojo, oro.');
  }
 }
 require('./route-door-wires.cjs')(layout);
