@@ -14,7 +14,9 @@
     "check": "npm run build && npm test",
     "build:pdf": "node tools/build-mounting-pdfs.cjs",
     "test:design": "node tools/verify-design-browser.cjs",
-    "build:previews": "node tools/verify-design-browser.cjs --previews"
+    "build:previews": "node tools/verify-design-browser.cjs --previews",
+    "test:showcase": "node tools/verify-showcase-browser.cjs",
+    "build:showcase": "node tools/build-showcase-previews.cjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2",

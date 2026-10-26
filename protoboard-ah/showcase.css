@@ -1,0 +1,39 @@
+/* Lightweight catalogue motion and a reference cover during first 3D load. */
+@view-transition{navigation:auto}
+.site-header{view-transition-name:protoboards-header}
+::view-transition-group(protoboards-header){animation-duration:.25s}
+::view-transition-group(circuit-surface){animation-duration:.46s;animation-timing-function:cubic-bezier(.22,.75,.2,1)}
+::view-transition-old(circuit-surface),::view-transition-new(circuit-surface){height:100%;overflow:clip;border-radius:18px}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.18s}
+.circuit-card{position:relative}
+.showcase-preview-play{position:absolute;z-index:3;right:13px;top:13px;display:flex;align-items:center;gap:6px;min-height:31px;padding:6px 9px;border-radius:8px;background:#fffef8ed;border:1px solid #ccd9c1;color:#345a3c;font-size:9px;box-shadow:0 2px 7px #173a3208}
+.showcase-preview-play svg{width:12px;height:12px;flex-shrink:0}
+.showcase-preview-play[aria-pressed=true]{background:#1b5d43;color:#fff;border-color:#1b5d43}
+.showcase-preview-play:hover{background:#e9f2dc}
+.showcase-preview-play[aria-pressed=true]:hover{background:#164d37}
+.showcase-frame{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;opacity:0;transition:opacity .2s;background:#edf1ed}
+.showcase-playing .showcase-frame{opacity:1}
+.showcase-preview-state{position:absolute;bottom:12px;right:13px;z-index:2;display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;background:#fffef6e8;color:#35553a;font-size:9px;font-weight:700;pointer-events:none;opacity:0;transition:opacity .2s}
+.showcase-playing .showcase-preview-state{opacity:1}
+.showcase-preview-state:before{content:'';width:5px;height:5px;border-radius:50%;background:#7e9e53}
+.showcase-preview-play.is-loading svg{opacity:.45}
+.showcase-viewer-cover{position:absolute;inset:0;z-index:8;background:#edf1ed;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;pointer-events:none;opacity:1;transition:opacity .24s}
+.showcase-viewer-cover[hidden]{display:none!important}
+.showcase-viewer-cover img{display:block;width:100%;height:calc(100% - 95px);max-height:calc(100% - 95px);object-fit:contain;min-height:0;opacity:.88}
+.showcase-load-caption{display:flex;align-items:center;gap:11px;background:#fffef8e8;border:1px solid #d6e1cb;border-radius:12px;padding:12px 16px;box-shadow:0 5px 20px #284a3310}
+.showcase-load-mark{width:25px;height:25px;display:grid;place-items:center;border:1px solid #d2dfc6;border-radius:8px;background:#edf3e4;color:#4b794a}
+.showcase-load-mark svg{width:15px;height:15px}
+.showcase-load-caption strong{display:block;font-size:12px;line-height:1.4;color:#27533b;font-weight:800}
+.showcase-load-caption small{display:block;font-size:10px;line-height:1.6;margin-top:3px;color:#60745b}
+.showcase-load-line{height:2px;width:66px;background:#dce7d0;border-radius:2px;overflow:hidden;margin-top:7px}
+.showcase-load-line:after{content:'';display:block;height:100%;width:45%;background:#729553;animation:showcase-loading 1.2s ease-in-out infinite alternate;border-radius:2px}
+.showcase-viewer-cover.is-leaving{opacity:0}
+.showcase-arrive .workspace{animation:showcase-arrival .35s cubic-bezier(.2,.8,.3,1) both}
+@keyframes showcase-loading{from{transform:translateX(-90%)}to{transform:translateX(230%)}}
+@keyframes showcase-arrival{from{opacity:.65;translate:0 10px}to{opacity:1;translate:0 0}}
+@media(max-width:650px){.showcase-preview-play{right:12px;top:12px;min-height:33px;font-size:10px;padding:7px 9px}.showcase-preview-state{font-size:10px;bottom:10px;right:12px}.showcase-viewer-cover{padding:12px}.showcase-load-caption{padding:10px 12px}.showcase-load-caption strong{font-size:11px}.showcase-load-caption small{font-size:9px}}
+@media(prefers-reduced-motion:reduce){@view-transition{navigation:none}.site-header{view-transition-name:none}.showcase-frame,.showcase-preview-state,.showcase-viewer-cover{transition:none!important}.showcase-load-line:after{animation:none;transform:none}.showcase-arrive .workspace{animation:none}}
+.motion-off .showcase-viewer-cover{transition:none}.motion-off .showcase-load-line:after{animation:none}
+@media print{.showcase-preview-play,.showcase-frame,.showcase-preview-state,.showcase-viewer-cover{display:none!important}}
+
+.circuit-preview-label{z-index:2}.workspace:has(.showcase-viewer-cover:not([hidden])) .three-status{display:none}

@@ -1,0 +1,99 @@
+[
+  {
+    "key": "letras",
+    "name": "a",
+    "file": "preview-letras-a.png",
+    "state": "A",
+    "bytes": 115630
+  },
+  {
+    "key": "letras",
+    "name": "b",
+    "file": "preview-letras-b.png",
+    "state": "b",
+    "bytes": 115828
+  },
+  {
+    "key": "letras",
+    "name": "h",
+    "file": "preview-letras-h.png",
+    "state": "H",
+    "bytes": 115846
+  },
+  {
+    "key": "555",
+    "name": "uno",
+    "file": "preview-555-uno.png",
+    "state": {
+      "D1": true,
+      "D2": false
+    },
+    "bytes": 82091
+  },
+  {
+    "key": "555",
+    "name": "dos",
+    "file": "preview-555-dos.png",
+    "state": {
+      "D1": false,
+      "D2": true
+    },
+    "bytes": 82079
+  },
+  {
+    "key": "puerta",
+    "name": "cerrada",
+    "file": "preview-puerta-cerrada.png",
+    "state": {
+      "message": "OF",
+      "leds": {
+        "LY": false,
+        "LG": false,
+        "LR": false
+      }
+    },
+    "bytes": 117136
+  },
+  {
+    "key": "puerta",
+    "name": "movimiento",
+    "file": "preview-puerta-movimiento.png",
+    "state": {
+      "message": "rU",
+      "leds": {
+        "LY": true,
+        "LG": false,
+        "LR": false
+      }
+    },
+    "bytes": 117267
+  },
+  {
+    "key": "puerta",
+    "name": "pausa",
+    "file": "preview-puerta-pausa.png",
+    "state": {
+      "message": "SP",
+      "leds": {
+        "LY": false,
+        "LG": false,
+        "LR": true
+      }
+    },
+    "bytes": 117323
+  },
+  {
+    "key": "puerta",
+    "name": "abierta",
+    "file": "preview-puerta-abierta.png",
+    "state": {
+      "message": "OP",
+      "leds": {
+        "LY": false,
+        "LG": true,
+        "LR": false
+      }
+    },
+    "bytes": 117267
+  }
+]

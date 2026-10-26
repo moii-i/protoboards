@@ -56,7 +56,7 @@ async function main(){
  }
  await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});await send('Page.navigate',{url:base+'/circuitos'});await waitFor("document.querySelectorAll('.circuit-card').length===3");await evaluate('document.fonts.ready');await waitFor("[...document.images].every(i=>i.complete&&i.naturalWidth>0)");
  const before=await evaluate("localStorage.getItem('protoboard:ne555:v1')");
- await evaluate("localStorage.setItem('protoboard:ne555:v1',JSON.stringify({completed:[1,2],step:3,marked:['C001']}));");await send('Page.reload');await waitFor("document.querySelector('[data-circuit-card=\\\"555\\\"] [data-catalog-percent]').textContent==='29%'");
+ await evaluate("localStorage.setItem('protoboard:ne555:v1',JSON.stringify({completed:[1,2],step:3,marked:['C001']}));");await send('Page.reload');await waitFor("document.querySelector('[data-circuit-card=\\\"555\\\"] [data-catalog-percent]')?.textContent==='29%'");
  assert.equal(await evaluate("document.querySelector('[data-circuit-card=\\\"555\\\"] [data-catalog-action]').textContent.trim()"),'Continuar montaje');
  await shot('design-catalog-desktop');
  if(before===null)await evaluate("localStorage.removeItem('protoboard:ne555:v1')");else await evaluate("localStorage.setItem('protoboard:ne555:v1',"+JSON.stringify(before)+")");

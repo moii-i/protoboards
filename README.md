@@ -25,6 +25,16 @@ La presentación común se mantiene en `protoboard-ah/design-system.css` y `desi
 
 Con el servidor local en ejecución, `npm run test:design` comprueba las tres páginas, los controles, 2D/3D, pantalla ampliada, progreso, catálogo, imágenes, fuente local y tamaños móviles de 320 y 390 px. Usa `PROTOBOARD_QA_URL` para otro puerto y `PROTOBOARD_CHROME` para otra ruta de Chrome. `npm run build:previews` regenera las tres imágenes desde los montajes reales en 3D; no añade piezas ni edita el circuito.
 
+## Miniaturas y entrada al montaje
+
+Las tarjetas del catálogo reproducen estados capturados del visor real: A/b/H, LED 1/2 y OF/rU/SP/OP. En computadora se activan al pasar el cursor; el botón Vista previa permite reproducir o pausar también en móvil. Las imágenes adicionales se descargan al solicitar la vista previa. Al salir de pantalla o cambiar de pestaña, la secuencia se detiene. Con movimiento reducido, el botón avanza un único estado por pulsación.
+
+Los enlaces siguen siendo enlaces nativos. `showcase.js` registra las transiciones entre documentos antes de la primera oportunidad de dibujo y `showcase.css` opta por una transición corta entre la tarjeta y el área del montaje. En navegadores sin esta función se conserva la navegación habitual y una entrada breve cuando corresponde. La preferencia de movimiento reducido desactiva estos efectos. La intención de navegación se guarda de forma temporal en sessionStorage y se elimina al llegar.
+
+Al preparar por primera vez el 3D se presenta una imagen de referencia del circuito. La cubierta se desvanece al estar listo el visor; volver a 2D la retira inmediatamente. Alternar un visor ya preparado no repite la cubierta. Las conexiones marcadas, el paso y la selección siguen perteneciendo a los controladores originales.
+
+Con el servidor local activo, `npm run build:showcase` regenera las nueve imágenes y su registro de estados; `npm run test:showcase` comprueba secuencias, pausas, movimiento reducido, navegación nativa, carga 3D retenida, cancelación y progreso sin cambios.
+
 ## Usar la guía
 
 - Paso por paso: sigue una etapa del montaje.
