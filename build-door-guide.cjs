@@ -103,4 +103,6 @@ s+="\nfunction zoomMap2D(factor,clientX,clientY){\n if(rendererMode!=='2d')retur
 s=s.replace('let b=[x-75,y-95,x+75,y+60];',"if(it?.externalMotor){const e=it.externalMotor.bounds;return [Math.min(x-70,e[0]-25),Math.min(y-70,e[1]-25),Math.max(x+70,e[2]+25),Math.max(y+70,e[3]+25)];}let b=[x-75,y-95,x+75,y+60];");
 s=s.replace("stateKey='protoboard:puerta:'+window.DOOR_VARIANT+':routing:v2'", "stateKey='protoboard:puerta:'+window.DOOR_VARIANT+(window.DOOR_VARIANT.startsWith('ls151')?':placement:v3':':routing:v2')");
 s=s.replace("'Placa '+view", "(view==='motor'?'Motorreductor TT externo':'Placa '+view)");
+s=s.replace('onPin:pinDetail,','onPin:(u,p)=>window.doorStudio&&model.chips.some(c=>c.id===u)?window.doorStudio.inspect(u,p):pinDetail(u,p),onChip:u=>window.doorStudio?.inspect(u),onHole:h=>window.doorStudio?.showStrip(h),');
+s=s.replace('clarity:wireClarity,isolate:isolateWires,pot:code','clarity:wireClarity,isolate:isolateWires,studio:window.doorStudio?.snapshot(),pot:code');
 fs.writeFileSync('protoboard-ah/puerta-guide.js',s);console.log('Shared controller: unobstructed endpoint rings, full-board cable navigation and floating controls.');

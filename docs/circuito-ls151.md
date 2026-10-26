@@ -88,3 +88,13 @@ Prueba de navegador reproducible: con npm run dev activo, ejecuta node tools/ver
 ## Visor 2D sin franjas de recorte
 
 La escena compartida no se recorta a los límites del viewBox. El recorte se aplica únicamente al borde del SVG visible, tanto en el mapa como en la lupa. Así, al hacer zoom, los componentes adyacentes siguen dibujándose en toda el área disponible, sin estirar el circuito ni cambiar su cableado. La prueba de navegador comprueba mediante hit-testing que un capacitor situado fuera de un viewBox estrecho, pero dentro del viewport, continúa visible.
+
+## Primera entrega de interacción
+
+- Inspector: pulsa el cuerpo del integrado en 2D/3D o elige su nombre en Explorar. Se acerca la cámara y se muestran sus patas, función y conexiones. Los botones llevan al paso de cada conexión; las conexiones futuras se pueden explorar sin marcarlas.
+- Tiras internas: activa el botón y pulsa un agujero. Resalta cinco contactos de una columna o el tramo del riel, con la ranura y la separación central respetadas. Seleccionar una pata muestra su tira.
+- Conectar jumper/Repetir conexión: primer extremo, recorrido del cable y segundo extremo, con pausa y velocidades 0.5×/1×/2×. La inserción y el recorrido usan los mismos agujeros y curvas que el montaje. La reproducción nunca marca la conexión como hecha.
+- Barra compacta: acciones principales en pantalla ampliada, con Más controles para etapa, modo, encuadre y activación de animaciones. El panel se adapta al ancho móvil.
+- Se respeta movimiento reducido; cambiar de paso cancela y restaura la conexión. Al cambiar de visor se conserva el avance de la animación.
+
+Prueba adicional: node tools/verify-door-studio-browser.cjs (con el servidor local activo). Usa eventos reales de ratón para abrir chips en ambos visores y verifica patas, rieles separados, animación parcial 3D, pausa, finalización sin marcado, cancelación, movimiento reducido y vista móvil.

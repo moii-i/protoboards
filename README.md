@@ -29,6 +29,10 @@ Abre http://127.0.0.1:4173/puerta. El servidor escucha únicamente en tu equipo.
 
 El progreso se guarda localmente por montaje. Se respeta el movimiento reducido. Los cruces de cables no representan uniones eléctricas. Las coordenadas se muestran en la tarjeta, sin etiquetas flotantes encima de los extremos.
 
+## Explorar y ensamblar
+
+En la guía de puerta, pulsa un integrado para inspeccionar sus patas y cables. Tiras internas permite consultar los contactos compartidos. Conectar jumper reproduce la inserción de los dos extremos y el tendido del cable; puedes pausar y ajustar velocidad. La barra ampliada es compacta y Más controles recupera el resto. La animación no marca conexiones como completadas. Respeta movimiento reducido.
+
 ## Montajes de puerta
 
 Todos usan dos protoboards de 63 columnas. Los conteos excluyen fuentes, placas y cables.

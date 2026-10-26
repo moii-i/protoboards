@@ -116,6 +116,7 @@
     if(variant.startsWith('ls151')){const b=document.createElement('button');b.type='button';b.dataset.view='motor';b.textContent='Motor externo';b.setAttribute('aria-pressed','false');document.querySelector('.view-buttons').appendChild(b);const badge=document.createElement('span');badge.textContent='14 jumpers menos · resistencias junto al display';document.querySelector('.assembly-badges').appendChild(badge);}
     await loadScript('./puerta-map.js');
     await loadScript('./puerta-guide.js');
+    await loadScript('./puerta-studio.js');
     if(!window.doorGuide)throw new Error('La guía no terminó de iniciar.');
     status.textContent='Montaje cargado. Lógica comprobada por programa; validación eléctrica en Proteus y prueba física pendientes.';
     if(variant.startsWith('ls151'))status.textContent=variant==='ls151'?'Lógica funcional observada en tus videos de Proteus. Coordenadas y conexiones verificadas por programa. Brillo y montaje físico pendientes.':'Adaptación calculada: coordenadas y lógica verificadas por programa. Resistencias modificadas pendientes de prueba eléctrica en Proteus y montaje físico.';
