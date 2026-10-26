@@ -81,3 +81,7 @@ Publica únicamente `protoboard-ah/` en el proyecto Vercel existente **protoboar
 El proyecto está preparado para incorporarlo a un repositorio con historial, revisiones y comprobación automática. Antes de ofrecerlo públicamente, define la licencia del código propio; las dependencias conservan sus licencias. Consulta [CONTRIBUTING.md](CONTRIBUTING.md).
 
 El paquete descargable incluye `Protoboards_Historial.bundle`. Para recuperar el repositorio con su historial, descomprime el paquete y ejecuta `git clone Protoboards_Historial.bundle protoboards`. Después puedes conectar ese repositorio al remoto de GitHub que elijas.
+
+### Herramientas de la segunda entrega
+
+En Puerta, Buscar / piezas (Ctrl+K) permite localizar referencias, patas, señales y conexiones. Colocar piezas muestra el descenso hasta los agujeros del montaje con pistas de orientación. Revisar bloque guarda comprobaciones manuales por etapa, separadas de los cables marcados. En pantalla ampliada se abre desde la lupa de la isla. La animación respeta el movimiento reducido y el encuadre elegido durante el recorrido automático.

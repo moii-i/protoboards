@@ -23,6 +23,7 @@ function pinItems(c,p){const ref=c.id+'.'+p,key=stripKey(pinHole(c,p));return mo
 function chipBox(c){const [x,y]=point([c.board,'a',c.start]);return [x-95,y-110,(c.pins/2-1)*30+220,520];}
 function closeInspector(){state.chip=null;state.pin=null;state.related=[];panel.hidden=true;mapbox.classList.remove('studio-inspecting');$s('studioChip').value='';document.querySelectorAll('.chip-package,.pin').forEach(el=>el.classList.remove('studio-chip-active','studio-pin-active'));original.visibility();applyInspection();sync3d();}
 function inspect(id,p=null){
+window.doorLearning?.cancel();
 const c=model.chips.find(c=>c.id===String(id)||c.id==='U'+id);if(!c)return;
 cancelAssembly();selected=null;showDetail();state.chip=c.id;state.pin=p===null?null:Number(p);state.related=[...new Set((state.pin?pinItems(c,state.pin):Array.from({length:c.pins},(_,i)=>pinItems(c,i+1)).flat()).map(it=>it.id))];
 panel.hidden=false;mapbox.classList.add('studio-inspecting');$s('studioChip').value=c.id;
@@ -54,7 +55,7 @@ for(const [id,b] of Object.entries(model.boards)){const col=Math.round((q.x-95-b
 }
 map.addEventListener('click',e=>{if(pan2D.suppress)return;const pin=e.target.closest('.pin'),chip=e.target.closest('[data-chip]');if(chip){e.preventDefault();e.stopImmediatePropagation();inspect(chip.dataset.chip,pin?Number(pin.dataset.pin):null);return;}if(prefs.strips){const h=holeAt(e);if(h){e.preventDefault();e.stopImmediatePropagation();showStrip(h);}}},true);
 map.addEventListener('keydown',e=>{const chip=e.target.closest('[data-chip]');if(chip&&['Enter',' '].includes(e.key)){e.preventDefault();e.stopImmediatePropagation();const pin=e.target.closest('.pin');inspect(chip.dataset.chip,pin?Number(pin.dataset.pin):null);}},true);
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&state.chip){e.preventDefault();e.stopImmediatePropagation();closeInspector();}},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&state.chip&&!document.getElementById('learningDialog')?.open){e.preventDefault();e.stopImmediatePropagation();closeInspector();}},true);
 $s('studioChip').onchange=e=>e.target.value?inspect(e.target.value):closeInspector();
 $s('studioStrips').onclick=()=>{prefs.strips=!prefs.strips;$s('studioStrips').setAttribute('aria-pressed',String(prefs.strips));if(!prefs.strips){state.strip=null;paintStrips();}savePrefs();sync3d();syncToolbar();};
 $s('studioAuto').onchange=e=>{prefs.auto=e.target.checked;savePrefs();};

@@ -31,4 +31,11 @@ viewer.preset('top');viewer.rotate(1);viewer.zoom();viewer.setIndicators({leds:{
  for(let i=1;i<tips.length;i++)assert(Math.hypot(...tips[i].map((n,j)=>n-tips[i-1][j]))>1e-7,'Tip must move within a segment');
  viewer.setAssembly(null);console.log(JSON.stringify({continuousReveal:true,wires:wires.length,samples,maxTipError}));
 }
+const placementIds=[...model.chips.map(c=>c.id),...model.displays.map(c=>c.id),...(model.arrays||[]).map(c=>c.id),...model.items.filter(c=>['res','cap','led','pot'].includes(c.kind)).map(c=>c.partId||c.id)];
+for(const id of placementIds){
+ viewer.setPlacement({id,progress:0});const raised=viewer.diagnostics().studio.placement;assert.equal(raised.id,id);assert(raised.height>0);assert(raised.holes.length>=2);
+ viewer.setPlacement({id,progress:.6});const middle=viewer.diagnostics().studio.placement;assert(middle.height>0&&middle.height<raised.height);
+ viewer.setPlacement({id,progress:1});assert.equal(viewer.diagnostics().studio.placement.height,0,'Final component position must match the original physical model');
+ viewer.setPlacement(null);assert.equal(viewer.diagnostics().studio.placement,null);
+}
 viewer.dispose();console.log(`PASS: ${mux?68:sin?80:ls?90:78} DIP legs and ${model.items.length} matching endpoint pairs; persistent pixel-sized outline without animation, exact highlighted route, isolated cable, stable outline allocation, unobstructed endpoint rings, slower replay, camera and indicators. Fake renderer; browser raster QA is separate.`);

@@ -104,3 +104,12 @@ Prueba adicional: node tools/verify-door-studio-browser.cjs (con el servidor loc
 El cable 3D y su contorno usan las mismas muestras a distancia uniforme y comparten una punta interpolada: el avance ya no depende de contar curvas o triángulos. Solo se actualiza el último anillo del tubo; no se reconstruye la geometría en cada fotograma. En 2D el recorrido se recorta por su longitud real, sin guiones afectados por el zoom, y los terminales se insertan centrados en su agujero. Las fases tienen entrada y salida suaves. Durante la reproducción solo se actualiza el visor activo; los textos cambian al pasar de fase.
 
 Verificación geométrica adicional: `node verify-door-3d.mjs --ls151 --motion` (y `--ls151-compacto`). Comprueba todos los jumpers en avances fraccionarios y retrocesos, coincidencia de las puntas, continuidad dentro de cada tramo y cancelación sin reconstruir el contorno.
+
+## Segunda entrega de aprendizaje
+
+- Buscar / piezas abre un diálogo accesible con tres pestañas, también disponible en la lupa de la isla ampliada y con Ctrl+K. Busca referencias, valores, señales, códigos de conexión y patas (U1.11 o NE555 pata 3). El resultado abre la pata o acerca la conexión correspondiente.
+- Colocar piezas utiliza las mismas geometrías y agujeros de la guía: integrados, displays, redes y componentes pasivos. Los anillos permanecen en los contactos de destino, con la primera pata en ámbar. Se puede pausar, repetir o pasar a otra pieza. Al recorrer conexiones automáticamente se respeta el encuadre elegido. Cambiar de visor conserva el avance; cambiar de paso restaura la pieza; movimiento reducido muestra la posición final sin animar. No marca conexiones como realizadas.
+- Revisar bloque ofrece comprobaciones manuales específicas de la etapa actual. Se guardan por variante y versión de distribución, aparte del avance de conexiones. No equivalen a una medición automática ni certifican el circuito físico.
+- Los mandos y finales existentes conservan sus modelos y conexiones; no se incorporan SCMM-122 ni SS0501A.
+
+Prueba de navegador: `node tools/verify-door-learning-browser.cjs`, con el servidor local activo. Incluye búsquedas, colocación 2D/3D, orientación, pausa, cancelación, revisiones persistentes, movimiento reducido y móvil.

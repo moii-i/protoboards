@@ -39,6 +39,12 @@ export function createViewer({container, model, point, hole, onConnection, onPin
   const connections = new Map(), pickables = [], pinMeshes = [], pinLabels = new Map(), arrayPinMeshes = [], switches = [], segments = new Map(), ledLenses = new Map(), ledGlows = new Map();
   let potSlot=null;
   const dummy = new THREE.Object3D();
+  const componentGroups=new Map(),placementGuides=new THREE.Group();scene.add(placementGuides);
+  let placementPose=null,placementGuideId=null;
+  function collectComponent(id,before,holes){
+    const children=scene.children.filter(o=>!before.has(o)&&!o.userData.softShadow),group=new THREE.Group();
+    children.forEach(o=>group.add(o));scene.add(group);componentGroups.set(id,{group,holes,home:group.position.clone()});
+  }
   const chipBodies=new Map(),stripGroup=new THREE.Group();scene.add(stripGroup);let stripStamp="",assemblyPose={id:null,progress:1};
   const plastic = new THREE.MeshStandardMaterial({color:0xfaf9ef, roughness:.82});
   const dark = new THREE.MeshStandardMaterial({color:0x222a2d, roughness:.7});
@@ -121,6 +127,7 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     for(const [p,color] of [[pa,0xc4414b],[pb,0x35433b]])mesh(new THREE.CylinderGeometry(.23,.23,.35,14),new THREE.MeshStandardMaterial({color}),p.clone().setY(.2));
   }
   for(const chip of model.chips||[]){
+    const before=new Set(scene.children);
     const n=chip.pins,half=n/2,start=chip.start,first=hpos([chip.board,'e',start]),last=hpos([chip.board,'f',start+half-1]);
     const center=first.clone().lerp(last,.5).setY(.8),length=half+.2;
     const chipBody=roundedBox(length,1.25,2.45,center,dark.clone(),scene,.13);chipBody.userData={chip:chip.id};pickables.push(chipBody);
@@ -136,10 +143,12 @@ export function createViewer({container, model, point, hole, onConnection, onPin
       const shoulder=box(.22,.12,.32,inner.clone().setY(.54),metal);shoulder.userData={u:chip.id,p,h};pickables.push(shoulder);
       pinLabels.set(chip.id+'.'+p,topLabel(String(p),pos.clone().add(new THREE.Vector3(0,.025,upper?-.4:.4)),.55,.45,{color:'#35433e',background:'#faf9ef',size:95}));
     }
+    collectComponent(chip.id,before,Array.from({length:n},(_,i)=>{const p=i+1;return [chip.board,p>half?'e':'f',start+(p>half?n-p:p-1)];}));
   }
   // SIP resistor networks are passive packages, not extra logic ICs.
   // Every lead uses its explicit breadboard hole; COM is a pin function, not GND.
   for(const array of model.arrays||[]){
+    const before=new Set(scene.children);
     const holes=Object.entries(array.pinHoles||{}).sort((a,b)=>Number(a[0])-Number(b[0]));
     if(!holes.length)continue;
     const positions=holes.map(([,h])=>hpos(h,.1));
@@ -156,14 +165,17 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     });
     const commonHole=array.pinHoles?.[array.commonPin||1];
     if(commonHole){const dot=mesh(new THREE.CircleGeometry(.095,20),new THREE.MeshBasicMaterial({color:0xf3d19c}),hpos(commonHole,2.462),scene);dot.rotation.x=-Math.PI/2;}
+    collectComponent(array.id,before,holes.map(([,h])=>h));
   }
   for(const display of model.displays||[]){
+    const before=new Set(scene.children);
     const positions=Object.values(display.pins).map(h=>hpos(h));const center=positions.reduce((v,p)=>v.add(p),new THREE.Vector3()).multiplyScalar(1/positions.length).setY(.7);
     roundedBox(4.8,1.2,7.5,center,dark,scene,.12);contactShadow(center,5.2,7.9);
     Object.entries(display.pins).forEach(([p,h])=>{const pos=hpos(h,.1);lead([pos,pos.clone().setY(.65)],scene);topLabel(String(p),pos.clone().add(new THREE.Vector3(0,.025,Number(p)<=5?1.1:-1.1)),.45,.35,{background:'#faf9ef',color:'#35433e',size:80})});
     const layout={a:[0,-2.3,2.5,.32],b:[1.45,-1.15,.32,1.8],c:[1.45,1.15,.32,1.8],d:[0,2.3,2.5,.32],e:[-1.45,1.15,.32,1.8],f:[-1.45,-1.15,.32,1.8],g:[0,0,2.5,.32]};
     Object.entries(layout).forEach(([seg,[x,z,w,d]])=>{const mat=new THREE.MeshStandardMaterial({color:0x42252a,emissive:0x000000,roughness:.45});const segmesh=roundedBox(w,.04,d,center.clone().add(new THREE.Vector3(x,.62,z)),mat,scene,.06);segments.set(display.id+'.'+seg,segmesh)});
     topLabel(display.id,center.clone().add(new THREE.Vector3(0,.62,3.25)),2,.35,{size:45});
+    collectComponent(display.id,before,Object.values(display.pins));
   }
 
   function makeConnection(it) {
@@ -253,6 +265,7 @@ export function createViewer({container, model, point, hole, onConnection, onPin
       }
     }
     connections.set(it.id,{group,wire,material,curve,a,b,it,routed,routePoints,height,plugs});
+    if(['res','cap','led','pot'].includes(it.kind))componentGroups.set(it.partId||it.id,{group,holes:[it.a,it.b],home:group.position.clone()});
   }
   model.items.forEach(makeConnection);
   // A persistent, pixel-sized outline follows the original 3D curve exactly.
@@ -430,10 +443,21 @@ export function createViewer({container, model, point, hole, onConnection, onPin
   const ends=traceGeometry.getAttribute('instanceEnd'),index=traceGeometry.instanceCount-1,traceTip=index>=0?new THREE.Vector3(ends.getX(index),ends.getY(index),ends.getZ(index)):c.a;
   return {fraction,wireTip:tip.toArray(),traceTip:traceTip.toArray(),tipError:tip.distanceTo(traceTip),visibleSegments:ring,segments,traceSegments:traceGeometry.instanceCount};
  }
+ function setPlacement(value){
+  if(placementPose?.id&&placementPose.id!==value?.id){const old=componentGroups.get(placementPose.id);if(old)old.group.position.copy(old.home);}
+  const c=componentGroups.get(value?.id);placementPose=c?{id:value.id,progress:THREE.MathUtils.clamp(value.progress,0,1)}:null;
+  if(placementGuideId!==placementPose?.id){
+    placementGuides.traverse(o=>{o.geometry?.dispose();o.material?.dispose();});placementGuides.clear();placementGuideId=placementPose?.id;
+    for(const [i,h]of (c?.holes||[]).entries()){const ring=mesh(new THREE.TorusGeometry(i===0?.3:.23,.045,8,20),new THREE.MeshBasicMaterial({color:i===0?0xc7982e:0x177963,depthTest:false,depthWrite:false}),hpos(h,.15),placementGuides);ring.rotation.x=-Math.PI/2;ring.renderOrder=19;}
+  }
+  if(c){const p=placementPose.progress,k=smooth((p-.24)/.76);c.group.position.copy(c.home);c.group.position.y+=5.5*(1-k);}
+  requestRender();
+ }
  function updateStudio(studio){
   updateStrip(studio);
   for(const [id,o] of chipBodies){o.outline.visible=id===studio?.chip;o.body.material.transparent=Boolean(studio?.chip&&id!==studio.chip);o.body.material.opacity=studio?.chip&&id!==studio.chip?.toString()? .52:1;}
   setAssembly(studio?.assembly||null);
+  setPlacement(studio?.placement||null);
  }
 
   function resize(){const {width,height}=container.getBoundingClientRect();if(!width||!height)return;camera.aspect=width/height;camera.updateProjectionMatrix();renderer.setSize(width,height,false);traceLayers.forEach(line=>line.material.resolution.set(width,height));if(active)focusBox(lastBox,false);}
@@ -447,13 +471,13 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     return {visible:selectedTrace.visible,id:traceConnection,builds:traceBuilds,isolate:isolateWires,widths:traceLayers.map(line=>line.material.linewidth),resolution:traceLayers[0].material.resolution.toArray(),depthTest:traceLayers.some(line=>line.material.depthTest),curveA:first?[first.getX(0),first.getY(0),first.getZ(0)]:null,curveB:last?[last.getX(last.count-1),last.getY(last.count-1),last.getZ(last.count-1)]:null,visibleWires:[...connections].filter(([,c])=>c.it.kind==='wire'&&c.group.visible).map(([id])=>id),endpointLabels:[],endpointRings:markers.map(({ring})=>ring.visible),replayDuration:routeTween?.duration||null};
   }
   return {
-    update,focusBox,replay,setActive,setLEDs,setIndicators,setWireClarity,setAssembly,
+    update,focusBox,replay,setActive,setLEDs,setIndicators,setWireClarity,setAssembly,setPlacement,
     stopReplay(){routeTween=null;traveler.visible=false;requestRender();},
     capture(){renderer.render(scene,camera);return canvas.toDataURL('image/png');},
     preset(value){topView=value==='top';if(!topView){cameraTween=null;camera.position.copy(controls.target).add(new THREE.Vector3(12,70,75));controls.update();}focusBox(lastBox,true);},
     zoom(){const center=controls.target.clone(),to=center.clone().add(camera.position.clone().sub(center).multiplyScalar(.75));cameraTween=null;if(snapshot?.animate){cameraTween={fromPos:camera.position.clone(),toPos:to,fromTarget:center,toTarget:center,started:performance.now()};canvas.dataset.moving='true';requestRender();}else{camera.position.copy(to);controls.update();requestRender();}},
     rotate(dir){topView=false;const v=camera.position.clone().sub(controls.target);v.applyAxisAngle(new THREE.Vector3(0,1,0),dir*Math.PI/6);const to=controls.target.clone().add(v);if(snapshot?.animate){cameraTween={fromPos:camera.position.clone(),toPos:to,fromTarget:controls.target.clone(),toTarget:controls.target.clone(),started:performance.now()};canvas.dataset.moving='true';requestRender();}else{camera.position.copy(to);controls.update();requestRender();}},
-    diagnostics(){const rect=canvas.getBoundingClientRect(),project=p=>{const v=p.clone().project(camera);return [rect.left+(v.x+1)*rect.width/2,rect.top+(1-v.y)*rect.height/2];};return {studio:{chip:snapshot?.studio?.chip||null,stripHoles:snapshot?.studio?.stripHoles||[],assembly:{...assemblyPose},reveal:assemblyDiagnostics(),partialDrawCount:assemblyPose.id?connections.get(assemblyPose.id)?.wire.geometry.drawRange.count:null},selection:selectionDiagnostics(),wireClarity,routedConnections:[...connections.values()].filter(c=>c.routed).length,wireStates:Object.fromEntries([...connections].filter(([,c])=>c.routed).map(([id,c])=>[id,{opacity:c.wire.material.opacity,height:c.height,curveA:c.curve.getPoint(0).toArray(),curveB:c.curve.getPoint(1).toArray()}])),connectionCount:connections.size,pinCount:pinMeshes.length,arrayPinCount:arrayPinMeshes.length,resistorArrays:(model.arrays||[]).length,resistors:model.items.filter(it=>it.kind==='res').length,frames:renderedFrames,active,moving:Boolean(cameraTween),camera:camera.position.toArray(),target:controls.target.toArray(),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,targets:{contacts:[project(hpos(['A','d',12],.03))],chips:[...chipBodies].map(([id,o])=>({id,screen:project(o.body.position)})),switches:switches.slice(0,3).map(s=>project(s.position)),pins:pinMeshes.map(m=>({u:m.userData.u,p:m.userData.p,screen:project(m.geometry.parameters.path.getPoint(.15))})),wires:Object.fromEntries([...connections].map(([id,c])=>[id,project(c.curve.getPoint(.5))]))},endpoints:Object.fromEntries([...connections].map(([id,c])=>[id,{a:c.it.a,b:c.it.b,worldA:c.a.toArray(),worldB:c.b.toArray()}])),lit:[...ledLenses].filter(([,m])=>m.userData.lit).map(([name])=>name)};},
+    diagnostics(){const rect=canvas.getBoundingClientRect(),project=p=>{const v=p.clone().project(camera);return [rect.left+(v.x+1)*rect.width/2,rect.top+(1-v.y)*rect.height/2];};return {studio:{placement:placementPose?{...placementPose,height:componentGroups.get(placementPose.id).group.position.y,holes:componentGroups.get(placementPose.id).holes}:null,chip:snapshot?.studio?.chip||null,stripHoles:snapshot?.studio?.stripHoles||[],assembly:{...assemblyPose},reveal:assemblyDiagnostics(),partialDrawCount:assemblyPose.id?connections.get(assemblyPose.id)?.wire.geometry.drawRange.count:null},selection:selectionDiagnostics(),wireClarity,routedConnections:[...connections.values()].filter(c=>c.routed).length,wireStates:Object.fromEntries([...connections].filter(([,c])=>c.routed).map(([id,c])=>[id,{opacity:c.wire.material.opacity,height:c.height,curveA:c.curve.getPoint(0).toArray(),curveB:c.curve.getPoint(1).toArray()}])),connectionCount:connections.size,pinCount:pinMeshes.length,arrayPinCount:arrayPinMeshes.length,resistorArrays:(model.arrays||[]).length,resistors:model.items.filter(it=>it.kind==='res').length,frames:renderedFrames,active,moving:Boolean(cameraTween),camera:camera.position.toArray(),target:controls.target.toArray(),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,targets:{contacts:[project(hpos(['A','d',12],.03))],chips:[...chipBodies].map(([id,o])=>({id,screen:project(o.body.position)})),switches:switches.slice(0,3).map(s=>project(s.position)),pins:pinMeshes.map(m=>({u:m.userData.u,p:m.userData.p,screen:project(m.geometry.parameters.path.getPoint(.15))})),wires:Object.fromEntries([...connections].map(([id,c])=>[id,project(c.curve.getPoint(.5))]))},endpoints:Object.fromEntries([...connections].map(([id,c])=>[id,{a:c.it.a,b:c.it.b,worldA:c.a.toArray(),worldB:c.b.toArray()}])),lit:[...ledLenses].filter(([,m])=>m.userData.lit).map(([name])=>name)};},
     dispose(){setActive(false);observer.disconnect();document.removeEventListener('visibilitychange',visibility);controls.dispose();const geometries=new Set(),materials=new Set(),textures=new Set();scene.traverse(o=>{if(o.geometry)geometries.add(o.geometry);for(const m of [].concat(o.material||[])){materials.add(m);if(m.map)textures.add(m.map);}});textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose());geometries.forEach(g=>g.dispose());renderer.dispose();canvas.remove();}
   };
 }
