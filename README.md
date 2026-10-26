@@ -2,7 +2,7 @@
 
 Guías para Diseño Digital: montaje sobre protoboard, cable por cable, en 2D y 3D.
 
-Web: https://protoboard-ah.vercel.app/ · Examen: https://protoboard-ah.vercel.app/puerta
+Catálogo: https://protoboard-ah.vercel.app/circuitos · Letras: https://protoboard-ah.vercel.app/ · Examen: https://protoboard-ah.vercel.app/puerta
 
 Incluye letras A–H, LED alternados con NE555 y control automático de puerta. Las prácticas conservan una identidad visual compartida.
 
@@ -16,6 +16,14 @@ npm run dev
 ```
 
 Abre http://127.0.0.1:4173/puerta. El servidor escucha únicamente en tu equipo. Ejecuta `npm run check` para regenerar los modelos y comprobar cableado, lógica e interacción.
+
+## Interfaz compartida
+
+El catálogo en `/circuitos` presenta las tres prácticas con capturas reales del visor 3D, progreso por bloques y un enlace para continuar el último montaje. La marca y el botón Circuitos abren este catálogo; `/`, `/555` y `/puerta` conservan sus montajes. El progreso sigue usando las claves de cada guía. Los nuevos registros de última visita solo determinan los enlaces del catálogo.
+
+La presentación común se mantiene en `protoboard-ah/design-system.css` y `design-system.js`: Manrope alojada con el proyecto (licencia OFL incluida), paleta verde/marfil, iconos SVG y herramientas agrupadas en Vista, Explorar y Animación. Los paneles usan detalles nativos, cierran con Escape y clic exterior, y se presentan junto al borde inferior en móvil. El visor ampliado conserva su isla de navegación original. Mover controles conserva sus IDs, referencias y manejadores. Los colores eléctricos y los modelos no se cambian.
+
+Con el servidor local en ejecución, `npm run test:design` comprueba las tres páginas, los controles, 2D/3D, pantalla ampliada, progreso, catálogo, imágenes, fuente local y tamaños móviles de 320 y 390 px. Usa `PROTOBOARD_QA_URL` para otro puerto y `PROTOBOARD_CHROME` para otra ruta de Chrome. `npm run build:previews` regenera las tres imágenes desde los montajes reales en 3D; no añade piezas ni edita el circuito.
 
 ## Usar la guía
 

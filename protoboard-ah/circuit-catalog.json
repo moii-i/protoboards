@@ -1,0 +1,17 @@
+[
+  {
+    "key": "letras",
+    "stages": 14,
+    "connections": 127
+  },
+  {
+    "key": "555",
+    "stages": 7,
+    "connections": 24
+  },
+  {
+    "key": "puerta",
+    "stages": 10,
+    "connections": 197
+  }
+]
