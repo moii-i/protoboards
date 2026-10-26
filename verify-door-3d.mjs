@@ -11,4 +11,24 @@ for(const it of model.items){const e=d.endpoints[it.id];assert(e,'Missing 3D con
 assert.equal(d.routedConnections,model.items.filter(it=>it.kind==='wire').length);assert.equal(d.wireClarity,true);assert.equal(d.wireStates.W001.opacity,1);assert(Object.values(d.wireStates).some(x=>x.opacity<.2));for(const [id,c]of Object.entries(d.wireStates)){assert.deepEqual(c.curveA,d.endpoints[id].worldA,id+' curve origin');assert.deepEqual(c.curveB,d.endpoints[id].worldB,id+' curve destination');}viewer.setWireClarity(false);assert.equal(viewer.diagnostics().wireClarity,false);viewer.setWireClarity(true);
 assert.equal(d.selection.visible,true);assert.equal(d.selection.id,'W001');assert.deepEqual(d.selection.widths,[10,7,3]);assert.deepEqual(d.selection.resolution,[1000,600]);assert.equal(d.selection.depthTest,false);for(const [key,world]of [['curveA','worldA'],['curveB','worldB']])d.selection[key].forEach((x,i)=>assert(Math.abs(x-d.endpoints.W001[world][i])<1e-5));assert.equal(d.selection.endpointLabels.length,0,'No floating endpoint text or badges');assert(d.selection.endpointRings.every(Boolean));
 const builds=d.selection.builds;viewer.update({step:model.stages.length-1,selected:'W001',previous:true,animate:false,isolate:true});d=viewer.diagnostics();assert.equal(d.selection.builds,builds,'Do not rebuild the outline each simulation tick');assert.deepEqual(d.selection.visibleWires,['W001']);viewer.update({step:model.stages.length-1,selected:'W001',previous:true,animate:false,isolate:false});assert(viewer.diagnostics().selection.visibleWires.length>1);viewer.update({step:0,selected:'W001',previous:false,animate:false});assert.equal(viewer.diagnostics().selection.visible,false,'Never draw a hidden connection');viewer.update({step:model.stages.length-1,selected:null,previous:true,animate:false});assert.equal(viewer.diagnostics().selection.visible,false);assert(viewer.diagnostics().selection.endpointLabels.every(x=>!x.visible&&!x.badgeVisible));viewer.update({step:model.stages.length-1,selected:'W001',previous:true,animate:true});viewer.replay();assert(viewer.diagnostics().selection.replayDuration>=2200);
-viewer.preset('top');viewer.rotate(1);viewer.zoom();viewer.setIndicators({leds:{LR:true},segments:{D1:{a:true,c:true,d:true,f:true,g:true}},switches:{STOP:true}});d=viewer.diagnostics();assert.deepEqual(d.lit,['LR']);viewer.dispose();console.log(`PASS: ${mux?68:sin?80:ls?90:78} DIP legs and ${model.items.length} matching endpoint pairs; persistent pixel-sized outline without animation, exact highlighted route, isolated cable, stable outline allocation, unobstructed endpoint rings, slower replay, camera and indicators. Fake renderer; browser raster QA is separate.`);
+viewer.preset('top');viewer.rotate(1);viewer.zoom();viewer.setIndicators({leds:{LR:true},segments:{D1:{a:true,c:true,d:true,f:true,g:true}},switches:{STOP:true}});d=viewer.diagnostics();assert.deepEqual(d.lit,['LR']);if(process.argv.includes('--motion')){
+ const wires=model.items.filter(x=>x.kind==='wire');let samples=0,maxTipError=0;
+ for(const it of wires){
+  viewer.update({step:model.stages.length-1,selected:it.id,previous:true,animate:true});
+  const count=viewer.diagnostics().selection.builds;
+  for(const progress of [.01,.22,.22003,.301,.457123,.701,.78,.9,1,.48]){
+   viewer.setAssembly({id:it.id,progress});const pose=viewer.diagnostics().studio.reveal;
+   assert(pose.tipError<.0001,it.id+' cable/outline tips diverged '+pose.tipError);
+   assert.equal(pose.visibleSegments,pose.traceSegments,it.id+' discrete segment mismatch');
+   maxTipError=Math.max(maxTipError,pose.tipError);samples++;
+  }
+  viewer.setAssembly(null);const restored=viewer.diagnostics();
+  assert.equal(restored.studio.assembly.id,null);assert.equal(restored.selection.builds,count,'Keep selected geometry stable per animation');
+ }
+ const it=wires.reduce((a,b)=>a.route.length>b.route.length?a:b);
+ viewer.update({step:model.stages.length-1,selected:it.id,previous:true,animate:true});
+ const tips=[];for(const progress of [.451,.4511,.4512,.4513]){viewer.setAssembly({id:it.id,progress});tips.push(viewer.diagnostics().studio.reveal.wireTip);}
+ for(let i=1;i<tips.length;i++)assert(Math.hypot(...tips[i].map((n,j)=>n-tips[i-1][j]))>1e-7,'Tip must move within a segment');
+ viewer.setAssembly(null);console.log(JSON.stringify({continuousReveal:true,wires:wires.length,samples,maxTipError}));
+}
+viewer.dispose();console.log(`PASS: ${mux?68:sin?80:ls?90:78} DIP legs and ${model.items.length} matching endpoint pairs; persistent pixel-sized outline without animation, exact highlighted route, isolated cable, stable outline allocation, unobstructed endpoint rings, slower replay, camera and indicators. Fake renderer; browser raster QA is separate.`);

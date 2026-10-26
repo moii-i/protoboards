@@ -44,9 +44,21 @@ async function main(){
   await evaluate("doorStudio.closeInspector();setCamera([300,230,450,460]);board3d.preset('top');");await delay(800);const hole3D=await evaluate("board3d.diagnostics().targets.contacts[0]");await click(hole3D);assert(await evaluate("doorStudio.getState().strip?.[2]===12&&doorStudio.getState().stripHoles.length===5"),'Native 3D hole click');
   await evaluate("doorStudio.closeInspector();selectCable(model.items.find(it=>it.kind==='wire'&&it.fromRef==='U3.13').id,{scroll:false});document.querySelector('[data-studio-speed]').value='1';document.querySelector('[data-studio-speed]').onchange();document.querySelector('[data-studio-action=\"play\"]').click();");await delay(1100);await evaluate("document.querySelector('[data-studio-action=\"pause\"]').click();");
   const partial=await evaluate('board3d.diagnostics().studio');assert(partial.assembly.progress>.22&&partial.assembly.progress<.78);assert(partial.partialDrawCount>0);await shot('studio-'+variant+'-jumper-3d');
+  assert((await evaluate('board3d.diagnostics().studio.reveal.tipError'))<.0001,'The cable tip and contour must coincide in WebGL');
+  await evaluate("setRenderer('2d');framing='detail';selectCable(model.items.filter(it=>it.kind==='wire'&&it.route.length>4)[0].id,{scroll:false});doorStudio.play();");
+  await waitFor("doorStudio.getState().animation.progress>.43");await evaluate('doorStudio.pause()');
+  const tip2D=await evaluate("(()=>{const a=doorStudio.getState().animation,el=document.querySelector('.studio-assembly-overlay'),p=document.querySelector('.connection[data-id=\\\"'+a.id+'\\\"] .colored-wire'),f=Number(el.dataset.reveal),tip=el.dataset.tip.split(',').map(Number),want=p.getPointAtLength(p.getTotalLength()*f);return {error:Math.hypot(tip[0]-want.x,tip[1]-want.y),lengthError:Math.abs(document.querySelector('.studio-assembly-overlay path').getTotalLength()-p.getTotalLength()*f),progress:a.progress};})()");
+  assert(tip2D.error<.001);assert(tip2D.lengthError<.4,'2D reveal must follow real route length');
+  await shot('motion-'+variant+'-2d');
+  const unchanged=await evaluate("document.querySelector('.studio-assembly-overlay').dataset.tip");
+  for(const width of [500,1400,250]){await evaluate('setCamera([1700,130,'+width+',650])');await delay(720);assert.equal(await evaluate("document.querySelector('.studio-assembly-overlay').dataset.tip"),unchanged,'Zoom must not change the reveal position');}
+  await evaluate("setRenderer('3d');");await delay(250);assert.equal(await evaluate('doorStudio.getState().animation.progress'),tip2D.progress);
+  assert((await evaluate('board3d.diagnostics().studio.reveal.tipError'))<.0001,'Switching views preserves the same frontier');
+  await evaluate("document.querySelector('[data-studio-speed]').value='2';document.querySelector('[data-studio-speed]').onchange();doorStudio.pause();");await waitFor('doorStudio.getState().animation.progress===1');
+  assert.equal(await evaluate('doorGuide.getState().marked.length'),initialMarked);
   await evaluate("selectStep(0,false,{guided:false});");assert.equal(await evaluate('doorStudio.getState().animation'),null);assert.equal(await evaluate('board3d.diagnostics().studio.assembly.id'),null);
   await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await evaluate("doorStudio.inspect('U2',2);");await delay(200);assert(await evaluate("document.documentElement.scrollWidth<=innerWidth+2"),'No mobile overflow');await shot('studio-'+variant+'-mobile');
-  results.push({variant,chipClick2D:true,pins:true,railBreak:true,animation2D:true,pause:true,completedWithoutMarking:true,reducedMotion:true,chipClick3D:true,animation3D:true,mobile:true});
+  results.push({variant,chipClick2D:true,pins:true,railBreak:true,animation2D:true,pause:true,completedWithoutMarking:true,reducedMotion:true,chipClick3D:true,animation3D:true,synchronizedTips:true,zoomIndependentReveal2D:true,mobile:true});
  }
  assert.equal(errors.length,0,JSON.stringify(errors));assert.equal(failed.length,0,JSON.stringify(failed));fs.writeFileSync('work/qa/studio-browser-results.json',JSON.stringify({base,results,errors,failed},null,2));console.log(JSON.stringify({pass:true,base,results,errors:errors.length,failed:failed.length}));ws.close();
 }

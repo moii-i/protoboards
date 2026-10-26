@@ -258,7 +258,9 @@ export function createViewer({container, model, point, hole, onConnection, onPin
   // A persistent, pixel-sized outline follows the original 3D curve exactly.
   // Only one selected route is allocated; simulation updates do not rebuild it.
   const selectedTrace=new THREE.Group();selectedTrace.visible=false;scene.add(selectedTrace);
-  let traceGeometry=new LineGeometry(),traceConnection=null,traceBuilds=0;
+  let traceGeometry=new LineGeometry(),traceConnection=null,traceBuilds=0,tracePoints=[],traceFrontier=-1;
+  const revealPoint=new THREE.Vector3(),revealNormal=new THREE.Vector3();
+  const smooth=t=>{t=THREE.MathUtils.clamp(t,0,1);return t*t*(3-2*t);};
   const traceLayers=[[0x18382f,10],[0xffd16a,7],[0x087f93,3]].map(([color,width],i)=>{
     const material=new LineMaterial({color,linewidth:width,worldUnits:false,transparent:true,depthTest:false,depthWrite:false,toneMapped:false});
     const line=new Line2(traceGeometry,material);line.renderOrder=24+i;line.frustumCulled=false;selectedTrace.add(line);return line;
@@ -267,8 +269,10 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     selectedTrace.visible=Boolean(connection?.group.visible&&connection.it.kind==='wire');
     if(!selectedTrace.visible){traceConnection=null;return;}
     if(traceConnection===connection.it.id)return;
-    const count=Math.min(4096,Math.max(96,Math.ceil(connection.curve.getLength()*10),(connection.routePoints?.length||0)*12));
-    const geometry=new LineGeometry();geometry.setPositions(connection.curve.getPoints(count).flatMap(p=>p.toArray()));
+    // Use the very same arc-length samples as TubeGeometry, including its live tip.
+    const count=connection.wire.geometry.parameters.tubularSegments;
+    tracePoints=Array.from({length:count+1},(_,i)=>connection.curve.getPointAt(i/count));traceFrontier=-1;
+    const geometry=new LineGeometry();geometry.setPositions(tracePoints.flatMap(p=>p.toArray()));
     traceGeometry.dispose();traceGeometry=geometry;traceLayers.forEach(line=>{line.geometry=geometry;});
     traceLayers[2].material.color.copy(connection.material.color);traceConnection=connection.it.id;traceBuilds++;
   }
@@ -373,18 +377,58 @@ export function createViewer({container, model, point, hole, onConnection, onPin
   box(horizontal?a.distanceTo(b)+.6:.62,.045,horizontal?.62:a.distanceTo(b)+.6,middle,new THREE.MeshBasicMaterial({color:0xd8a533,transparent:true,opacity:.38,depthTest:false,depthWrite:false}),stripGroup);
   for(const h of holes){const ring=mesh(new THREE.TorusGeometry(.27,.045,8,20),new THREE.MeshBasicMaterial({color:0xa87820,depthTest:false,depthWrite:false}),hpos(h,.13),stripGroup);ring.rotation.x=-Math.PI/2;ring.renderOrder=18;}
  }
+ function restoreFrontier(c){
+  const cache=c?.reveal;if(!cache||cache.ring<0)return;
+  const geometry=c.wire.geometry,first=cache.ring*cache.stride,last=first+cache.stride;
+  for(const name of ['position','normal']){const attr=geometry.getAttribute(name);attr.array.set(cache[name].subarray(first,last),first);attr.addUpdateRange(first,cache.stride);attr.needsUpdate=true;}
+  cache.ring=-1;
+ }
+ function restoreTraceFrontier(){
+  if(traceFrontier<0)return;const attr=traceGeometry.getAttribute('instanceEnd'),point=tracePoints[traceFrontier+1];
+  if(attr&&point){attr.setXYZ(traceFrontier,point.x,point.y,point.z);attr.data.needsUpdate=true;}traceFrontier=-1;
+ }
  function restoreAssembly(c){
-  if(!c)return;c.wire.geometry.setDrawRange(0,Infinity);for(const pair of c.plugs||[])for(const p of pair){p.mesh.visible=true;p.mesh.position.copy(p.home);}
+  if(!c)return;restoreFrontier(c);c.wire.geometry.setDrawRange(0,Infinity);
+  for(const pair of c.plugs||[])for(const p of pair){p.mesh.visible=true;p.mesh.position.copy(p.home);}
  }
  function setAssembly(value){
   if(assemblyPose.id&&assemblyPose.id!==value?.id)restoreAssembly(connections.get(assemblyPose.id));
+  restoreTraceFrontier();
   if(!value){if(assemblyPose.id)restoreAssembly(connections.get(assemblyPose.id));assemblyPose={id:null,progress:1};traceGeometry.instanceCount=traceGeometry.getAttribute('instanceStart')?.count||0;requestRender();return;}
-  const c=connections.get(value.id);if(!c||c.it.kind!=='wire')return;assemblyPose={id:value.id,progress:Math.max(0,Math.min(1,value.progress))};
-  routeTween=null;traveler.visible=false;const t=assemblyPose.progress,fraction=Math.max(0,Math.min(1,(t-.22)/.56));
-  const count=c.wire.geometry.index?.count||c.wire.geometry.getAttribute('position').count;c.wire.geometry.setDrawRange(0,Math.floor(count*fraction/3)*3);
-  if(traceConnection===value.id)traceGeometry.instanceCount=Math.ceil((traceGeometry.getAttribute('instanceStart')?.count||0)*fraction);
-  (c.plugs||[]).forEach((pair,i)=>{const k=i?Math.max(0,Math.min(1,(t-.78)/.22)):Math.min(1,t/.22);for(const p of pair){p.mesh.visible=i?t>=.78:true;p.mesh.position.copy(p.home).add(new THREE.Vector3(0,.85*(1-k),0));}});
+  const c=connections.get(value.id);if(!c||c.it.kind!=='wire')return;assemblyPose={id:value.id,progress:THREE.MathUtils.clamp(value.progress,0,1)};
+  routeTween=null;traveler.visible=false;
+  const t=assemblyPose.progress,fraction=smooth((t-.22)/.56),geometry=c.wire.geometry;
+  restoreFrontier(c);
+  const segments=geometry.parameters.tubularSegments,radial=geometry.parameters.radialSegments,scaled=fraction*segments,whole=Math.floor(scaled),partial=scaled-whole,ring=Math.min(segments,whole+1);
+  // Only move the advancing ring. No geometry allocation or growing triangles per frame.
+  if(fraction>0&&fraction<1&&partial>1e-8){
+    c.reveal||={position:new Float32Array(geometry.getAttribute('position').array),normal:new Float32Array(geometry.getAttribute('normal').array),stride:(radial+1)*3,ring:-1};
+    const cache=c.reveal,position=geometry.getAttribute('position'),normal=geometry.getAttribute('normal'),radius=geometry.parameters.radius;
+    c.curve.getPointAt(fraction,revealPoint);
+    for(let j=0;j<=radial;j++){
+      const lo=(whole*(radial+1)+j)*3,hi=(ring*(radial+1)+j)*3;
+      revealNormal.set(cache.normal[lo]+(cache.normal[hi]-cache.normal[lo])*partial,cache.normal[lo+1]+(cache.normal[hi+1]-cache.normal[lo+1])*partial,cache.normal[lo+2]+(cache.normal[hi+2]-cache.normal[lo+2])*partial).normalize();
+      position.setXYZ(ring*(radial+1)+j,revealPoint.x+radius*revealNormal.x,revealPoint.y+radius*revealNormal.y,revealPoint.z+radius*revealNormal.z);
+      normal.setXYZ(ring*(radial+1)+j,revealNormal.x,revealNormal.y,revealNormal.z);
+    }
+    cache.ring=ring;
+    for(const attr of [position,normal]){attr.addUpdateRange(ring*cache.stride,cache.stride);attr.needsUpdate=true;}
+  }else c.curve.getPointAt(fraction,revealPoint);
+  const visibleSegments=fraction<=0?0:Math.ceil(scaled);
+  geometry.setDrawRange(0,visibleSegments*radial*6);
+  if(traceConnection===value.id){
+    traceGeometry.instanceCount=visibleSegments;
+    if(visibleSegments>0&&fraction<1){const attr=traceGeometry.getAttribute('instanceEnd');traceFrontier=visibleSegments-1;attr.setXYZ(traceFrontier,revealPoint.x,revealPoint.y,revealPoint.z);attr.data.needsUpdate=true;}
+  }
+  (c.plugs||[]).forEach((pair,i)=>{const k=smooth(i?(t-.78)/.22:t/.22);for(const p of pair){p.mesh.visible=i?t>=.78:true;p.mesh.position.copy(p.home);p.mesh.position.y+=.85*(1-k);}});
   requestRender();
+ }
+ function assemblyDiagnostics(){
+  const c=connections.get(assemblyPose.id);if(!c)return null;
+  const geometry=c.wire.geometry,radial=geometry.parameters.radialSegments,segments=geometry.parameters.tubularSegments,fraction=smooth((assemblyPose.progress-.22)/.56),ring=Math.ceil(fraction*segments),attr=geometry.getAttribute('position'),tip=new THREE.Vector3();
+  if(ring>0){for(let j=0;j<radial;j++){const offset=ring*(radial+1)+j;tip.x+=attr.getX(offset);tip.y+=attr.getY(offset);tip.z+=attr.getZ(offset);}tip.divideScalar(radial);}else tip.copy(c.a);
+  const ends=traceGeometry.getAttribute('instanceEnd'),index=traceGeometry.instanceCount-1,traceTip=index>=0?new THREE.Vector3(ends.getX(index),ends.getY(index),ends.getZ(index)):c.a;
+  return {fraction,wireTip:tip.toArray(),traceTip:traceTip.toArray(),tipError:tip.distanceTo(traceTip),visibleSegments:ring,segments,traceSegments:traceGeometry.instanceCount};
  }
  function updateStudio(studio){
   updateStrip(studio);
@@ -409,7 +453,7 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     preset(value){topView=value==='top';if(!topView){cameraTween=null;camera.position.copy(controls.target).add(new THREE.Vector3(12,70,75));controls.update();}focusBox(lastBox,true);},
     zoom(){const center=controls.target.clone(),to=center.clone().add(camera.position.clone().sub(center).multiplyScalar(.75));cameraTween=null;if(snapshot?.animate){cameraTween={fromPos:camera.position.clone(),toPos:to,fromTarget:center,toTarget:center,started:performance.now()};canvas.dataset.moving='true';requestRender();}else{camera.position.copy(to);controls.update();requestRender();}},
     rotate(dir){topView=false;const v=camera.position.clone().sub(controls.target);v.applyAxisAngle(new THREE.Vector3(0,1,0),dir*Math.PI/6);const to=controls.target.clone().add(v);if(snapshot?.animate){cameraTween={fromPos:camera.position.clone(),toPos:to,fromTarget:controls.target.clone(),toTarget:controls.target.clone(),started:performance.now()};canvas.dataset.moving='true';requestRender();}else{camera.position.copy(to);controls.update();requestRender();}},
-    diagnostics(){const rect=canvas.getBoundingClientRect(),project=p=>{const v=p.clone().project(camera);return [rect.left+(v.x+1)*rect.width/2,rect.top+(1-v.y)*rect.height/2];};return {studio:{chip:snapshot?.studio?.chip||null,stripHoles:snapshot?.studio?.stripHoles||[],assembly:{...assemblyPose},partialDrawCount:assemblyPose.id?connections.get(assemblyPose.id)?.wire.geometry.drawRange.count:null},selection:selectionDiagnostics(),wireClarity,routedConnections:[...connections.values()].filter(c=>c.routed).length,wireStates:Object.fromEntries([...connections].filter(([,c])=>c.routed).map(([id,c])=>[id,{opacity:c.wire.material.opacity,height:c.height,curveA:c.curve.getPoint(0).toArray(),curveB:c.curve.getPoint(1).toArray()}])),connectionCount:connections.size,pinCount:pinMeshes.length,arrayPinCount:arrayPinMeshes.length,resistorArrays:(model.arrays||[]).length,resistors:model.items.filter(it=>it.kind==='res').length,frames:renderedFrames,active,moving:Boolean(cameraTween),camera:camera.position.toArray(),target:controls.target.toArray(),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,targets:{contacts:[project(hpos(['A','d',12],.03))],chips:[...chipBodies].map(([id,o])=>({id,screen:project(o.body.position)})),switches:switches.slice(0,3).map(s=>project(s.position)),pins:pinMeshes.map(m=>({u:m.userData.u,p:m.userData.p,screen:project(m.geometry.parameters.path.getPoint(.15))})),wires:Object.fromEntries([...connections].map(([id,c])=>[id,project(c.curve.getPoint(.5))]))},endpoints:Object.fromEntries([...connections].map(([id,c])=>[id,{a:c.it.a,b:c.it.b,worldA:c.a.toArray(),worldB:c.b.toArray()}])),lit:[...ledLenses].filter(([,m])=>m.userData.lit).map(([name])=>name)};},
+    diagnostics(){const rect=canvas.getBoundingClientRect(),project=p=>{const v=p.clone().project(camera);return [rect.left+(v.x+1)*rect.width/2,rect.top+(1-v.y)*rect.height/2];};return {studio:{chip:snapshot?.studio?.chip||null,stripHoles:snapshot?.studio?.stripHoles||[],assembly:{...assemblyPose},reveal:assemblyDiagnostics(),partialDrawCount:assemblyPose.id?connections.get(assemblyPose.id)?.wire.geometry.drawRange.count:null},selection:selectionDiagnostics(),wireClarity,routedConnections:[...connections.values()].filter(c=>c.routed).length,wireStates:Object.fromEntries([...connections].filter(([,c])=>c.routed).map(([id,c])=>[id,{opacity:c.wire.material.opacity,height:c.height,curveA:c.curve.getPoint(0).toArray(),curveB:c.curve.getPoint(1).toArray()}])),connectionCount:connections.size,pinCount:pinMeshes.length,arrayPinCount:arrayPinMeshes.length,resistorArrays:(model.arrays||[]).length,resistors:model.items.filter(it=>it.kind==='res').length,frames:renderedFrames,active,moving:Boolean(cameraTween),camera:camera.position.toArray(),target:controls.target.toArray(),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,targets:{contacts:[project(hpos(['A','d',12],.03))],chips:[...chipBodies].map(([id,o])=>({id,screen:project(o.body.position)})),switches:switches.slice(0,3).map(s=>project(s.position)),pins:pinMeshes.map(m=>({u:m.userData.u,p:m.userData.p,screen:project(m.geometry.parameters.path.getPoint(.15))})),wires:Object.fromEntries([...connections].map(([id,c])=>[id,project(c.curve.getPoint(.5))]))},endpoints:Object.fromEntries([...connections].map(([id,c])=>[id,{a:c.it.a,b:c.it.b,worldA:c.a.toArray(),worldB:c.b.toArray()}])),lit:[...ledLenses].filter(([,m])=>m.userData.lit).map(([name])=>name)};},
     dispose(){setActive(false);observer.disconnect();document.removeEventListener('visibilitychange',visibility);controls.dispose();const geometries=new Set(),materials=new Set(),textures=new Set();scene.traverse(o=>{if(o.geometry)geometries.add(o.geometry);for(const m of [].concat(o.material||[])){materials.add(m);if(m.map)textures.add(m.map);}});textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose());geometries.forEach(g=>g.dispose());renderer.dispose();canvas.remove();}
   };
 }

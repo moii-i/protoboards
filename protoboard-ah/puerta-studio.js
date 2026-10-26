@@ -5,7 +5,8 @@ const $s=id=>document.getElementById(id),svgNS='http://www.w3.org/2000/svg',map=
 let prefs={auto:true,strips:false,speed:1,compact:true};try{Object.assign(prefs,JSON.parse(localStorage.getItem('protoboard:studio:v1')||'{}'));}catch{}
 prefs.speed=[.5,1,2].includes(Number(prefs.speed))?Number(prefs.speed):1;
 const state={chip:null,pin:null,related:[],strip:null,animation:null},original={selectCable,selectStep,visibility,showRenderer,animateSelection,synchronizeMotion};
-let raf=0,lastTime=0,keepInspector=false,overlay=null,overlayPath=null,overlayBoots=[],pathLength=1;
+let raf=0,lastTime=0,keepInspector=false,overlay=null,overlayPath=null,overlayBoots=[],pathLength=1,overlayPaths=[],measurePath=null,routeSamples=[],routeCommands=[],animationElement=null,phaseStamp='';
+const smooth=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t);};
 const toolbar=document.createElement('div');toolbar.className='studio-toolbar';toolbar.setAttribute('aria-label','Herramientas de ensamblaje');
 toolbar.innerHTML=`<label class="studio-pick">Explorar <select id="studioChip" aria-label="Explorar integrado"><option value="">Elige un integrado</option>${model.chips.map(c=>`<option value="${safe(c.id)}">${safe(c.id+' · '+c.label)}</option>`).join('')}</select></label><button type="button" id="studioStrips" aria-pressed="${Boolean(prefs.strips)}">Tiras internas</button><span class="studio-divider"></span><button type="button" data-studio-action="play">Conectar jumper</button><button type="button" data-studio-action="pause" disabled>Pausar</button><label class="studio-speed">Velocidad <select data-studio-speed aria-label="Velocidad de ensamblaje"><option value="0.5">Lenta</option><option value="1">Normal</option><option value="2">Rápida</option></select></label><label class="studio-auto"><input id="studioAuto" type="checkbox" ${prefs.auto?'checked':''}> Al seleccionar</label><span id="studioPhase" role="status">Selecciona un cable o un integrado</span>`;
 document.querySelector('.board-toolbar').after(toolbar);
@@ -61,22 +62,33 @@ more.onclick=()=>{prefs.compact=!prefs.compact;savePrefs();setCompact();};
 function setCompact(){$s('assemblyIsland').classList.toggle('studio-compact',Boolean(prefs.compact));more.textContent=prefs.compact?'Más controles':'Compactar';more.setAttribute('aria-expanded',String(!prefs.compact));requestAnimationFrame(updateIslandInset);}
 function ensureOverlay(it){
 if(overlay)return;overlay=document.createElementNS(svgNS,'g');overlay.setAttribute('class','studio-assembly-overlay');overlay.setAttribute('pointer-events','none');$s('scene').appendChild(overlay);
-overlayPath=document.createElementNS(svgNS,'path');overlayPath.setAttribute('d',roundedRoute(wireRoute(it)));overlayPath.setAttribute('fill','none');overlayPath.setAttribute('stroke',it.color||'#147c75');overlayPath.setAttribute('stroke-width','5');overlayPath.setAttribute('vector-effect','non-scaling-stroke');overlayPath.setAttribute('stroke-linecap','round');overlay.appendChild(overlayPath);pathLength=overlayPath.getTotalLength();overlayPath.style.strokeDasharray=pathLength+' '+pathLength;
-overlayBoots=[it.a,it.b].map(h=>{const [x,y]=point(h),g=document.createElementNS(svgNS,'g');g.innerHTML=`<path d="M${x} ${y-10}V${y}" stroke="#b7c1c3" stroke-width="4"/><rect x="${x-5}" y="${y-22}" width="10" height="13" rx="2" fill="#293e45"/><rect x="${x-3}" y="${y-24}" width="6" height="5" rx="2" fill="${it.color||'#147c75'}"/>`;overlay.appendChild(g);return g;});
+measurePath=document.createElementNS(svgNS,'path');measurePath.setAttribute('d',roundedRoute(wireRoute(it)));pathLength=measurePath.getTotalLength();
+const count=Math.max(8,Math.min(2048,Math.ceil(pathLength/4)));routeSamples=Array.from({length:count+1},(_,i)=>measurePath.getPointAtLength(pathLength*i/count));routeCommands=routeSamples.slice(1).map(p=>' L'+p.x.toFixed(3)+' '+p.y.toFixed(3));
+overlayPaths=[['#173e33',7],[it.color||'#147c75',3]].map(([color,width])=>{const p=document.createElementNS(svgNS,'path');p.setAttribute('fill','none');p.setAttribute('stroke',color);p.setAttribute('stroke-width',width);p.setAttribute('vector-effect','non-scaling-stroke');p.setAttribute('stroke-linecap','round');p.setAttribute('stroke-linejoin','round');overlay.appendChild(p);return p;});overlayPath=overlayPaths.at(-1);
+overlayBoots=[it.a,it.b].map(h=>{const [x,y]=point(h),g=document.createElementNS(svgNS,'g');g.innerHTML='<rect x="-5" y="-5" width="10" height="10" rx="2" fill="#293e45"/><rect x="-3" y="-3" width="6" height="6" rx="1" fill="'+(it.color||'#147c75')+'"/>';overlay.appendChild(g);return {g,x,y};});
 }
 function drawAnimation(){
-const a=state.animation;if(!a)return;const it=model.items.find(x=>x.id===a.id);if(!it)return;ensureOverlay(it);const t=a.progress,reveal=Math.max(0,Math.min(1,(t-.22)/.56)),first=Math.min(1,t/.22),second=Math.max(0,Math.min(1,(t-.78)/.22));
-overlayPath.style.strokeDashoffset=String(pathLength*(1-reveal));overlayPath.style.opacity=reveal>0?'1':'0';
-overlayBoots.forEach((g,i)=>{const v=i?second:first;g.setAttribute('transform',`translate(0,${-34*(1-v)})`);g.style.opacity=i?(t>=.78?'1':'0'):'1';});
-map.querySelectorAll('.connection.studio-assembling').forEach(el=>el.classList.remove('studio-assembling'));map.querySelector(`.connection[data-id="${a.id}"]`)?.classList.toggle('studio-assembling',t<1);
-board3d?.setAssembly?.({id:a.id,progress:t});$s('studioPhase').textContent=(a.playing?'':'Pausa · ')+(t<.22?'1/3 · Inserta el primer extremo':t<.78?'2/3 · Tiende el jumper':t<1?'3/3 · Inserta el segundo extremo':'Conexión mostrada · compruébala antes de marcar');
+const a=state.animation;if(!a)return;const it=model.items.find(x=>x.id===a.id);if(!it)return;const t=a.progress,reveal=smooth((t-.22)/.56),first=smooth(t/.22),second=smooth((t-.78)/.22);
+if(rendererMode==='2d'){
+ensureOverlay(it);
+const count=routeSamples.length-1,whole=Math.floor(reveal*count),tip=measurePath.getPointAtLength(pathLength*reveal),origin=routeSamples[0],d='M'+origin.x+' '+origin.y+routeCommands.slice(0,whole).join('')+(whole<count?' L'+tip.x+' '+tip.y:'');
+for(const p of overlayPaths){p.setAttribute('d',d);p.style.opacity=reveal>0?'1':'0';}
+overlay.dataset.reveal=String(reveal);overlay.dataset.tip=tip.x+','+tip.y;
+overlayBoots.forEach(({g,x,y},i)=>{const v=i?second:first;g.setAttribute('transform','translate('+x+' '+y+') scale('+(1+.65*(1-v))+')');g.style.opacity=String(v);});
+}
+animationElement?.classList.toggle('studio-assembling',t<1);
+if(rendererMode==='3d')board3d?.setAssembly?.({id:a.id,progress:t});
+const phase=t<.22?0:t<.78?1:t<1?2:3,stamp=phase+':'+a.playing;
+if(stamp!==phaseStamp){
+phaseStamp=stamp;$s('studioPhase').textContent=(a.playing?'':'Pausa · ')+['1/3 · Inserta el primer extremo','2/3 · Tiende el jumper','3/3 · Inserta el segundo extremo','Conexión mostrada · compruébala antes de marcar'][phase];
 quickStatus.hidden=false;quickStatus.textContent=$s('studioPhase').textContent;
 document.querySelectorAll('[data-studio-action="pause"]').forEach(b=>{b.disabled=t>=1;b.textContent=a.playing?'Pausar':'Continuar';b.setAttribute('aria-pressed',String(!a.playing&&t<1));});
 }
+}
 function tick(now){raf=0;const a=state.animation;if(!a||!a.playing)return;const dt=lastTime?Math.min(100,now-lastTime):0;lastTime=now;a.progress=Math.min(1,a.progress+dt*prefs.speed/3000);if(a.progress>=1)a.playing=false;drawAnimation();if(a.playing)raf=requestAnimationFrame(tick);}
-function cancelAssembly(){if(raf)cancelAnimationFrame(raf);raf=0;lastTime=0;state.animation=null;overlay?.remove();overlay=null;overlayPath=null;overlayBoots=[];map.querySelectorAll('.studio-assembling').forEach(el=>el.classList.remove('studio-assembling'));board3d?.setAssembly?.(null);}
+function cancelAssembly(){if(raf)cancelAnimationFrame(raf);raf=0;lastTime=0;state.animation=null;overlay?.remove();overlay=null;overlayPath=null;overlayBoots=[];overlayPaths=[];measurePath=null;routeSamples=[];routeCommands=[];phaseStamp='';animationElement?.classList.remove('studio-assembling');animationElement=null;board3d?.setAssembly?.(null);}
 function playAssembly(){
-const it=model.items.find(x=>x.id===selected);if(!it||it.kind!=='wire'||!canAnimate())return;cancelAssembly();stopFeedback();board3d?.stopReplay?.();state.animation={id:it.id,progress:0,playing:true};drawAnimation();lastTime=0;raf=requestAnimationFrame(tick);syncToolbar();
+const it=model.items.find(x=>x.id===selected);if(!it||it.kind!=='wire'||!canAnimate())return;cancelAssembly();stopFeedback();board3d?.stopReplay?.();state.animation={id:it.id,progress:0,playing:true};animationElement=map.querySelector('.connection[data-id="'+it.id+'"]');drawAnimation();lastTime=0;raf=requestAnimationFrame(tick);syncToolbar();
 }
 function pauseAssembly(){const a=state.animation;if(!a)return;a.playing=!a.playing;if(raf)cancelAnimationFrame(raf);raf=0;lastTime=0;if(a.playing&&a.progress<1)raf=requestAnimationFrame(tick);drawAnimation();}
 function syncToolbar(){

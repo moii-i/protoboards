@@ -98,3 +98,9 @@ La escena compartida no se recorta a los límites del viewBox. El recorte se apl
 - Se respeta movimiento reducido; cambiar de paso cancela y restaura la conexión. Al cambiar de visor se conserva el avance de la animación.
 
 Prueba adicional: node tools/verify-door-studio-browser.cjs (con el servidor local activo). Usa eventos reales de ratón para abrir chips en ambos visores y verifica patas, rieles separados, animación parcial 3D, pausa, finalización sin marcado, cancelación, movimiento reducido y vista móvil.
+
+### Continuidad de los jumpers
+
+El cable 3D y su contorno usan las mismas muestras a distancia uniforme y comparten una punta interpolada: el avance ya no depende de contar curvas o triángulos. Solo se actualiza el último anillo del tubo; no se reconstruye la geometría en cada fotograma. En 2D el recorrido se recorta por su longitud real, sin guiones afectados por el zoom, y los terminales se insertan centrados en su agujero. Las fases tienen entrada y salida suaves. Durante la reproducción solo se actualiza el visor activo; los textos cambian al pasar de fase.
+
+Verificación geométrica adicional: `node verify-door-3d.mjs --ls151 --motion` (y `--ls151-compacto`). Comprueba todos los jumpers en avances fraccionarios y retrocesos, coincidencia de las puntas, continuidad dentro de cada tramo y cancelación sin reconstruir el contorno.
