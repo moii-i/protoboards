@@ -113,3 +113,13 @@ Verificación geométrica adicional: `node verify-door-3d.mjs --ls151 --motion` 
 - Los mandos y finales existentes conservan sus modelos y conexiones; no se incorporan SCMM-122 ni SS0501A.
 
 Prueba de navegador: `node tools/verify-door-learning-browser.cjs`, con el servidor local activo. Incluye búsquedas, colocación 2D/3D, orientación, pausa, cancelación, revisiones persistentes, movimiento reducido y móvil.
+
+## Tercera entrega: señales, tarjetas y hoja de montaje
+
+Señales abre un panel conectado a la prueba de puerta, con M, STOP, NY, PA, PC y los mandos. En variantes anteriores se usan los alias S, P_A/P_C y A/C; NY solo aparece donde existe ese nodo. Se muestra 0/1 mientras la prueba está encendida y se resalta el recorrido sin cambiar el color del jumper. Con la prueba apagada se muestra un guion; salir de la etapa final cierra la exploración de señales para no tapar el montaje. Es representación lógica, no una medición de tensión ni una simulación analógica. El panel permite accionar los mismos mandos de la prueba, localizar el recorrido y explicar el bloqueo por STOP, finales u órdenes simultáneas.
+
+Las tarjetas de colocación y señales tienen un asa para arrastrar (ratón o táctil), flechas de teclado para mover, plegado y restablecimiento de posición. Se guardan por tarjeta y tamaño de pantalla. El arrastre se limita al visor y evita la isla superior en pantalla ampliada.
+
+PDF del montaje descarga la variante seleccionada. Cada PDF incluye materiales, posiciones/patas, coordenadas de conexiones, revisiones y prueba funcional; no incorpora el avance marcado del navegador. Se genera con `npm run build:pdf`, usando los modelos y el mapa vigentes. `montajes-pdf.json` registra las fuentes y sus hashes; las pruebas fallan si un PDF se queda desactualizado al modificar el montaje. La compilación normal conserva estos archivos publicados; regenera los PDF después de cambiar sus fuentes. Requiere Chrome local para generar, no para descargarlos.
+
+Prueba específica: `node tools/verify-door-lesson-browser.cjs`. Comprueba estados de señales, STOP/reanudación, finales, interbloqueo, colores, trazado 3D estable, arrastre real de tarjeta, plegado, límites móviles y descarga PDF.

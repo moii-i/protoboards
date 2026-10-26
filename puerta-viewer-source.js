@@ -55,6 +55,23 @@ export function createViewer({container, model, point, hole, onConnection, onPin
   let active = false, raf = 0, cameraTween = null, routeTween = null, settleFrames = 0, snapshot = null;
   let lastBox = [...model.bounds], topView = false, lastPins = '', selectedId = null;
   let renderedFrames = 0, moved = false, wireClarity = true, isolateWires = false;
+  const signalTrace=new THREE.Group();scene.add(signalTrace);let signalStamp='',signalPose=null,signalBuilds=0;
+  function updateSignalTrace(value){
+    signalPose=value?.active?value:null;const ids=signalPose?.ids||[],stamp=ids.join('|');
+    if(stamp!==signalStamp){signalTrace.traverse(o=>{o.geometry?.dispose();o.material?.dispose();});signalTrace.clear();signalStamp=stamp;
+      for(const id of ids){const c=connections.get(id);if(!c||c.it.kind!=='wire')continue;
+        const geometry=new LineGeometry();geometry.setPositions(Array.from({length:c.wire.geometry.parameters.tubularSegments+1},(_,i)=>c.curve.getPointAt(i/c.wire.geometry.parameters.tubularSegments)).flatMap(p=>p.toArray()));
+        for(const [color,width]of [[0xe1b445,8],[c.material.color,3]]){const material=new LineMaterial({color,linewidth:width,worldUnits:false,transparent:true,depthTest:false,depthWrite:false,toneMapped:false});const line=new Line2(geometry,material);line.userData.signal=id;line.renderOrder=21;line.frustumCulled=false;signalTrace.add(line);}signalBuilds++;
+      }
+    }
+    const rect=container.getBoundingClientRect();signalTrace.visible=Boolean(signalPose);
+    for(const line of signalTrace.children){line.visible=Boolean(connections.get(line.userData.signal)?.group.visible);line.material.opacity=signalPose?.value===1?.9:.5;line.material.resolution.set(rect.width||1,rect.height||1);}
+  }
+  function setSignals(value){
+    if(JSON.stringify(value||null)===JSON.stringify(signalPose))return;
+    if(snapshot)update({...snapshot,studio:{...snapshot.studio,signals:value}});
+    else{updateSignalTrace(value);requestRender();}
+  }
 
   function mesh(geometry, material, position, parent=scene) {
     const m = new THREE.Mesh(geometry, material);
@@ -349,7 +366,7 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     if(typeof next.clarity==='boolean')wireClarity=next.clarity;
     else if(typeof next.routingFocus==='boolean')wireClarity=next.routingFocus;
     if(typeof next.isolate==='boolean')isolateWires=next.isolate;
-    const studio=next.studio,inspecting=Boolean(studio?.chip),inspectIds=new Set(studio?.related||[]);
+    const studio=next.studio,inspecting=Boolean(studio?.chip),inspectIds=new Set(studio?.related||[]),signalIds=new Set(studio?.signals?.active?studio.signals.ids:[]);
     const selected=connections.get(next.selected),clarityFocus=wireClarity&&Boolean(selected),selectedPart=selected?.it.partId;
     const references=new Set([selectedPart,...[selected?.it.fromRef,selected?.it.toRef].filter(Boolean).map(ref=>ref.split('.')[0])].filter(Boolean));
     const selectedPins=[selected?.it.fromRef,selected?.it.toRef].filter(ref=>/^U\d+\.\d+$/.test(ref||''));
@@ -358,7 +375,7 @@ export function createViewer({container, model, point, hole, onConnection, onPin
       c.group.visible=(current||(next.previous&&c.it.stage<next.step)||(inspecting&&inspectIds.has(id)))&&!(isolateWires&&selected?.it.kind==='wire'&&c.it.kind==='wire'&&id!==next.selected);
       const relatedPart=references.has(c.it.partId),relatedSignal=c.it.kind==='wire'&&selected?.it.kind==='wire'&&selected.it.signal&&c.it.signal===selected.it.signal;
       const relatedPartWire=c.it.kind==='wire'&&selectedPart&&[c.it.fromRef,c.it.toRef].some(ref=>ref?.startsWith(selectedPart+'.'));
-      const emphasis=inspecting?(inspectIds.has(id)?1:c.it.kind==='wire'?.1:.8):id===next.selected?1:clarityFocus?(c.it.kind==='wire'?(relatedSignal||relatedPartWire?.32:.16):relatedPart?1:.92):next.selected?.4:current?1:.75;
+      const emphasis=studio?.signals?.active&&c.it.kind==='wire'?(signalIds.has(id)?1:.16):inspecting?(inspectIds.has(id)?1:c.it.kind==='wire'?.1:.8):id===next.selected?1:clarityFocus?(c.it.kind==='wire'?(relatedSignal||relatedPartWire?.32:.16):relatedPart?1:.92):next.selected?.4:current?1:.75;
       c.group.traverse(obj=>{
         if(obj.userData.viewerLabel)obj.visible=!clarityFocus||id===next.selected||relatedPart;
         if(obj.isMesh)for(const mat of [].concat(obj.material)){const base=obj.userData.baseOpacity??1;mat.transparent=emphasis<1||base<1||Boolean(obj.userData.softShadow);mat.opacity=emphasis*base;mat.depthWrite=emphasis>.6&&base===1&&!obj.userData.softShadow;}
@@ -458,9 +475,10 @@ export function createViewer({container, model, point, hole, onConnection, onPin
   for(const [id,o] of chipBodies){o.outline.visible=id===studio?.chip;o.body.material.transparent=Boolean(studio?.chip&&id!==studio.chip);o.body.material.opacity=studio?.chip&&id!==studio.chip?.toString()? .52:1;}
   setAssembly(studio?.assembly||null);
   setPlacement(studio?.placement||null);
+  updateSignalTrace(studio?.signals||null);
  }
 
-  function resize(){const {width,height}=container.getBoundingClientRect();if(!width||!height)return;camera.aspect=width/height;camera.updateProjectionMatrix();renderer.setSize(width,height,false);traceLayers.forEach(line=>line.material.resolution.set(width,height));if(active)focusBox(lastBox,false);}
+  function resize(){const {width,height}=container.getBoundingClientRect();if(!width||!height)return;camera.aspect=width/height;camera.updateProjectionMatrix();renderer.setSize(width,height,false);traceLayers.forEach(line=>line.material.resolution.set(width,height));for(const line of signalTrace.children)line.material.resolution.set(width,height);if(active)focusBox(lastBox,false);}
   const observer=new ResizeObserver(resize);observer.observe(container);
   canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();setActive(false);onFailure('Tu navegador perdió la vista 3D. Puedes seguir en 2D y volver a intentarlo.');});
   const visibility=()=>{if(document.hidden){finishMotion();if(raf)cancelAnimationFrame(raf);raf=0;}else requestRender();};document.addEventListener('visibilitychange',visibility);
@@ -471,13 +489,13 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     return {visible:selectedTrace.visible,id:traceConnection,builds:traceBuilds,isolate:isolateWires,widths:traceLayers.map(line=>line.material.linewidth),resolution:traceLayers[0].material.resolution.toArray(),depthTest:traceLayers.some(line=>line.material.depthTest),curveA:first?[first.getX(0),first.getY(0),first.getZ(0)]:null,curveB:last?[last.getX(last.count-1),last.getY(last.count-1),last.getZ(last.count-1)]:null,visibleWires:[...connections].filter(([,c])=>c.it.kind==='wire'&&c.group.visible).map(([id])=>id),endpointLabels:[],endpointRings:markers.map(({ring})=>ring.visible),replayDuration:routeTween?.duration||null};
   }
   return {
-    update,focusBox,replay,setActive,setLEDs,setIndicators,setWireClarity,setAssembly,setPlacement,
+    update,focusBox,replay,setActive,setLEDs,setIndicators,setWireClarity,setAssembly,setPlacement,setSignals,
     stopReplay(){routeTween=null;traveler.visible=false;requestRender();},
     capture(){renderer.render(scene,camera);return canvas.toDataURL('image/png');},
     preset(value){topView=value==='top';if(!topView){cameraTween=null;camera.position.copy(controls.target).add(new THREE.Vector3(12,70,75));controls.update();}focusBox(lastBox,true);},
     zoom(){const center=controls.target.clone(),to=center.clone().add(camera.position.clone().sub(center).multiplyScalar(.75));cameraTween=null;if(snapshot?.animate){cameraTween={fromPos:camera.position.clone(),toPos:to,fromTarget:center,toTarget:center,started:performance.now()};canvas.dataset.moving='true';requestRender();}else{camera.position.copy(to);controls.update();requestRender();}},
     rotate(dir){topView=false;const v=camera.position.clone().sub(controls.target);v.applyAxisAngle(new THREE.Vector3(0,1,0),dir*Math.PI/6);const to=controls.target.clone().add(v);if(snapshot?.animate){cameraTween={fromPos:camera.position.clone(),toPos:to,fromTarget:controls.target.clone(),toTarget:controls.target.clone(),started:performance.now()};canvas.dataset.moving='true';requestRender();}else{camera.position.copy(to);controls.update();requestRender();}},
-    diagnostics(){const rect=canvas.getBoundingClientRect(),project=p=>{const v=p.clone().project(camera);return [rect.left+(v.x+1)*rect.width/2,rect.top+(1-v.y)*rect.height/2];};return {studio:{placement:placementPose?{...placementPose,height:componentGroups.get(placementPose.id).group.position.y,holes:componentGroups.get(placementPose.id).holes}:null,chip:snapshot?.studio?.chip||null,stripHoles:snapshot?.studio?.stripHoles||[],assembly:{...assemblyPose},reveal:assemblyDiagnostics(),partialDrawCount:assemblyPose.id?connections.get(assemblyPose.id)?.wire.geometry.drawRange.count:null},selection:selectionDiagnostics(),wireClarity,routedConnections:[...connections.values()].filter(c=>c.routed).length,wireStates:Object.fromEntries([...connections].filter(([,c])=>c.routed).map(([id,c])=>[id,{opacity:c.wire.material.opacity,height:c.height,curveA:c.curve.getPoint(0).toArray(),curveB:c.curve.getPoint(1).toArray()}])),connectionCount:connections.size,pinCount:pinMeshes.length,arrayPinCount:arrayPinMeshes.length,resistorArrays:(model.arrays||[]).length,resistors:model.items.filter(it=>it.kind==='res').length,frames:renderedFrames,active,moving:Boolean(cameraTween),camera:camera.position.toArray(),target:controls.target.toArray(),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,targets:{contacts:[project(hpos(['A','d',12],.03))],chips:[...chipBodies].map(([id,o])=>({id,screen:project(o.body.position)})),switches:switches.slice(0,3).map(s=>project(s.position)),pins:pinMeshes.map(m=>({u:m.userData.u,p:m.userData.p,screen:project(m.geometry.parameters.path.getPoint(.15))})),wires:Object.fromEntries([...connections].map(([id,c])=>[id,project(c.curve.getPoint(.5))]))},endpoints:Object.fromEntries([...connections].map(([id,c])=>[id,{a:c.it.a,b:c.it.b,worldA:c.a.toArray(),worldB:c.b.toArray()}])),lit:[...ledLenses].filter(([,m])=>m.userData.lit).map(([name])=>name)};},
+    diagnostics(){const rect=canvas.getBoundingClientRect(),project=p=>{const v=p.clone().project(camera);return [rect.left+(v.x+1)*rect.width/2,rect.top+(1-v.y)*rect.height/2];};return {studio:{signals:signalPose?{...signalPose,builds:signalBuilds}:null,placement:placementPose?{...placementPose,height:componentGroups.get(placementPose.id).group.position.y,holes:componentGroups.get(placementPose.id).holes}:null,chip:snapshot?.studio?.chip||null,stripHoles:snapshot?.studio?.stripHoles||[],assembly:{...assemblyPose},reveal:assemblyDiagnostics(),partialDrawCount:assemblyPose.id?connections.get(assemblyPose.id)?.wire.geometry.drawRange.count:null},selection:selectionDiagnostics(),wireClarity,routedConnections:[...connections.values()].filter(c=>c.routed).length,wireStates:Object.fromEntries([...connections].filter(([,c])=>c.routed).map(([id,c])=>[id,{opacity:c.wire.material.opacity,height:c.height,curveA:c.curve.getPoint(0).toArray(),curveB:c.curve.getPoint(1).toArray()}])),connectionCount:connections.size,pinCount:pinMeshes.length,arrayPinCount:arrayPinMeshes.length,resistorArrays:(model.arrays||[]).length,resistors:model.items.filter(it=>it.kind==='res').length,frames:renderedFrames,active,moving:Boolean(cameraTween),camera:camera.position.toArray(),target:controls.target.toArray(),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,targets:{contacts:[project(hpos(['A','d',12],.03))],chips:[...chipBodies].map(([id,o])=>({id,screen:project(o.body.position)})),switches:switches.slice(0,3).map(s=>project(s.position)),pins:pinMeshes.map(m=>({u:m.userData.u,p:m.userData.p,screen:project(m.geometry.parameters.path.getPoint(.15))})),wires:Object.fromEntries([...connections].map(([id,c])=>[id,project(c.curve.getPoint(.5))]))},endpoints:Object.fromEntries([...connections].map(([id,c])=>[id,{a:c.it.a,b:c.it.b,worldA:c.a.toArray(),worldB:c.b.toArray()}])),lit:[...ledLenses].filter(([,m])=>m.userData.lit).map(([name])=>name)};},
     dispose(){setActive(false);observer.disconnect();document.removeEventListener('visibilitychange',visibility);controls.dispose();const geometries=new Set(),materials=new Set(),textures=new Set();scene.traverse(o=>{if(o.geometry)geometries.add(o.geometry);for(const m of [].concat(o.material||[])){materials.add(m);if(m.map)textures.add(m.map);}});textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose());geometries.forEach(g=>g.dispose());renderer.dispose();canvas.remove();}
   };
 }

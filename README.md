@@ -85,3 +85,7 @@ El paquete descargable incluye `Protoboards_Historial.bundle`. Para recuperar el
 ### Herramientas de la segunda entrega
 
 En Puerta, Buscar / piezas (Ctrl+K) permite localizar referencias, patas, señales y conexiones. Colocar piezas muestra el descenso hasta los agujeros del montaje con pistas de orientación. Revisar bloque guarda comprobaciones manuales por etapa, separadas de los cables marcados. En pantalla ampliada se abre desde la lupa de la isla. La animación respeta el movimiento reducido y el encuadre elegido durante el recorrido automático.
+
+### Señales y material de laboratorio
+
+Señales permite explorar los valores lógicos durante la prueba y seguir los cables asociados en 2D/3D. Las tarjetas se pueden arrastrar, plegar y recolocar con teclado; el botón circular restablece la posición. PDF del montaje descarga materiales, posiciones y conexiones de la variante elegida. `npm run build:pdf` regenera las seis hojas con Chrome local; `npm run check` verifica que sus fuentes no hayan cambiado. Los PDF son hojas de montaje, no un reporte de evidencias físicas.

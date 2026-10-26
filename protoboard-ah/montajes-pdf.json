@@ -1,0 +1,574 @@
+{
+  "generator": "tools/build-mounting-pdfs.cjs",
+  "generatorHash": "1120ef0f365465f36c504601416200a0d807b4d8d9e8d9ee53bc2989ae0c906a",
+  "variants": {
+    "ls151": {
+      "file": "montaje-ls151.pdf",
+      "sourceFiles": [
+        "puerta-ls151-model.js",
+        "puerta-ls151-layout.js",
+        "puerta-map.js"
+      ],
+      "sourceHash": "931c74793d4463ba3764552a0637a0eca43fd94a78de35deee920734564c0018",
+      "connections": 197,
+      "componentCount": 52,
+      "materials": [
+        {
+          "name": "Protoboard de 63 columnas",
+          "quantity": 2
+        },
+        {
+          "name": "SN74LS151N · control exclusivo",
+          "quantity": 1
+        },
+        {
+          "name": "SN74LS02N · estados",
+          "quantity": 1
+        },
+        {
+          "name": "SN74LS04N · inversores",
+          "quantity": 1
+        },
+        {
+          "name": "NE555 · parpadeo rojo",
+          "quantity": 1
+        },
+        {
+          "name": "L293D · puente H",
+          "quantity": 1
+        },
+        {
+          "name": "Display de 7 segmentos de ánodo común",
+          "quantity": 2
+        },
+        {
+          "name": "Mandos SPDT de enclavamiento, 3 terminales",
+          "quantity": 3
+        },
+        {
+          "name": "Final de carrera SPDT COM/NC/NO",
+          "quantity": 2
+        },
+        {
+          "name": "LED amarillo, verde y rojo",
+          "quantity": 3
+        },
+        {
+          "name": "Resistencia de 1 kΩ · segmentos, LEDs, RA y límites",
+          "quantity": 20
+        },
+        {
+          "name": "Resistencia de 2.2 kΩ · siete pull-up",
+          "quantity": 7
+        },
+        {
+          "name": "Resistencia de 100 kΩ · RB del 555",
+          "quantity": 1
+        },
+        {
+          "name": "Capacitor cerámico 100 nF",
+          "quantity": 6
+        },
+        {
+          "name": "Capacitor cerámico 10 nF",
+          "quantity": 1
+        },
+        {
+          "name": "Capacitor electrolítico 10 µF",
+          "quantity": 1
+        },
+        {
+          "name": "Motor CC de baja corriente",
+          "quantity": 1
+        },
+        {
+          "name": "Fuente regulada 5 V y fuente motor 6 V con GND común",
+          "quantity": 1
+        },
+        {
+          "name": "Cables jumper",
+          "quantity": "según la guía"
+        }
+      ],
+      "sha256": "0f623a9eb754a648fdd0e3031f0527b233e210394a19df5cd8ee192f6dba6cfc",
+      "bytes": 777492,
+      "pages": 13
+    },
+    "ls151-compacto": {
+      "file": "montaje-ls151-compacto.pdf",
+      "sourceFiles": [
+        "puerta-ls151-compacto-model.js",
+        "puerta-ls151-compacto-layout.js",
+        "puerta-map.js"
+      ],
+      "sourceHash": "b35b3ed4b8b55e1a83064aea2b7db702a4cb14a975c51a84eb5f6f2b77b5326c",
+      "connections": 193,
+      "componentCount": 50,
+      "materials": [
+        {
+          "name": "Protoboard de 63 columnas",
+          "quantity": 2
+        },
+        {
+          "name": "SN74LS151N · control exclusivo",
+          "quantity": 1
+        },
+        {
+          "name": "SN74LS02N · estados",
+          "quantity": 1
+        },
+        {
+          "name": "SN74LS04N · inversores",
+          "quantity": 1
+        },
+        {
+          "name": "NE555 · parpadeo rojo",
+          "quantity": 1
+        },
+        {
+          "name": "L293D · puente H",
+          "quantity": 1
+        },
+        {
+          "name": "Display de 7 segmentos de ánodo común",
+          "quantity": 2
+        },
+        {
+          "name": "Mandos SPDT de enclavamiento, 3 terminales",
+          "quantity": 3
+        },
+        {
+          "name": "Final de carrera SPDT COM/NC/NO",
+          "quantity": 2
+        },
+        {
+          "name": "LED amarillo, verde y rojo",
+          "quantity": 3
+        },
+        {
+          "name": "Resistencia de 4.7 kΩ · 14 segmentos + 7 pull-up",
+          "quantity": 21
+        },
+        {
+          "name": "Resistencia de 1 kΩ · LEDs y RA",
+          "quantity": 4
+        },
+        {
+          "name": "Resistencia de 100 kΩ · RB del 555",
+          "quantity": 1
+        },
+        {
+          "name": "Capacitor cerámico 100 nF",
+          "quantity": 6
+        },
+        {
+          "name": "Capacitor cerámico 10 nF",
+          "quantity": 1
+        },
+        {
+          "name": "Capacitor electrolítico 10 µF",
+          "quantity": 1
+        },
+        {
+          "name": "Motor CC de baja corriente",
+          "quantity": 1
+        },
+        {
+          "name": "Fuente regulada 5 V y fuente motor 6 V con GND común",
+          "quantity": 1
+        },
+        {
+          "name": "Cables jumper",
+          "quantity": "según la guía"
+        }
+      ],
+      "sha256": "aa149aabfee6d071c0e1558af15100fad958576ba62c2723a5e4a6ed635b77b0",
+      "bytes": 767211,
+      "pages": 12
+    },
+    "sinuln": {
+      "file": "montaje-sinuln.pdf",
+      "sourceFiles": [
+        "puerta-sinuln-model.js",
+        "puerta-sinuln-layout.js",
+        "puerta-map.js"
+      ],
+      "sourceHash": "d68ea01a620d56ebc9ef434c725fc2e2d909653fb6f7d950d2b403e004b9fa90",
+      "connections": 198,
+      "componentCount": 53,
+      "materials": [
+        {
+          "name": "Protoboard completa de 63 columnas",
+          "quantity": 2
+        },
+        {
+          "name": "SN74LS02N DIP14 · U1 (tus NOR)",
+          "quantity": 1
+        },
+        {
+          "name": "SN74LS08N DIP14 · U6 (tus AND)",
+          "quantity": 1
+        },
+        {
+          "name": "74HC02 DIP",
+          "quantity": 1
+        },
+        {
+          "name": "74HC14 DIP",
+          "quantity": 1
+        },
+        {
+          "name": "L293D DIP",
+          "quantity": 1
+        },
+        {
+          "name": "Display de ánodo común DIP10 (filas a 15.24 mm)",
+          "quantity": 2
+        },
+        {
+          "name": "Botón o interruptor de enclavamiento",
+          "quantity": 3
+        },
+        {
+          "name": "Final de carrera con contacto NC",
+          "quantity": 2
+        },
+        {
+          "name": "LED amarillo, verde y rojo",
+          "quantity": 3
+        },
+        {
+          "name": "Resistencia de 1 kΩ (14 segmentos + 3 LED)",
+          "quantity": 20
+        },
+        {
+          "name": "Resistencia de 470 Ω · pull-down de las cinco entradas",
+          "quantity": 5
+        },
+        {
+          "name": "Resistencia de 2.2 kΩ · pull-up MA y MC, LS a HC",
+          "quantity": 2
+        },
+        {
+          "name": "Resistencia de 100 kΩ (oscilador)",
+          "quantity": 1
+        },
+        {
+          "name": "Capacitor cerámico de 100 nF",
+          "quantity": 6
+        },
+        {
+          "name": "Capacitor electrolítico de 10 µF",
+          "quantity": 1
+        },
+        {
+          "name": "Capacitor electrolítico de 100 µF",
+          "quantity": 1
+        },
+        {
+          "name": "Motor CC de baja corriente compatible con L293D",
+          "quantity": 1
+        },
+        {
+          "name": "Fuente regulada de 5 V y fuente de motor de 6 V con GND común",
+          "quantity": 1
+        },
+        {
+          "name": "Cables de protoboard",
+          "quantity": "según la guía"
+        },
+        {
+          "name": "NE555L o NE555 DIP8 · U4, solo parpadeo",
+          "quantity": 1
+        }
+      ],
+      "sha256": "f984d859d089a23f87d6fdf7f967354a07f78be92946893c5fda7f842607ec1f",
+      "bytes": 780907,
+      "pages": 13
+    },
+    "ls": {
+      "file": "montaje-ls.pdf",
+      "sourceFiles": [
+        "puerta-ls-model.js",
+        "puerta-ls-layout.js",
+        "puerta-map.js"
+      ],
+      "sourceHash": "00ab23bec091f0e991913ac250754fc97609fab04b0b7ad620bc97cddba1b776",
+      "connections": 192,
+      "componentCount": 49,
+      "materials": [
+        {
+          "name": "Protoboard completa de 63 columnas",
+          "quantity": 2
+        },
+        {
+          "name": "SN74LS02N DIP14 · U1 (tus NOR)",
+          "quantity": 1
+        },
+        {
+          "name": "SN74LS08N DIP14 · U6 (tus AND)",
+          "quantity": 1
+        },
+        {
+          "name": "74HC02 DIP",
+          "quantity": 1
+        },
+        {
+          "name": "74HC14 DIP",
+          "quantity": 1
+        },
+        {
+          "name": "ULN2803A DIP",
+          "quantity": 1
+        },
+        {
+          "name": "L293D DIP",
+          "quantity": 1
+        },
+        {
+          "name": "Display de ánodo común DIP10 (filas a 15.24 mm)",
+          "quantity": 2
+        },
+        {
+          "name": "Botón o interruptor de enclavamiento",
+          "quantity": 3
+        },
+        {
+          "name": "Final de carrera con contacto NC",
+          "quantity": 2
+        },
+        {
+          "name": "LED amarillo, verde y rojo",
+          "quantity": 3
+        },
+        {
+          "name": "Resistencia de 1 kΩ (14 segmentos + 3 LED)",
+          "quantity": 17
+        },
+        {
+          "name": "Resistencia de 470 Ω · pull-down de las cinco entradas",
+          "quantity": 5
+        },
+        {
+          "name": "Resistencia de 2.2 kΩ · pull-up MA y MC, LS a HC",
+          "quantity": 2
+        },
+        {
+          "name": "Resistencia de 100 kΩ (oscilador)",
+          "quantity": 1
+        },
+        {
+          "name": "Capacitor cerámico de 100 nF",
+          "quantity": 5
+        },
+        {
+          "name": "Capacitor electrolítico de 10 µF",
+          "quantity": 1
+        },
+        {
+          "name": "Capacitor electrolítico de 100 µF",
+          "quantity": 1
+        },
+        {
+          "name": "Motor CC de baja corriente compatible con L293D",
+          "quantity": 1
+        },
+        {
+          "name": "Fuente regulada de 5 V y fuente de motor de 6 V con GND común",
+          "quantity": 1
+        },
+        {
+          "name": "Cables de protoboard",
+          "quantity": "según la guía"
+        }
+      ],
+      "sha256": "46b0ab58c4aeead77ab53853767fe3a3614b49ceab07ef994aa5cb4b80706878",
+      "bytes": 764809,
+      "pages": 12
+    },
+    "comunes": {
+      "file": "montaje-comunes.pdf",
+      "sourceFiles": [
+        "puerta-model.js",
+        "puerta-layout.js",
+        "puerta-map.js"
+      ],
+      "sourceHash": "4500ce626b61b114ea842336246eae3aa26ea3fc42b5708a91d2c94a29342188",
+      "connections": 177,
+      "componentCount": 45,
+      "materials": [
+        {
+          "name": "Protoboard completa de 63 columnas",
+          "quantity": 2
+        },
+        {
+          "name": "74HC153 DIP",
+          "quantity": 1
+        },
+        {
+          "name": "74HC02 DIP",
+          "quantity": 1
+        },
+        {
+          "name": "74HC14 DIP",
+          "quantity": 1
+        },
+        {
+          "name": "ULN2803A DIP",
+          "quantity": 1
+        },
+        {
+          "name": "L293D DIP",
+          "quantity": 1
+        },
+        {
+          "name": "Display de ánodo común DIP10 (filas a 15.24 mm)",
+          "quantity": 2
+        },
+        {
+          "name": "Botón o interruptor de enclavamiento",
+          "quantity": 3
+        },
+        {
+          "name": "Final de carrera con contacto NC",
+          "quantity": 2
+        },
+        {
+          "name": "LED amarillo, verde y rojo",
+          "quantity": 3
+        },
+        {
+          "name": "Resistencia de 1 kΩ (14 segmentos + 3 LED)",
+          "quantity": 17
+        },
+        {
+          "name": "Resistencia de 10 kΩ (pull-down)",
+          "quantity": 5
+        },
+        {
+          "name": "Resistencia de 100 kΩ (oscilador)",
+          "quantity": 1
+        },
+        {
+          "name": "Capacitor cerámico de 100 nF",
+          "quantity": 4
+        },
+        {
+          "name": "Capacitor electrolítico de 10 µF",
+          "quantity": 1
+        },
+        {
+          "name": "Capacitor electrolítico de 100 µF",
+          "quantity": 1
+        },
+        {
+          "name": "Motor CC de baja corriente compatible con L293D",
+          "quantity": 1
+        },
+        {
+          "name": "Fuente regulada de 5 V y fuente de motor de 6 V con GND común",
+          "quantity": 1
+        },
+        {
+          "name": "Cables de protoboard",
+          "quantity": "según la guía"
+        }
+      ],
+      "sha256": "333c27133a766730134700cc6787060f874fb200128435cad2d40916d1fc0c97",
+      "bytes": 728162,
+      "pages": 12
+    },
+    "redes": {
+      "file": "montaje-redes.pdf",
+      "sourceFiles": [
+        "puerta-redes-model.js",
+        "puerta-redes-layout.js",
+        "puerta-map.js"
+      ],
+      "sourceHash": "84aa9b22e52fb14e52cc50e937e374463d7731b37c4fb3513db5338033efad09",
+      "connections": 146,
+      "componentCount": 31,
+      "materials": [
+        {
+          "name": "Protoboard completa de 63 columnas",
+          "quantity": 2
+        },
+        {
+          "name": "74HC153 DIP",
+          "quantity": 1
+        },
+        {
+          "name": "74HC02 DIP",
+          "quantity": 1
+        },
+        {
+          "name": "74HC14 DIP",
+          "quantity": 1
+        },
+        {
+          "name": "ULN2803A DIP",
+          "quantity": 1
+        },
+        {
+          "name": "L293D DIP",
+          "quantity": 1
+        },
+        {
+          "name": "Red SIP9 bussed: ocho resistencias de 1 kΩ con común",
+          "quantity": 3
+        },
+        {
+          "name": "Resistencia de 1 kΩ individual",
+          "quantity": 5
+        },
+        {
+          "name": "Resistencia de 100 kΩ para oscilador",
+          "quantity": 1
+        },
+        {
+          "name": "Capacitor cerámico de 100 nF",
+          "quantity": 4
+        },
+        {
+          "name": "Capacitor electrolítico de 10 µF",
+          "quantity": 1
+        },
+        {
+          "name": "Capacitor electrolítico de 100 µF",
+          "quantity": 1
+        },
+        {
+          "name": "Display de ánodo común DIP10 (filas a 15.24 mm)",
+          "quantity": 2
+        },
+        {
+          "name": "Botón o interruptor de enclavamiento",
+          "quantity": 3
+        },
+        {
+          "name": "Final de carrera con contacto NC",
+          "quantity": 2
+        },
+        {
+          "name": "LED amarillo, verde y rojo",
+          "quantity": 3
+        },
+        {
+          "name": "Motor CC de baja corriente compatible con L293D",
+          "quantity": 1
+        },
+        {
+          "name": "Fuente regulada de 5 V y fuente de motor de 6 V, GND común",
+          "quantity": 1
+        },
+        {
+          "name": "Cables de protoboard",
+          "quantity": "según la guía"
+        }
+      ],
+      "sha256": "65da1c7554eeb18c68f6396d83ab77e123a8d8579d4c76e76830e4dcfc82f883",
+      "bytes": 657544,
+      "pages": 10
+    }
+  }
+}
