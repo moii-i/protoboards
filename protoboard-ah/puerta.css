@@ -22,3 +22,7 @@
 
 /* Cursor-anchored SVG zoom; touch keeps normal page scrolling. */
 .mapbox:not(.in-3d) #map{cursor:grab;touch-action:pan-y}.mapbox:not(.in-3d) #map.is-panning{cursor:grabbing}.mapbox:not(.in-3d) #map:focus-visible{outline:2px solid #368f80;outline-offset:-3px}.external-motor{isolation:isolate}
+
+/* Clip at the SVG viewport, not at the viewBox inside its letterboxed area.
+   This keeps neighboring circuit geometry visible above/below during zoom. */
+#map,#detailMap{overflow:hidden}

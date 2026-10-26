@@ -84,3 +84,7 @@ En 2D: rueda para zoom centrado en el cursor, arrastrar con ratón para desplaza
 La colocación cambió: el avance se guarda en un espacio nuevo placement:v3 para no marcar como realizadas conexiones de la distribución anterior. Los otros circuitos conservan su progreso.
 
 Prueba de navegador reproducible: con npm run dev activo, ejecuta node tools/verify-door-browser.cjs. Requiere Chrome local (PROTOBOARD_CHROME permite indicar su ruta). Comprueba rueda, cursor, arrastre, doble clic, enfoque de motor y render 3D de ambos perfiles; guarda resultados internos en work/qa.
+
+## Visor 2D sin franjas de recorte
+
+La escena compartida no se recorta a los límites del viewBox. El recorte se aplica únicamente al borde del SVG visible, tanto en el mapa como en la lupa. Así, al hacer zoom, los componentes adyacentes siguen dibujándose en toda el área disponible, sin estirar el circuito ni cambiar su cableado. La prueba de navegador comprueba mediante hit-testing que un capacitor situado fuera de un viewBox estrecho, pero dentro del viewport, continúa visible.

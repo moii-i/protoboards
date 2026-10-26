@@ -30,12 +30,16 @@ async function main(){
   const moved=await evaluate("document.querySelector('#map').getAttribute('viewBox').split(/\\s+/).map(Number)");assert(Math.abs(moved[0]-after.box[0])>10,'Drag must pan SVG');assert.equal(await evaluate('selected'),selected,'Drag must not select cable');
   await send('Input.dispatchMouseEvent',{type:'mousePressed',x:before.x,y:before.y,button:'left',buttons:1,clickCount:2});await send('Input.dispatchMouseEvent',{type:'mouseReleased',x:before.x,y:before.y,button:'left',buttons:0,clickCount:2});
   assert(await evaluate("document.querySelector('#map').getAttribute('viewBox').split(/\\s+/).map(Number).every((n,i)=>n===model.bounds[i])"),'Double click must fit all');
+  await evaluate("document.querySelector('#loupeEnabled').checked=false;document.querySelector('#loupeEnabled').onchange();view='all';setCamera([680,300,1100,320]);");
+  const expanded=await evaluate("(()=>{const s=document.querySelector('#map'),p=s.createSVGPoint();p.x=800;p.y=258;const q=p.matrixTransform(s.getScreenCTM()),r=s.getBoundingClientRect(),el=document.elementFromPoint(q.x,q.y);return {inside:q.x>r.left&&q.x<r.right&&q.y>r.top&&q.y<r.bottom,part:el?.closest('[data-id]')?.dataset.id,sceneClip:document.querySelector('#scene').getAttribute('clip-path')};})()");
+  assert(expanded.inside,'Neighboring component lies inside viewport');assert.equal(expanded.part,'P_C8','Viewport must show the capacitor above the narrow viewBox, without an internal clipped band');assert.equal(expanded.sceneClip,null);
+  await shot('viewport-'+variant+'-expanded-2d');
   await evaluate("setMode('cable');selectCable('P_MOTOR',{scroll:false});focusCable();");assert(await evaluate("(()=>{const b=detailCameraBox(),e=model.externalMotor.bounds;return b[0]<=e[0]&&b[1]<=e[1]&&b[0]+b[2]>=e[2]&&b[1]+b[3]>=e[3];})()"),'Motor focus must include outside body');
   await shot('wiring-'+variant+'-motor-2d');
   await evaluate("view='all';setCamera();document.querySelector('[data-renderer=\"3d\"]').click();");await waitFor("rendererMode==='3d'&&Boolean(board3d)");await evaluate("board3d.preset('iso');");await new Promise(r=>setTimeout(r,300));await shot('wiring-'+variant+'-3d');
   await evaluate("board3d.focusBox([1100,500,1000,750],false);");await new Promise(r=>setTimeout(r,100));await shot('wiring-'+variant+'-motor-3d');
   const d=await evaluate('board3d.diagnostics()');assert.equal(d.pinCount,68);assert.equal(d.routedConnections,variant==='ls151'?135:133);
-  results.push({variant,wheel:true,cursorAnchored:true,pan:true,doubleClickFit:true,motorOutside:true,routedConnections:d.routedConnections});
+  results.push({variant,wheel:true,cursorAnchored:true,pan:true,doubleClickFit:true,motorOutside:true,fullSvgViewport:true,routedConnections:d.routedConnections});
  }
  assert.equal(errors.length,0,JSON.stringify(errors));assert.equal(failed.length,0,JSON.stringify(failed));fs.writeFileSync('work/qa/wiring-browser-results.json',JSON.stringify({base,results,errors,failed},null,2));console.log(JSON.stringify({pass:true,base,results,errors:errors.length,failed:failed.length}));ws.close();
 }
