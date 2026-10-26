@@ -96,9 +96,16 @@ La revisión en Chrome con WebGL cubre escritorio 1440×1000 y teléfono 390×84
 
 Publica únicamente `protoboard-ah/` en el proyecto Vercel existente **protoboard-ah**. `vercel.json` habilita rutas limpias. No publiques `work/`, `outputs/`, perfiles de navegador o archivos de entorno. Los antiguos `puerta.js` y `puerta-viewer.js` quedaron fuera del flujo vigente.
 
-El proyecto está preparado para incorporarlo a un repositorio con historial, revisiones y comprobación automática. Antes de ofrecerlo públicamente, define la licencia del código propio; las dependencias conservan sus licencias. Consulta [CONTRIBUTING.md](CONTRIBUTING.md).
+Repositorio privado: [moii-i/protoboards](https://github.com/moii-i/protoboards). Incluye el historial, las fuentes y la comprobación automática de los montajes. Antes de ofrecerlo públicamente, define la licencia del código propio; las dependencias conservan sus licencias. Consulta [CONTRIBUTING.md](CONTRIBUTING.md).
 
-El paquete descargable incluye `Protoboards_Historial.bundle`. Para recuperar el repositorio con su historial, descomprime el paquete y ejecuta `git clone Protoboards_Historial.bundle protoboards`. Después puedes conectar ese repositorio al remoto de GitHub que elijas.
+Para descargar el proyecto con todo su historial:
+
+```sh
+git clone https://github.com/moii-i/protoboards.git
+cd protoboards
+npm ci --ignore-scripts
+npm run dev
+```
 
 ### Herramientas de la segunda entrega
 

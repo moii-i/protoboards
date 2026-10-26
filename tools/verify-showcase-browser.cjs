@@ -52,6 +52,7 @@ async function main(){
   await evaluate("setRenderer('3d');true");await waitFor("!document.querySelector('.showcase-viewer-cover').hidden");
   for(let i=0;i<100&&!pauses.length;i++)await delay(50);assert(pauses.length,'The bundle is held during loading');
   assert.equal(await evaluate("document.querySelector('.mapbox').getAttribute('aria-busy')"),'true');
+  await waitFor("document.querySelector('.showcase-viewer-cover img').complete&&document.querySelector('.showcase-viewer-cover img').naturalWidth===960");
   assert(await evaluate("document.querySelector('.showcase-viewer-cover img').naturalWidth===960"));
   await shot('showcase-loading-'+key);
   if(key==='555'){await evaluate("setRenderer('2d');true");assert(await evaluate("document.querySelector('.showcase-viewer-cover').hidden"));assert.equal(await evaluate('rendererMode'),'2d');}
