@@ -31,13 +31,18 @@ if(!isCatalog){
  setJSON('protoboards:last-circuit:v1',{kind,variant:doorVariant});
  if(kind==='puerta')setJSON('protoboards:last-door:v1',doorVariant);
 }
+function setToolOpen(details,open,focus=false){
+ if(window.protoboardsWorkbench){window.protoboardsWorkbench.setToolOpen(details,open,focus);return;}
+ details.open=open;if(focus)details.querySelector('summary')?.focus();
+}
 function toolGroup(dock,name,label,title){
  const details=document.createElement('details');details.className='design-tool-group';details.dataset.designTool=name;
  details.innerHTML='<summary aria-controls="design-panel-'+name+'">'+icon(name==='view'?'view':name==='explore'?'search':'play')+label+'</summary><div class="design-tool-panel" id="design-panel-'+name+'"><div class="design-panel-head"><strong>'+title+'</strong><button class="design-panel-close" type="button" aria-label="Cerrar '+label.toLowerCase()+'">×</button></div></div>';dock.append(details);
- details.querySelector('.design-panel-close').onclick=()=>{details.open=false;details.querySelector('summary').focus();};
- details.addEventListener('toggle',()=>{details.querySelector('summary').setAttribute('aria-expanded',String(details.open));if(details.open)for(const other of dock.querySelectorAll('details[open]'))if(other!==details)other.open=false;});details.querySelector('summary').setAttribute('aria-expanded','false');return details.querySelector('.design-tool-panel');
+ details.querySelector('.design-panel-close').onclick=()=>setToolOpen(details,false,true);
+ details.querySelector('summary').addEventListener('click',e=>{e.preventDefault();setToolOpen(details,!details.open||details.dataset.benchClosing==='true');});
+ details.addEventListener('toggle',()=>{details.querySelector('summary').setAttribute('aria-expanded',String(details.open&&details.dataset.benchClosing!=='true'));if(details.open&&details.dataset.benchClosing!=='true')for(const other of dock.querySelectorAll('details[open]'))if(other!==details&&other.dataset.benchClosing!=='true')setToolOpen(other,false);});details.querySelector('summary').setAttribute('aria-expanded','false');return details.querySelector('.design-tool-panel');
 }
-function closeTools(focus=false){for(const d of document.querySelectorAll('.design-tool-group[open]')){d.open=false;if(focus)d.querySelector('summary').focus();}}
+function closeTools(focus=false){for(const d of document.querySelectorAll('.design-tool-group[open]'))setToolOpen(d,false,focus);}
 document.addEventListener('pointerdown',e=>{if(!e.target.closest('.design-tool-dock'))closeTools();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('.design-tool-group[open]')){closeTools(true);e.preventDefault();}});
 function initTools(){
@@ -69,7 +74,7 @@ function initTools(){
  document.getElementById('expand')?.addEventListener('click',()=>closeTools());
  document.getElementById('lessonSignals')?.addEventListener('click',()=>closeTools());
  document.getElementById('learningOpen')?.addEventListener('click',()=>closeTools());
- window.protoboardsDesign={openTools(name){const d=dock.querySelector('[data-design-tool="'+name+'"]');if(d)d.open=true;},closeTools};
+ window.protoboardsDesign={openTools(name){const d=dock.querySelector('[data-design-tool="'+name+'"]');if(d)setToolOpen(d,true);},closeTools};
  return true;
 }
 if(!isCatalog){if(!initTools()){let tries=0;const timer=setInterval(()=>{if(initTools()||++tries>120)clearInterval(timer);},100);}

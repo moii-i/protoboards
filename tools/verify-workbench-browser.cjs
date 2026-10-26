@@ -1,0 +1,117 @@
+const fs=require('fs'),path=require('path'),assert=require('assert/strict'),{spawn}=require('child_process');
+const base=process.env.PROTOBOARD_QA_URL||'http://127.0.0.1:4173';
+fs.mkdirSync('work/qa',{recursive:true});
+const log=fs.openSync('work/qa/workbench-chrome.log','w');
+const browser=spawn(process.env.PROTOBOARD_CHROME||'C:/Program Files/Google/Chrome/Application/chrome.exe',['--headless=new','--no-sandbox','--no-first-run','--no-default-browser-check','--remote-debugging-port=9262','--user-data-dir='+path.resolve('work/chrome-workbench-qa'),'about:blank'],{windowsHide:true,stdio:['ignore',log,log]});
+const delay=ms=>new Promise(r=>setTimeout(r,ms));
+async function main(){
+ let targets;for(let i=0;i<50;i++){try{targets=await fetch('http://127.0.0.1:9262/json/list').then(r=>r.json());break;}catch{}await delay(200);}
+ assert(targets);const ws=new WebSocket(targets.find(t=>t.type==='page').webSocketDebuggerUrl);
+ await new Promise((r,j)=>{ws.onopen=r;ws.onerror=j;});
+ let seq=0;const pending=new Map(),errors=[],failed=[];
+ ws.onmessage=e=>{const r=JSON.parse(e.data);if(pending.has(r.id)){const p=pending.get(r.id);pending.delete(r.id);clearTimeout(p.timer);r.error?p.reject(Error(JSON.stringify(r.error))):p.resolve(r.result);}if(r.method==='Runtime.exceptionThrown')errors.push(r.params.exceptionDetails);if(r.method==='Network.responseReceived'&&r.params.response.status>=400&&!r.params.response.url.endsWith('/favicon.ico'))failed.push(r.params.response.url);};
+ const send=(method,params={})=>new Promise((resolve,reject)=>{const id=++seq,timer=setTimeout(()=>{pending.delete(id);reject(Error(method));},30000);pending.set(id,{resolve,reject,timer});ws.send(JSON.stringify({id,method,params}));});
+ const evaluate=async expression=>{const r=await send('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value;};
+ const wait=async expression=>{for(let i=0;i<120;i++){if(await evaluate(expression))return;await delay(100);}throw Error('Wait: '+expression);};
+ const shot=async name=>{const result=await send('Page.captureScreenshot',{format:'png'});fs.writeFileSync('work/qa/workbench-'+name+'.png',Buffer.from(result.data,'base64'));};
+ const progress="JSON.stringify({marked:[...marked],completed:[...completed],step,selected})";
+ await send('Page.enable');await send('Runtime.enable');await send('Network.enable');
+ await send('Page.addScriptToEvaluateOnNewDocument',{source:"sessionStorage.setItem('protoboards:welcome:v1','1');"});
+ await send('Storage.clearDataForOrigin',{origin:base,storageTypes:'local_storage'});
+ await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
+ const results=[];
+ for(const [key,route] of [['letras','/'],['555','/555'],['puerta','/puerta?montaje=ls151']]){
+  await send('Page.navigate',{url:base+route});await wait("Boolean(window.protoboardsWorkbench)&&Boolean(window.protoboardsDesign)");
+  await evaluate("document.querySelector('.bench-toolbar').scrollIntoView({block:'start',behavior:'instant'});");
+  const original=await evaluate(progress);
+  await evaluate("document.querySelector('[data-bench-size=wide]').click();");
+  await wait("Math.abs(document.querySelector('.sidebar').getBoundingClientRect().width-300)<1");
+  await evaluate("document.querySelector('.bench-toggle').click();");
+  await wait("document.querySelector('.sidebar').getBoundingClientRect().width<1");
+  assert(await evaluate("document.querySelector('.sidebar').inert"));
+  assert.equal(await evaluate(progress),original);
+  await evaluate("document.querySelector('.bench-toggle').click();");
+  await wait("document.querySelector('.sidebar').getBoundingClientRect().width>299");
+  await evaluate("document.querySelector('.bench-resizer').focus();");
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:'ArrowRight',code:'ArrowRight',windowsVirtualKeyCode:39});await send('Input.dispatchKeyEvent',{type:'keyUp',key:'ArrowRight',code:'ArrowRight',windowsVirtualKeyCode:39});
+  await wait("Math.abs(document.querySelector('.sidebar').getBoundingClientRect().width-310)<1");
+  assert.equal(await evaluate(progress),original);
+  const before=await evaluate("({step,marked:[...marked],completed:[...completed],title:document.querySelector('#stageTitle').textContent})");
+  await evaluate("document.querySelector('#nextStep').click();");
+  await wait("protoboardsWorkbench.getState().transitions>0");
+  const after=await evaluate("({step,marked:[...marked],completed:[...completed],title:document.querySelector('#stageTitle').textContent})");
+  assert.equal(after.step,before.step+1);assert.notEqual(after.title,before.title);assert.deepEqual(after.marked,before.marked);assert.deepEqual(after.completed,before.completed);
+  if(key==='555'){
+   await evaluate("document.querySelector('.bench-toolbar').scrollIntoView({block:'start',behavior:'instant'});");
+   const grip=await evaluate("(()=>{const r=document.querySelector('.bench-resizer').getBoundingClientRect();return {x:r.x+7,y:Math.max(120,r.y+45)}})()");
+   await send('Input.dispatchMouseEvent',{type:'mousePressed',button:'left',buttons:1,clickCount:1,...grip});
+   await send('Input.dispatchMouseEvent',{type:'mouseMoved',button:'left',buttons:1,x:grip.x-90,y:grip.y});
+   await send('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',buttons:0,clickCount:1,x:grip.x-90,y:grip.y});
+   await wait("Math.abs(protoboardsWorkbench.getState().width-220)<2");
+   await shot('desktop');
+  }
+  await send('Page.reload');await wait("Boolean(window.protoboardsWorkbench)&&Boolean(window.protoboardsDesign)");
+  assert.equal(await evaluate("protoboardsWorkbench.getState().width"),key==='555'?220:310);
+  results.push({key,layout:true,keyboardResize:true,dragResize:key==='555',persistentWidth:true,stepMotion:true,progressPreserved:true});
+ }
+ // Full-screen and 3D preserve the chosen panel preference and progress.
+ await evaluate("document.querySelector('[data-bench-size=compact]').click();document.querySelector('#expand').click();");
+ await wait("Boolean(document.querySelector('.fullscreen'))");
+ assert(await evaluate("getComputedStyle(document.querySelector('.bench-toolbar')).display==='none'"));
+ await evaluate("document.querySelector('#closeExpanded').click();setRenderer('3d');");
+ await wait("rendererMode==='3d'&&document.querySelector('#threeViewport').dataset.ready==='true'");
+ assert.equal(await evaluate("protoboardsWorkbench.getState().width"),184);
+ await evaluate("setRenderer('2d');");
+ await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
+ await send('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:1});
+ await send('Page.navigate',{url:base+'/puerta?montaje=ls151'});
+ await wait("Boolean(window.protoboardsWorkbench)&&Boolean(window.protoboardsDesign)");
+ assert(await evaluate("protoboardsWorkbench.getState().collapsed"));
+ assert(await evaluate("document.documentElement.scrollWidth<=innerWidth+2"));
+ const mobileProgress=await evaluate(progress);
+ await evaluate("document.querySelector('.bench-toggle').click();");assert(!await evaluate("protoboardsWorkbench.getState().collapsed"));
+ await evaluate("document.querySelector('.bench-toggle').click();document.querySelector('.design-tool-dock').scrollIntoView({block:'center',behavior:'instant'});document.querySelector('[data-design-tool=view]>summary').click();");
+ await wait("document.querySelector('[data-design-tool=view]').open");
+ await delay(250);
+ const half=await evaluate("document.querySelector('#design-panel-view').getBoundingClientRect().height");
+ await evaluate("document.querySelector('#design-panel-view .bench-sheet-grip').click();");
+ await wait("document.querySelector('#design-panel-view').getBoundingClientRect().height>"+(half+200));
+ await shot('mobile-full');
+ await evaluate("document.querySelector('#design-panel-view .bench-sheet-grip').click();");
+ await wait("Math.abs(document.querySelector('#design-panel-view').getBoundingClientRect().height-"+half+")<2");
+ const drag=await evaluate("(()=>{const r=document.querySelector('#design-panel-view .bench-sheet-grip').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()");
+ await send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[drag]});
+ await send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:drag.x,y:drag.y-140}]});
+ await send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+ await wait("document.querySelector('[data-design-tool=view]').dataset.sheetSize==='full'");
+ await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+ await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+ await wait("!document.querySelector('[data-design-tool=view]').open");
+ assert(await evaluate("document.activeElement===document.querySelector('[data-design-tool=view]>summary')"));
+ assert.equal(await evaluate(progress),mobileProgress);
+ await evaluate("document.querySelector('[data-design-tool=explore]>summary').click();");
+ await wait("document.querySelector('[data-design-tool=explore]').open");
+ await evaluate("document.querySelector('[data-design-tool=motion]>summary').click();");
+ await wait("!document.querySelector('[data-design-tool=explore]').open&&document.querySelector('[data-design-tool=motion]').open");
+ await evaluate("document.querySelector('#design-panel-motion .design-panel-close').click();");
+ await wait("!document.querySelector('[data-design-tool=motion]').open");
+ // Reduced motion and the existing animations switch must stop all added movement.
+ await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
+ await evaluate("document.querySelector('#nextStep').click();document.querySelector('[data-design-tool=view]>summary').click();");
+ await wait("!protoboardsWorkbench.getState().motion");
+ assert.equal(await evaluate("document.querySelectorAll('.stage-header [style]').length"),0);
+ await evaluate("document.querySelector('#design-panel-view .design-panel-close').click();");assert(!await evaluate("document.querySelector('[data-design-tool=view]').open"));
+ await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'no-preference'}]});
+ await evaluate("document.querySelector('#motion').checked=false;document.querySelector('#motion').dispatchEvent(new Event('change',{bubbles:true}));");
+ assert(!await evaluate("protoboardsWorkbench.getState().motion"));assert.equal(await evaluate("getComputedStyle(document.querySelector('.bench-layout')).transitionDuration"),'0s');
+ await send('Emulation.setDeviceMetricsOverride',{width:320,height:740,deviceScaleFactor:1,mobile:true});
+ assert(await evaluate("document.documentElement.scrollWidth<=innerWidth+2"));
+ await shot('mobile-320');
+ const otherVariants=[];
+ await send('Emulation.setDeviceMetricsOverride',{width:1280,height:900,deviceScaleFactor:1,mobile:false});
+ for(const variant of ['comunes','redes','ls','sinuln','ls151-compacto']){await send('Page.navigate',{url:base+'/puerta?montaje='+variant});await wait("Boolean(window.protoboardsWorkbench)&&Boolean(window.protoboardsDesign)");await wait("document.querySelector('#stageTitle').textContent.trim().length>0&&document.querySelector('#benchCurrentStep').textContent.includes(document.querySelector('#stageTitle').textContent.trim())");const before=await evaluate("({step,marked:[...marked],completed:[...completed]})");await evaluate("document.querySelector('#nextStep').click()");await wait("protoboardsWorkbench.getState().transitions>0");const after=await evaluate("({step,marked:[...marked],completed:[...completed]})");assert.equal(after.step,before.step+1);assert.deepEqual(after.marked,before.marked);assert.deepEqual(after.completed,before.completed);otherVariants.push(variant);}
+ assert.equal(errors.length,0,JSON.stringify(errors));assert.equal(failed.length,0,JSON.stringify(failed));
+ const result={pass:true,routes:results,otherVariants,mobileSheet:true,touchResize:true,escapeFocus:true,toolSwitch:true,fullscreen:true,threeD:true,reducedMotion:true,motionSwitch:true,mobile320:true,errors:errors.length,failed:failed.length};
+ fs.writeFileSync('work/qa/workbench-browser-results.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result));ws.close();
+}
+main().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>{browser.kill();fs.closeSync(log);});

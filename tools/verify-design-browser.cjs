@@ -34,9 +34,9 @@ async function main(){
   await evaluate("protoboardsDesign.openTools('view')");await delay(100);
   assert(await evaluate("document.querySelector('[data-design-tool=view]').open"));
   await evaluate("document.querySelector('[data-view=all]').click();");assert.equal(await evaluate('view'),'all');
-  await evaluate("protoboardsDesign.openTools('motion')");await delay(100);assert(await evaluate("!document.querySelector('[data-design-tool=view]').open"));
+  await evaluate("protoboardsDesign.openTools('motion')");await waitFor("!document.querySelector('[data-design-tool=view]').open");assert(await evaluate("!document.querySelector('[data-design-tool=view]').open"));
   const motion=await evaluate('motionEnabled');await evaluate("document.getElementById('motion').click()");assert.equal(await evaluate('motionEnabled'),!motion);await evaluate("document.getElementById('motion').click()");
-  await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape'});assert(await evaluate("!document.querySelector('.design-tool-group[open]')"));
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape'});await waitFor("!document.querySelector('.design-tool-group[open]')");assert(await evaluate("!document.querySelector('.design-tool-group[open]')"));
   await evaluate("setRenderer('3d');");await waitFor("Boolean(board3d)&&rendererMode==='3d'");await delay(500);assert(await evaluate("document.querySelector('.three-viewport canvas').getBoundingClientRect().height>100"));
   await evaluate("protoboardsDesign.openTools('view');document.querySelector('[data-angle=top]').click();");await delay(150);
   await evaluate("protoboardsDesign.closeTools();document.querySelector('#expand').click();");await delay(200);assert(await evaluate("document.body.classList.contains('fullscreen')"));assert(await evaluate("getComputedStyle(document.querySelector('.design-tool-dock')).display==='none'"));

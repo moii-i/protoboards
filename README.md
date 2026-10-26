@@ -35,6 +35,14 @@ Al preparar por primera vez el 3D se presenta una imagen de referencia del circu
 
 Con el servidor local activo, `npm run build:showcase` regenera las nueve imágenes y su registro de estados; `npm run test:showcase` comprueba secuencias, pausas, movimiento reducido, navegación nativa, carga 3D retenida, cancelación y progreso sin cambios.
 
+## Mesa de trabajo adaptable
+
+Las guías de letras, NE555 y puerta comparten un panel de pasos plegable. En escritorio puedes elegir Compacto, Normal o Amplio, arrastrar el separador o ajustarlo con las flechas del teclado. La elección se guarda; el móvil conserva su propia preferencia de panel visible. Los cambios de etapa coordinan el encabezado y una señal visual breve en el visor sin marcar conexiones.
+
+En móvil, los paneles Vista, Explorar y Animación tienen un tirador para alternar entre media pantalla y pantalla amplia. Arrástralo hacia arriba para ampliar; hacia abajo para reducir y después cerrar. Escape y el botón de cierre devuelven el foco a su herramienta. Se respeta el movimiento reducido y el interruptor de animaciones.
+
+Con el servidor local activo, `npm run test:workbench` comprueba tamaño y persistencia, plegado, teclado, arrastre, cambios de paso, gestos móviles, 3D, pantalla ampliada y progreso conservado. `PROTOBOARD_QA_URL` permite repetirlo sobre la web publicada.
+
 ## Usar la guía
 
 - Paso por paso: sigue una etapa del montaje.
