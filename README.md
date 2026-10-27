@@ -128,3 +128,11 @@ En Puerta, Buscar / piezas (Ctrl+K) permite localizar referencias, patas, señal
 ### Señales y material de laboratorio
 
 Señales permite explorar los valores lógicos durante la prueba y seguir los cables asociados en 2D/3D. Las tarjetas se pueden arrastrar, plegar y recolocar con teclado; el botón circular restablece la posición. PDF del montaje descarga materiales, posiciones y conexiones de la variante elegida. `npm run build:pdf` regenera las seis hojas con Chrome local; `npm run check` verifica que sus fuentes no hayan cambiado. Los PDF son hojas de montaje, no un reporte de evidencias físicas.
+
+## Componentes primero, cableado después
+
+Las ocho guías (A–H, NE555 y seis montajes de puerta) agrupan las piezas en el paso 1. Integrados, displays, redes, resistencias, capacitores, LED y mandos se colocan antes de los jumpers. Los mandos y el motor externos permanecen fuera de la placa. La secuencia 2D/3D permite pausar, repetir, elegir pieza y ajustar la velocidad; con movimiento reducido muestra la posición final. Reproducir no confirma el montaje.
+
+La lista del paso 1 permite confirmar cada pieza por separado. Se conservan los IDs, agujeros, rutas, versión del montaje y marcas anteriores; las confirmaciones de los integrados del antiguo primer paso también se migran. El contador principal muestra las conexiones de cableado, incluidas las tiras compartidas que no necesitan jumper. Los pasos siguientes recorren solo cables y tiras compartidas; las piezas siguen visibles incluso al ocultar cableado anterior.
+
+En el bloque de mandos LS151, «Animar cables de los mandos» recorre sus quince cables, del terminal a la placa. Comparte pausa, repetición, selección y velocidad. El 3D reutiliza las mismas curvas y una frontera continua de trazado. `npm run test:components` comprueba las ocho guías en navegador; `npm test` incluye los invariantes eléctricos de esta reorganización.

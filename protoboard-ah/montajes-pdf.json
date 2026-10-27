@@ -1,16 +1,17 @@
 {
   "generator": "tools/build-mounting-pdfs.cjs",
-  "generatorHash": "b4cab8a9415314607c322b28957c336c32b9d7924b61a5b7e290931a9cd80655",
+  "generatorHash": "8fb92a05b33ca2ecb205d3434e24d000f9029707754b75b5acf339940e08105c",
   "variants": {
     "ls151": {
       "file": "montaje-ls151.pdf",
       "sourceFiles": [
         "puerta-ls151-model.js",
         "puerta-ls151-layout.js",
+        "component-assembly.js",
         "external-controls-svg.js",
         "puerta-map.js"
       ],
-      "sourceHash": "b851551b08909807333f75379401beb4306d53f8f1bb7209263d5da535bbff07",
+      "sourceHash": "5666624a3a6f51ba4fa4a32e0cb46e7a6172d2800a75110059b4cb086166d7e7",
       "connections": 197,
       "componentCount": 52,
       "materials": [
@@ -91,19 +92,20 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "58b266ec77133151076ac0063de0806b88c80c9ead10abf1e6d6963a4f7fcd80",
-      "bytes": 788803,
-      "pages": 13
+      "sha256": "d190f8244d47cd414dd935ce04f68d0ad11f13e9c7ac7664b6b4549e280c0e8a",
+      "bytes": 803511,
+      "pages": 14
     },
     "ls151-compacto": {
       "file": "montaje-ls151-compacto.pdf",
       "sourceFiles": [
         "puerta-ls151-compacto-model.js",
         "puerta-ls151-compacto-layout.js",
+        "component-assembly.js",
         "external-controls-svg.js",
         "puerta-map.js"
       ],
-      "sourceHash": "555cf7d8077e3beaa0cdeb0d40a06a1db6ed5ad2f654babd048233e02b1f0fde",
+      "sourceHash": "8df3ce0704fcfc0399db656b9b377c76b10912e23d2097564a9eb4de7e8bf97e",
       "connections": 193,
       "componentCount": 50,
       "materials": [
@@ -184,18 +186,19 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "aaf4b26028a1d9abf428ce5565ab64e9da4fe628e89eec47db435a0a6dfb4e7f",
-      "bytes": 778699,
-      "pages": 13
+      "sha256": "68a35155e589d6e6726b9cb6b0f933145b80eec4ba6d779ae199c5a3789c0ed4",
+      "bytes": 794164,
+      "pages": 14
     },
     "sinuln": {
       "file": "montaje-sinuln.pdf",
       "sourceFiles": [
         "puerta-sinuln-model.js",
         "puerta-sinuln-layout.js",
+        "component-assembly.js",
         "puerta-map.js"
       ],
-      "sourceHash": "ce33b1da00323fddeb6c49f5deb615e0b3f0492d9c33d018c61c68358f855368",
+      "sourceHash": "0e201292425f20da37911be3fa4564f7a92b2cfec2ca70ef6063d994c70371f0",
       "connections": 198,
       "componentCount": 53,
       "materials": [
@@ -284,18 +287,19 @@
           "quantity": 1
         }
       ],
-      "sha256": "254f4d9c9c69d7f75cde5dd7416dc865bb5ea8fa02c790179f942349d97102f5",
-      "bytes": 780907,
-      "pages": 13
+      "sha256": "f0b9dd43768e0096ac5726ecfbb2c9b8fc2fa89598f447dbeaf31b6dc9d902f3",
+      "bytes": 796216,
+      "pages": 14
     },
     "ls": {
       "file": "montaje-ls.pdf",
       "sourceFiles": [
         "puerta-ls-model.js",
         "puerta-ls-layout.js",
+        "component-assembly.js",
         "puerta-map.js"
       ],
-      "sourceHash": "9f3781f0646d4cc3f78ab5a7201be7348422c6026d93e41fae017c2d58353f62",
+      "sourceHash": "94ea811b7c059c95dc0baafc2b2813e4820c57c60b6c643560215ac2d96101c6",
       "connections": 192,
       "componentCount": 49,
       "materials": [
@@ -384,18 +388,19 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "430f84a684509b1198882a2d662423f2f689a8fd17abfd1942ba8bf2dd95692e",
-      "bytes": 764809,
-      "pages": 12
+      "sha256": "5205877a6290d5d86b7a53a55fe97d154d1d5016bf0b1a0050781b2b123e29a5",
+      "bytes": 782338,
+      "pages": 14
     },
     "comunes": {
       "file": "montaje-comunes.pdf",
       "sourceFiles": [
         "puerta-model.js",
         "puerta-layout.js",
+        "component-assembly.js",
         "puerta-map.js"
       ],
-      "sourceHash": "c3430890ee0dee8529b0b5591970b7db52006ed24caf43a04adf7aa065ae6a71",
+      "sourceHash": "f2e41fe05b0364d18224ac1dbe0bee5547daaf5cef01cd54e572c8ae7aa8c8a0",
       "connections": 177,
       "componentCount": 45,
       "materials": [
@@ -476,18 +481,19 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "3ad50c8743d612dd436c4a00e634c1d06ab93e238f42a411fc163357dcf3e855",
-      "bytes": 728162,
-      "pages": 12
+      "sha256": "3cd029b3f839edf46e8e54185a7a07af91a5ebee8090e96dfa270ff2f8e33ea2",
+      "bytes": 741488,
+      "pages": 13
     },
     "redes": {
       "file": "montaje-redes.pdf",
       "sourceFiles": [
         "puerta-redes-model.js",
         "puerta-redes-layout.js",
+        "component-assembly.js",
         "puerta-map.js"
       ],
-      "sourceHash": "2b54c989d7c50e0b0d864c7f283770d228f0c5bc08d6f600bf8f42888c9be701",
+      "sourceHash": "590c8868ecc0f2873619705fffe71746de4f72343954c8d268b9fab9c92a1b97",
       "connections": 146,
       "componentCount": 31,
       "materials": [
@@ -568,9 +574,9 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "76ccef3e7efa4c97c507873f89bda7b011f6dffca2e3c4287190592dd7c1d1fb",
-      "bytes": 657544,
-      "pages": 10
+      "sha256": "9226b67c51e7c6c3bc73f8ff221e1774a58f35213d95281a158f38f191eba30c",
+      "bytes": 678663,
+      "pages": 12
     }
   }
 }

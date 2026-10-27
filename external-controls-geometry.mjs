@@ -49,7 +49,7 @@ export function buildExternalControl(api){
  }
  switches.push(actuator);contactShadow(c,isSlide?10:10.8,6.3,group);
  const logical=[it.a,it.b,it.third];
- const connections=e.terminals.map((terminal,i)=>{
+ const cables=[];const connections=e.terminals.map((terminal,i)=>{
   const t=toWorld(terminal,1.02),port=hpos(logical[i],.08);
   const neckStart=c.clone().add(new THREE.Vector3((i-1)*1.5,.72,1.08));
   mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([neckStart,neckStart.clone().add(new THREE.Vector3(0,-.18,.5)),t]),12,.085,8,false),metal,new THREE.Vector3(),group);
@@ -61,9 +61,9 @@ export function buildExternalControl(api){
   const shrink=mesh(new THREE.CylinderGeometry(.19,.17,.65,16),sleeve,t.clone().add(new THREE.Vector3(0,-.09,.32)),group);shrink.rotation.x=Math.PI/2;
   const color=new THREE.MeshStandardMaterial({color:e.colors[i],roughness:.74});
   const turn=toWorld([e.center[0]-150-i*18,e.center[1]-155-i*17],1.7+i*.28),front=toWorld([e.center[0]+(i-1)*52,e.center[1]+135+i*10],.9+i*.18);
-  const route=new THREE.CatmullRomCurve3([port,port.clone().setY(1.1+i*.28),toWorld([pointX(logical[i]),815+i*24],1.8+i*.28),turn,front,tail,t],false,'centripetal');
-  const wire=mesh(new THREE.TubeGeometry(route,48,.095,8,false),color,new THREE.Vector3(),group);wire.userData={id:it.id};pickables.push(wire);
-  box(.3,.46,.3,port.clone().setY(.23),sleeve,group);
+  const route=new THREE.CatmullRomCurve3([t,tail,front,turn,toWorld([pointX(logical[i]),815+i*24],1.8+i*.28),port.clone().setY(1.1+i*.28),port],false,'centripetal');const cableGroup=new THREE.Group();group.add(cableGroup);
+  const wire=mesh(new THREE.TubeGeometry(route,96,.095,8,false),color,new THREE.Vector3(),cableGroup);wire.userData={id:it.id};pickables.push(wire);
+  const plug=box(.3,.46,.3,port.clone().setY(.23),sleeve,cableGroup);const tip=mesh(new THREE.SphereGeometry(.17,12,8),new THREE.MeshBasicMaterial({color:0xe5b541}),t.clone(),cableGroup);tip.visible=false;cables.push({group:cableGroup,wire,curve:route,plug,tip,point:new THREE.Vector3(),normal:new THREE.Vector3(),terminal:i,progress:1});
   const tag=topLabel((isSlide?['+5','COM','GND']:['NC','COM','NA'])[i],t.clone().add(new THREE.Vector3(0,-.87,1.05)),1.45,1.8,{background:'#edf1ed',color:i===0?'#b64143':'#364e49',size:54});group.add(tag);
   return {hole:logical[i],terminal,worldTerminal:t.toArray(),function:e.functions[i]};
  });
@@ -71,11 +71,18 @@ export function buildExternalControl(api){
  const title=topLabel(it.value+' · '+e.model.toUpperCase(),c.clone().add(new THREE.Vector3(0,.065,-3.15)),10,3.1,{background:'#edf1ed',color:it.value==='STOP'?'#a64445':'#345a4a',size:45});group.add(title);
  const type=topLabel(isSlide?'DESLIZABLE · MANTENIDO':'PALANCA · FIN DE CARRERA',c.clone().add(new THREE.Vector3(0,.065,7.2)),10,2.8,{background:'#edf1ed',color:'#587363',size:37});group.add(type);
  updateExternalControl(actuator,false);
- return {id:it.partId,model:e.model,center:e.center,bounds:e.bounds,connections,actuator};
+ return {id:it.partId,model:e.model,center:e.center,bounds:e.bounds,connections,actuator,cables,wiringStage:it.wiringStage??it.stage};
 }
 export function updateExternalControl(actuator,on){
  const d=actuator.userData;
  if(d.externalControl==='scmm-122')actuator.position.x=d.homeX+(on?.72:-.72);
  else if(d.externalControl==='ss0501a'){actuator.rotation.z=on?.012:.16;d.plunger.position.y=d.plungerY-(on?.19:0);}
  d.actuated=Boolean(on);
+}
+
+export function revealExternalCable(c,t){
+ t=Math.max(0,Math.min(1,t));const g=c.wire.geometry,segments=g.parameters.tubularSegments,radial=g.parameters.radialSegments,p=g.getAttribute('position'),n=g.getAttribute('normal');
+ if(c.reveal?.ring>=0){const r=c.reveal.ring;for(let j=0;j<=radial;j++){const k=(r*(radial+1)+j)*3;p.setXYZ(r*(radial+1)+j,...c.reveal.position.subarray(k,k+3));n.setXYZ(r*(radial+1)+j,...c.reveal.normal.subarray(k,k+3));}c.reveal.ring=-1;p.needsUpdate=n.needsUpdate=true;}
+ if(t>0&&t<1){c.reveal||={position:new Float32Array(p.array),normal:new Float32Array(n.array),ring:-1};const scaled=t*segments,whole=Math.floor(scaled),fraction=scaled-whole,ring=Math.min(segments,whole+1);c.curve.getPointAt(t,c.point);for(let j=0;j<=radial;j++){const lo=(whole*(radial+1)+j)*3,hi=(ring*(radial+1)+j)*3;c.normal.set(c.reveal.normal[lo]+(c.reveal.normal[hi]-c.reveal.normal[lo])*fraction,c.reveal.normal[lo+1]+(c.reveal.normal[hi+1]-c.reveal.normal[lo+1])*fraction,c.reveal.normal[lo+2]+(c.reveal.normal[hi+2]-c.reveal.normal[lo+2])*fraction).normalize();p.setXYZ(ring*(radial+1)+j,c.point.x+g.parameters.radius*c.normal.x,c.point.y+g.parameters.radius*c.normal.y,c.point.z+g.parameters.radius*c.normal.z);n.setXYZ(ring*(radial+1)+j,c.normal.x,c.normal.y,c.normal.z);}c.reveal.ring=ring;p.needsUpdate=n.needsUpdate=true;}
+ g.setDrawRange(0,Math.ceil(t*segments)*radial*6);c.tip.visible=t>0&&t<1;if(c.tip.visible)c.tip.position.copy(c.point);c.plug.visible=t>=1;c.progress=t;
 }
