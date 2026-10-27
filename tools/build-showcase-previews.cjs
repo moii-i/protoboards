@@ -14,8 +14,9 @@ async function main(){
  await send('Page.enable');await send('Runtime.enable');await send('Network.enable');await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
  const results=[];
 
- const captures=[];
- for(const [key,route] of [['letras','/'],['555','/555'],['puerta','/puerta?montaje=ls151']]){
+ const onlyDoor=process.argv.includes('--door');
+ const captures=onlyDoor?JSON.parse(fs.readFileSync('protoboard-ah/showcase-previews.json','utf8')).filter(c=>c.key!=='puerta'):[];
+ for(const [key,route] of [['letras','/'],['555','/555'],['puerta','/puerta?montaje=ls151']].filter(([key])=>!onlyDoor||key==='puerta')){
   await send('Page.navigate',{url:base+route});await waitFor('Boolean(window.protoboardsDesign)&&Boolean(window.protoboardsShowcase)');
   await evaluate("document.querySelector('.brand-intro')?.remove();selectStep(model.stages.length-1,false,{guided:false});document.querySelector('#cumulative').checked=true;visibility();view='all';setRenderer('3d');setCamera();");
   await waitFor("Boolean(board3d)&&rendererMode==='3d'");await send('Emulation.setDeviceMetricsOverride',{width:960,height:600,deviceScaleFactor:1,mobile:false});
@@ -25,7 +26,7 @@ async function main(){
    if(key==='letras')await evaluate('code='+value+';updateDemo();sync3d();');
    else if(key==='555')await evaluate('currentLEDs='+JSON.stringify(value)+';sync3d();board3d.setLEDs(currentLEDs);');
    else await evaluate('power=true;demoStarted=performance.now();Object.assign(door,'+JSON.stringify(value)+');updateDemo();if(demoFrame)cancelAnimationFrame(demoFrame);demoFrame=0;');
-   await delay(100);const filename='preview-'+key+'-'+name+'.png';await shot('', 'protoboard-ah/'+filename);
+   await delay(100);const filename='preview-'+key+'-'+name+'.png';await shot('', 'protoboard-ah/'+filename);if(key==='puerta'&&name==='cerrada')fs.copyFileSync('protoboard-ah/'+filename,'protoboard-ah/preview-puerta.png');
    const state=await evaluate(key==='letras'?'model.letters[code]':key==='555'?'currentLEDs':'({message:doorMessage,leds:indicators().leds})');
    captures.push({key,name,file:filename,state,bytes:fs.statSync('protoboard-ah/'+filename).size});
   }

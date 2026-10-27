@@ -33,7 +33,7 @@ Los enlaces siguen siendo enlaces nativos. `showcase.js` registra las transicion
 
 Al preparar por primera vez el 3D se presenta una imagen de referencia del circuito. La cubierta se desvanece al estar listo el visor; volver a 2D la retira inmediatamente. Alternar un visor ya preparado no repite la cubierta. Las conexiones marcadas, el paso y la selección siguen perteneciendo a los controladores originales.
 
-Con el servidor local activo, `npm run build:showcase` regenera las nueve imágenes y su registro de estados; `npm run test:showcase` comprueba secuencias, pausas, movimiento reducido, navegación nativa, carga 3D retenida, cancelación y progreso sin cambios.
+Con el servidor local activo, `npm run build:showcase` regenera las nueve imágenes y su registro de estados (`npm run build:showcase -- --door` actualiza solo puerta y su imagen de portada); `npm run test:showcase` comprueba secuencias, pausas, movimiento reducido, navegación nativa, carga 3D retenida, cancelación y progreso sin cambios.
 
 ## Mandos externos del circuito LS151
 
