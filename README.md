@@ -35,6 +35,12 @@ Al preparar por primera vez el 3D se presenta una imagen de referencia del circu
 
 Con el servidor local activo, `npm run build:showcase` regenera las nueve imágenes y su registro de estados; `npm run test:showcase` comprueba secuencias, pausas, movimiento reducido, navegación nativa, carga 3D retenida, cancelación y progreso sin cambios.
 
+## Mandos externos del circuito LS151
+
+El montaje LS151 y su adaptación compacta muestran los tres SCMM-122 de ABRIR/CERRAR/STOP y los dos SS0501A de los finales fuera de la protoboard. El botón Mandos externos abre un encuadre conjunto en 2D/3D; selecciona cada pieza para consultar sus cables. El cuerpo, los terminales soldados y el aislamiento son ilustrativos: confirma el orden COM/NC/NA de tu pieza con multímetro. Los contactos de la placa, la lógica y el avance guardado se conservan.
+
+Las correderas y las palancas responden a la prueba de la puerta. El material visual de referencia procede de las fichas oficiales de Steren enlazadas en [la documentación LS151](docs/circuito-ls151.md); el sitio utiliza geometría propia. `npm run test:external-controls` comprueba las dos variantes, el accionamiento de piezas en 2D/3D y el avance conservado.
+
 ## Mesa de trabajo adaptable
 
 Las guías de letras, NE555 y puerta comparten un panel de pasos plegable. En escritorio puedes elegir Compacto, Normal o Amplio, arrastrar el separador o ajustarlo con las flechas del teclado. La elección se guarda; el móvil conserva su propia preferencia de panel visible. Los cambios de etapa coordinan el encabezado y una señal visual breve en el visor sin marcar conexiones.

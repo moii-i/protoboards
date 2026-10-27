@@ -28,6 +28,7 @@
   });
   retry.addEventListener('click',()=>window.location.reload());
 
+  if(variant.startsWith('ls151')){const info=document.createElement('details');info.className='external-controls-note';info.innerHTML='<summary>Mandos externos · 3 SCMM-122 + 2 SS0501A</summary><p>Los tres SCMM-122 se deslizan y conservan su posición para ABRIR, CERRAR y STOP. Los dos SS0501A se accionan por su palanca al llegar a cada extremo.</p><p>Suelda un cable a cada terminal, aísla la unión con termorretráctil y lleva su extremo macho a los agujeros indicados. La carcasa queda fuera de la protoboard.</p><p>El orden físico de terminales es ilustrativo: identifica COM/NC/NA con multímetro. El modelo muestra la función de cada cable; no sustituye el pinout de la pieza.</p><a href="#montaje" class="external-controls-focus">Ver dónde quedan los mandos ↗</a>';document.querySelector('.assembly-choice').after(info);info.querySelector('a').onclick=e=>{e.preventDefault();document.querySelector('[data-view=controls]')?.click();document.querySelector('.map-stage').scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});};}
   function loadScript(src){
     return new Promise((resolve,reject)=>{
       const script=document.createElement('script');
@@ -91,6 +92,8 @@
       else if(/74LS02/i.test(name))detail.textContent='U1: NOR para bloquear STOP y la orden contraria. DIP de 14 patas, placa A.';
       else if(/74LS08/i.test(name))detail.textContent='U6: AND para combinar la orden permitida y su final de carrera. DIP de 14 patas, placa B.';
       else if(/Display/i.test(name))detail.textContent='Ánodo común; confirma pinout y separación de filas del modelo comprado.';
+      else if(/SCMM-122/i.test(name))detail.textContent='Deslizable mantenido de tres terminales. Cuerpo fuera de la placa; cable soldado y aislado hasta un pin macho.';
+      else if(/SS0501A/i.test(name))detail.textContent='Microswitch de palanca. Identifica COM, NC y NA/NO con multímetro; no se inserta en la placa.';
       else if(/enclavamiento/i.test(name))detail.textContent='Mantén la orden activa durante STOP y libérala al terminar el recorrido.';
       else if(/Final de carrera/i.test(name))detail.textContent='Usa COM y NC; el contacto abre al alcanzar su extremo.';
       else if(/Motor CC/i.test(name))detail.textContent='Comprueba corriente de bloqueo y capacidad del L293D.';
@@ -114,6 +117,8 @@
     showAssembly(window.DOOR_MODEL);showMaterials(window.DOOR_MODEL);
     await loadScript('./'+prefix+'-layout.js');
     if(variant.startsWith('ls151')){const b=document.createElement('button');b.type='button';b.dataset.view='motor';b.textContent='Motor externo';b.setAttribute('aria-pressed','false');document.querySelector('.view-buttons').appendChild(b);const badge=document.createElement('span');badge.textContent='14 jumpers menos · resistencias junto al display';document.querySelector('.assembly-badges').appendChild(badge);}
+    if(variant.startsWith('ls151'))await loadScript('./external-controls-svg.js');
+    if(variant.startsWith('ls151')){const b=document.createElement('button');b.type='button';b.dataset.view='controls';b.textContent='Mandos externos';b.setAttribute('aria-pressed','false');document.querySelector('.view-buttons').append(b);}
     await loadScript('./puerta-map.js');
     await loadScript('./puerta-guide.js');
     await loadScript('./puerta-studio.js');

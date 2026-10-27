@@ -17,7 +17,8 @@
     "build:previews": "node tools/verify-design-browser.cjs --previews",
     "test:showcase": "node tools/verify-showcase-browser.cjs",
     "build:showcase": "node tools/build-showcase-previews.cjs",
-    "test:workbench": "node tools/verify-workbench-browser.cjs"
+    "test:workbench": "node tools/verify-workbench-browser.cjs",
+    "test:external-controls": "node tools/verify-external-controls-browser.cjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2",

@@ -58,6 +58,28 @@ if(variant.startsWith('ls151')){
   if(it.kind==='res')it.note+=' '+(it.value==='4.7 kΩ'?'4.7 kΩ: amarillo, violeta, rojo, oro.':it.value==='2.2 kΩ'?'2.2 kΩ: rojo, rojo, rojo, oro.':it.value==='100 kΩ'?'100 kΩ: café, negro, amarillo, oro.':'1 kΩ: café, negro, rojo, oro.');
  }
 }
+
+if(variant.startsWith('ls151')){
+ layout.externalControls=[];
+ const names=['ABRIR','CERRAR','STOP','FCA','FCC'],centers=[2485,2795,3105,3495,3895];
+ for(const it of layout.items.filter(it=>it.kind==='switch')){
+  const index=names.indexOf(it.partId),limit=index>2,cx=centers[index],cy=1040;
+  const e={id:it.partId,model:limit?'ss0501a':'scmm-122',center:[cx,cy],bounds:[cx-155,930,cx+155,1250],
+   terminals:[-45,0,45].map(dx=>[cx+dx,cy+80]),functions:limit?['NC · +5 V','COM · '+it.partId,'NA · GND']:['+5 V','COM · señal','GND'],
+   colors:['#c94b4d',index===0?'#3679b5':index===1?'#b7664a':index===2?'#c33a60':index===3?'#8272ad':'#a58636','#293d52'],
+   contactOrder:'functional-illustration',leadHoles:[it.a,it.b,it.third]};
+  it.externalControl=e;layout.externalControls.push(e);
+  it.label='Monta '+it.partId+' · '+e.model.toUpperCase()+' fuera de la placa';
+  it.note=(limit?'SS0501A: palanca momentánea; vuelve al soltarla. NC a +5 V, NA/NO a GND y COM a '+(it.partId==='FCA'?'PA':'PC')+'.':'SCMM-122: desliza la corredera; conserva la posición. Contactos extremos a +5 V y GND; COM a la señal de '+it.partId+'.')+' Cuerpo fuera de la protoboard; suelda tres cables, aísla las uniones y termina en pines macho. Los agujeros mostrados son conexiones de cable. El orden físico de terminales es ilustrativo: identifica COM/NC/NA con multímetro.';
+ }
+}
+
 require('./route-door-wires.cjs')(layout);
+
+if(layout.externalControls){
+ layout.bounds[3]=Math.max(layout.bounds[3],1320);layout.viewBoxes.B[3]=layout.bounds[3];
+ layout.viewBoxes.controls=[2290,430,1870,920];
+}
+
 if(variant==='sinuln'){layout.stages[0][1]=src.placementDescription;layout.pinNames.U4=src.pinNames.U4;layout.pinNames.U3=src.pinNames.U3;}
 fs.writeFileSync('protoboard-ah/'+stem+'-layout.js','const model='+JSON.stringify(layout)+';\n');fs.writeFileSync('work/'+stem+'-layout.json',JSON.stringify(layout,null,2));console.log(JSON.stringify({variant,connections:items.length,chips:chips.length,arrays:layout.arrays.length,boards:Object.keys(boards).length,routing:layout.routingStats}));

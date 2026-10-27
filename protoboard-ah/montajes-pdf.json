@@ -1,15 +1,16 @@
 {
   "generator": "tools/build-mounting-pdfs.cjs",
-  "generatorHash": "1120ef0f365465f36c504601416200a0d807b4d8d9e8d9ee53bc2989ae0c906a",
+  "generatorHash": "b4cab8a9415314607c322b28957c336c32b9d7924b61a5b7e290931a9cd80655",
   "variants": {
     "ls151": {
       "file": "montaje-ls151.pdf",
       "sourceFiles": [
         "puerta-ls151-model.js",
         "puerta-ls151-layout.js",
+        "external-controls-svg.js",
         "puerta-map.js"
       ],
-      "sourceHash": "931c74793d4463ba3764552a0637a0eca43fd94a78de35deee920734564c0018",
+      "sourceHash": "b851551b08909807333f75379401beb4306d53f8f1bb7209263d5da535bbff07",
       "connections": 197,
       "componentCount": 52,
       "materials": [
@@ -42,11 +43,11 @@
           "quantity": 2
         },
         {
-          "name": "Mandos SPDT de enclavamiento, 3 terminales",
+          "name": "SCMM-122 · switch deslizable SPDT mantenido, 3 terminales",
           "quantity": 3
         },
         {
-          "name": "Final de carrera SPDT COM/NC/NO",
+          "name": "SS0501A · microswitch de palanca SPDT COM/NC/NA",
           "quantity": 2
         },
         {
@@ -90,8 +91,8 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "0f623a9eb754a648fdd0e3031f0527b233e210394a19df5cd8ee192f6dba6cfc",
-      "bytes": 777492,
+      "sha256": "58b266ec77133151076ac0063de0806b88c80c9ead10abf1e6d6963a4f7fcd80",
+      "bytes": 788803,
       "pages": 13
     },
     "ls151-compacto": {
@@ -99,9 +100,10 @@
       "sourceFiles": [
         "puerta-ls151-compacto-model.js",
         "puerta-ls151-compacto-layout.js",
+        "external-controls-svg.js",
         "puerta-map.js"
       ],
-      "sourceHash": "b35b3ed4b8b55e1a83064aea2b7db702a4cb14a975c51a84eb5f6f2b77b5326c",
+      "sourceHash": "555cf7d8077e3beaa0cdeb0d40a06a1db6ed5ad2f654babd048233e02b1f0fde",
       "connections": 193,
       "componentCount": 50,
       "materials": [
@@ -134,11 +136,11 @@
           "quantity": 2
         },
         {
-          "name": "Mandos SPDT de enclavamiento, 3 terminales",
+          "name": "SCMM-122 · switch deslizable SPDT mantenido, 3 terminales",
           "quantity": 3
         },
         {
-          "name": "Final de carrera SPDT COM/NC/NO",
+          "name": "SS0501A · microswitch de palanca SPDT COM/NC/NA",
           "quantity": 2
         },
         {
@@ -182,9 +184,9 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "aa149aabfee6d071c0e1558af15100fad958576ba62c2723a5e4a6ed635b77b0",
-      "bytes": 767211,
-      "pages": 12
+      "sha256": "aaf4b26028a1d9abf428ce5565ab64e9da4fe628e89eec47db435a0a6dfb4e7f",
+      "bytes": 778699,
+      "pages": 13
     },
     "sinuln": {
       "file": "montaje-sinuln.pdf",
@@ -193,7 +195,7 @@
         "puerta-sinuln-layout.js",
         "puerta-map.js"
       ],
-      "sourceHash": "d68ea01a620d56ebc9ef434c725fc2e2d909653fb6f7d950d2b403e004b9fa90",
+      "sourceHash": "ce33b1da00323fddeb6c49f5deb615e0b3f0492d9c33d018c61c68358f855368",
       "connections": 198,
       "componentCount": 53,
       "materials": [
@@ -282,7 +284,7 @@
           "quantity": 1
         }
       ],
-      "sha256": "f984d859d089a23f87d6fdf7f967354a07f78be92946893c5fda7f842607ec1f",
+      "sha256": "254f4d9c9c69d7f75cde5dd7416dc865bb5ea8fa02c790179f942349d97102f5",
       "bytes": 780907,
       "pages": 13
     },
@@ -293,7 +295,7 @@
         "puerta-ls-layout.js",
         "puerta-map.js"
       ],
-      "sourceHash": "00ab23bec091f0e991913ac250754fc97609fab04b0b7ad620bc97cddba1b776",
+      "sourceHash": "9f3781f0646d4cc3f78ab5a7201be7348422c6026d93e41fae017c2d58353f62",
       "connections": 192,
       "componentCount": 49,
       "materials": [
@@ -382,7 +384,7 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "46b0ab58c4aeead77ab53853767fe3a3614b49ceab07ef994aa5cb4b80706878",
+      "sha256": "430f84a684509b1198882a2d662423f2f689a8fd17abfd1942ba8bf2dd95692e",
       "bytes": 764809,
       "pages": 12
     },
@@ -393,7 +395,7 @@
         "puerta-layout.js",
         "puerta-map.js"
       ],
-      "sourceHash": "4500ce626b61b114ea842336246eae3aa26ea3fc42b5708a91d2c94a29342188",
+      "sourceHash": "c3430890ee0dee8529b0b5591970b7db52006ed24caf43a04adf7aa065ae6a71",
       "connections": 177,
       "componentCount": 45,
       "materials": [
@@ -474,7 +476,7 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "333c27133a766730134700cc6787060f874fb200128435cad2d40916d1fc0c97",
+      "sha256": "3ad50c8743d612dd436c4a00e634c1d06ab93e238f42a411fc163357dcf3e855",
       "bytes": 728162,
       "pages": 12
     },
@@ -485,7 +487,7 @@
         "puerta-redes-layout.js",
         "puerta-map.js"
       ],
-      "sourceHash": "84aa9b22e52fb14e52cc50e937e374463d7731b37c4fb3513db5338033efad09",
+      "sourceHash": "2b54c989d7c50e0b0d864c7f283770d228f0c5bc08d6f600bf8f42888c9be701",
       "connections": 146,
       "componentCount": 31,
       "materials": [
@@ -566,7 +568,7 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "65da1c7554eeb18c68f6396d83ab77e123a8d8579d4c76e76830e4dcfc82f883",
+      "sha256": "76ccef3e7efa4c97c507873f89bda7b011f6dffca2e3c4287190592dd7c1d1fb",
       "bytes": 657544,
       "pages": 10
     }

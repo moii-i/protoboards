@@ -26,3 +26,5 @@
 /* Clip at the SVG viewport, not at the viewBox inside its letterboxed area.
    This keeps neighboring circuit geometry visible above/below during zoom. */
 #map,#detailMap{overflow:hidden}
+
+.external-controls-note{margin:-8px 0 22px;border:1px solid #d4e0cc;border-radius:13px;background:#fffefa;padding:14px 18px;color:#345643}.external-controls-note summary{cursor:pointer;font-size:13px;font-weight:750}.external-controls-note p{font-size:12px;line-height:1.8;max-width:85ch;margin:12px 0}.external-controls-focus{font-weight:700;font-size:12px}.external-control [data-external-actuator]{cursor:pointer}.external-control [data-external-actuator]:hover{filter:brightness(1.08)}

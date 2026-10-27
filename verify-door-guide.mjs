@@ -6,7 +6,7 @@ const selectProto=Object.getPrototypeOf(document.querySelector('select'));Object
 const requestAnimationFrame=fn=>{queue.set(++rafId,fn);return rafId},cancelAnimationFrame=id=>queue.delete(id);
 Object.getPrototypeOf(document.createElementNS('http://www.w3.org/2000/svg','path')).getTotalLength=()=>100;
 const ctx=vm.createContext({window,document,console,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},matchMedia:()=>({matches:false,addEventListener(){}}),requestAnimationFrame,cancelAnimationFrame,performance:{now:()=>now},setTimeout:()=>0,clearTimeout(){},MouseEvent:window.Event,URL,Blob});
-window.DOOR_VARIANT=mux|| (sin?'sinuln':ls?'ls':red?'redes':'comunes');for(const f of [stem+'-model.js',stem+'-layout.js','puerta-map.js','puerta-guide.js'])vm.runInContext(fs.readFileSync('protoboard-ah/'+f,'utf8'),ctx,{filename:f});
+window.DOOR_VARIANT=mux|| (sin?'sinuln':ls?'ls':red?'redes':'comunes');for(const f of [stem+'-model.js',stem+'-layout.js',...(mux?['external-controls-svg.js']:[]),'puerta-map.js','puerta-guide.js'])vm.runInContext(fs.readFileSync('protoboard-ah/'+f,'utf8'),ctx,{filename:f});
 const run=code=>vm.runInContext(code,ctx),state=()=>window.doorGuide.getState();
 assert.equal(state().step,0);assert.equal(document.querySelectorAll('.pin').length,mux?68:sin?80:ls?90:78);assert.equal(document.querySelectorAll('.connection').length,window.doorGuide.model.items.length);
 assert.equal(document.querySelectorAll('.breadboard').length,2);assert.equal(document.querySelectorAll('[data-view="C"],[data-view="D"]').length,0);

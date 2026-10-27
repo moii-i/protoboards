@@ -110,7 +110,7 @@ Verificación geométrica adicional: `node verify-door-3d.mjs --ls151 --motion` 
 - Buscar / piezas abre un diálogo accesible con tres pestañas, también disponible en la lupa de la isla ampliada y con Ctrl+K. Busca referencias, valores, señales, códigos de conexión y patas (U1.11 o NE555 pata 3). El resultado abre la pata o acerca la conexión correspondiente.
 - Colocar piezas utiliza las mismas geometrías y agujeros de la guía: integrados, displays, redes y componentes pasivos. Los anillos permanecen en los contactos de destino, con la primera pata en ámbar. Se puede pausar, repetir o pasar a otra pieza. Al recorrer conexiones automáticamente se respeta el encuadre elegido. Cambiar de visor conserva el avance; cambiar de paso restaura la pieza; movimiento reducido muestra la posición final sin animar. No marca conexiones como realizadas.
 - Revisar bloque ofrece comprobaciones manuales específicas de la etapa actual. Se guardan por variante y versión de distribución, aparte del avance de conexiones. No equivalen a una medición automática ni certifican el circuito físico.
-- Los mandos y finales existentes conservan sus modelos y conexiones; no se incorporan SCMM-122 ni SS0501A.
+- Las conexiones de los mandos y finales se conservan. La representación física se actualizó con los modelos SCMM-122 y SS0501A en la entrega de mandos externos.
 
 Prueba de navegador: `node tools/verify-door-learning-browser.cjs`, con el servidor local activo. Incluye búsquedas, colocación 2D/3D, orientación, pausa, cancelación, revisiones persistentes, movimiento reducido y móvil.
 
@@ -123,3 +123,13 @@ Las tarjetas de colocación y señales tienen un asa para arrastrar (ratón o t�
 PDF del montaje descarga la variante seleccionada. Cada PDF incluye materiales, posiciones/patas, coordenadas de conexiones, revisiones y prueba funcional; no incorpora el avance marcado del navegador. Se genera con `npm run build:pdf`, usando los modelos y el mapa vigentes. `montajes-pdf.json` registra las fuentes y sus hashes; las pruebas fallan si un PDF se queda desactualizado al modificar el montaje. La compilación normal conserva estos archivos publicados; regenera los PDF después de cambiar sus fuentes. Requiere Chrome local para generar, no para descargarlos.
 
 Prueba específica: `node tools/verify-door-lesson-browser.cjs`. Comprueba estados de señales, STOP/reanudación, finales, interbloqueo, colores, trazado 3D estable, arrastre real de tarjeta, plegado, límites móviles y descarga PDF.
+
+## Mandos externos SCMM-122 y SS0501A
+
+Se muestran tres SCMM-122 deslizables mantenidos (ABRIR/CERRAR/STOP) y dos SS0501A de palanca (FCA/FCC) fuera de la placa B. El botón Mandos externos encuadra las piezas y sus cables en 2D/3D. Los cuerpos, terminales, uniones de soldadura y aislamiento son ilustrativos; no son planos dimensionales de fabricación. La palanca del SS0501A es de lámina, sin rodaja.
+
+Se mantienen los mismos IDs de conexiones, las mismas posiciones en protoboard y la misma clave de progreso placement:v3. Los quince cables externos representados forman parte de las cinco piezas: no son nuevos jumpers entre nodos del circuito. Suelda cable a cada terminal y aísla la unión; el extremo macho llega al agujero indicado. Identifica COM/NC/NA con multímetro: las posiciones de los terminales del dibujo se organizan por función, sin atribuir un pinout universal a la pieza real.
+
+En finales, NC→5 V, NA/NO→GND, COM→PA/PC. Palanca suelta: permiso 1. Accionada: permiso 0. En mandos, COM→señal ABRIR/CERRAR/STOP; cada extremo→5 V o GND. La corredera mantiene la selección, por lo que no equivale a un pulsador momentáneo de cuatro patas.
+
+Referencias de forma y modelo: [SCMM-122](https://www.steren.com.mx/micro-switch-deslizable-de-1-polo-2-tiros-2-posiciones.html) y [SS0501A](https://www.steren.com.mx/micro-switch-con-palanca-de-lamina.html), fichas y fotografías oficiales de Steren.
