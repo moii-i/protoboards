@@ -1,6 +1,6 @@
 {
   "generator": "tools/build-mounting-pdfs.cjs",
-  "generatorHash": "8fb92a05b33ca2ecb205d3434e24d000f9029707754b75b5acf339940e08105c",
+  "generatorHash": "62e244b7ea2a0aae279b06f7c3aeddb402f5fb931b022b6bcb9666976bd27643",
   "variants": {
     "ls151": {
       "file": "montaje-ls151.pdf",
@@ -11,8 +11,8 @@
         "external-controls-svg.js",
         "puerta-map.js"
       ],
-      "sourceHash": "5666624a3a6f51ba4fa4a32e0cb46e7a6172d2800a75110059b4cb086166d7e7",
-      "connections": 197,
+      "sourceHash": "32e87f7f9ac4ab0d9a14ae9746fdcfbb42f76b1f99d3f01e034a785c898131dd",
+      "connections": 214,
       "componentCount": 52,
       "materials": [
         {
@@ -92,8 +92,8 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "d190f8244d47cd414dd935ce04f68d0ad11f13e9c7ac7664b6b4549e280c0e8a",
-      "bytes": 803511,
+      "sha256": "162ac9b52980afbd1a2b17aa4c227d48a0215df37960b8c953108bf39d56f48f",
+      "bytes": 831814,
       "pages": 14
     },
     "ls151-compacto": {
@@ -105,8 +105,8 @@
         "external-controls-svg.js",
         "puerta-map.js"
       ],
-      "sourceHash": "8df3ce0704fcfc0399db656b9b377c76b10912e23d2097564a9eb4de7e8bf97e",
-      "connections": 193,
+      "sourceHash": "cc05495eef4a570fbc31f879f40ec337f602aa4f3e513c70f06b011978050f9c",
+      "connections": 210,
       "componentCount": 50,
       "materials": [
         {
@@ -186,8 +186,8 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "68a35155e589d6e6726b9cb6b0f933145b80eec4ba6d779ae199c5a3789c0ed4",
-      "bytes": 794164,
+      "sha256": "ed4b001cc891c1bf2b0d0c0ae52006e9e189b2c62217dee49cbc75670f5cd3fa",
+      "bytes": 822532,
       "pages": 14
     },
     "sinuln": {
@@ -198,7 +198,7 @@
         "component-assembly.js",
         "puerta-map.js"
       ],
-      "sourceHash": "0e201292425f20da37911be3fa4564f7a92b2cfec2ca70ef6063d994c70371f0",
+      "sourceHash": "ba80113e2a76b68c3c470c6f81cc520af343bb3810ed5f07b722e95f2b1bb717",
       "connections": 198,
       "componentCount": 53,
       "materials": [
@@ -287,7 +287,7 @@
           "quantity": 1
         }
       ],
-      "sha256": "f0b9dd43768e0096ac5726ecfbb2c9b8fc2fa89598f447dbeaf31b6dc9d902f3",
+      "sha256": "3fccb82bac6b86f5b82825fed75682ad5cb2ede3c7fc1f4d7760ef6dffcd1068",
       "bytes": 796216,
       "pages": 14
     },
@@ -299,7 +299,7 @@
         "component-assembly.js",
         "puerta-map.js"
       ],
-      "sourceHash": "94ea811b7c059c95dc0baafc2b2813e4820c57c60b6c643560215ac2d96101c6",
+      "sourceHash": "83d3a57629fad8b08f3429f077725d26a1247baf577be1d83d36653f0d9018df",
       "connections": 192,
       "componentCount": 49,
       "materials": [
@@ -388,7 +388,7 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "5205877a6290d5d86b7a53a55fe97d154d1d5016bf0b1a0050781b2b123e29a5",
+      "sha256": "e720661cd39fdcd4b9f3efcb3cc67bca4e242aa4def3cd5a19ed740ae53a0368",
       "bytes": 782338,
       "pages": 14
     },
@@ -400,7 +400,7 @@
         "component-assembly.js",
         "puerta-map.js"
       ],
-      "sourceHash": "f2e41fe05b0364d18224ac1dbe0bee5547daaf5cef01cd54e572c8ae7aa8c8a0",
+      "sourceHash": "bd774bfae8dec81334f94fbbe7dda18f4ed3357b407d3992d7a1d542ef321313",
       "connections": 177,
       "componentCount": 45,
       "materials": [
@@ -481,7 +481,7 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "3cd029b3f839edf46e8e54185a7a07af91a5ebee8090e96dfa270ff2f8e33ea2",
+      "sha256": "1170246e710a375bc209872e48361e39ca1285975651b1c9f16a75eb86e1b705",
       "bytes": 741488,
       "pages": 13
     },
@@ -493,7 +493,7 @@
         "component-assembly.js",
         "puerta-map.js"
       ],
-      "sourceHash": "590c8868ecc0f2873619705fffe71746de4f72343954c8d268b9fab9c92a1b97",
+      "sourceHash": "0893c8b69f31ce2f78198cab47c3af636b1e89c024a413df4712bf8d033c3e31",
       "connections": 146,
       "componentCount": 31,
       "materials": [
@@ -574,7 +574,7 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "9226b67c51e7c6c3bc73f8ff221e1774a58f35213d95281a158f38f191eba30c",
+      "sha256": "9196db92adb81e44171ea62c39a035804ad3a0ea73c765a44fa309a407c9eab2",
       "bytes": 678663,
       "pages": 12
     }

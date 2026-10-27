@@ -114,4 +114,6 @@ s=s.replace("function paintLEDs(){","function paintExternalControls(v){for(const
 s=s.replace("const v=indicators();currentLEDs=v.leds;","const v=indicators();paintExternalControls(v);currentLEDs=v.leds;");
 s+="\n$('#map').addEventListener('click',event=>{if(step!==LAST)return;const actuator=event.target.closest('[data-external-actuator]');if(!actuator)return;const key={ABRIR:'abrir',CERRAR:'cerrar',STOP:'stop',FCA:'fca',FCC:'fcc'}[actuator.dataset.externalActuator];if(!key)return;event.preventDefault();event.stopImmediatePropagation();document.querySelector('[data-door=\"'+key+'\"]')?.click();},true);\n";
 
+s=s.replace("function hole(h){", "function hole(h){if(h[0]==='EXT')return model.externalTerminals[h[1]+':'+h[2]].label;");
+s=s.replace("function context(h){", "function context(h){if(h[0]==='EXT')return 'Terminal externo · identifica su función en la pieza real; cable soldado y aislado.';");
 fs.writeFileSync('protoboard-ah/puerta-guide.js',s);console.log('Shared controller: unobstructed endpoint rings, full-board cable navigation and floating controls.');

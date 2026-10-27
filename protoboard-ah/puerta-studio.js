@@ -63,7 +63,7 @@ more.onclick=()=>{prefs.compact=!prefs.compact;savePrefs();setCompact();};
 function setCompact(){$s('assemblyIsland').classList.toggle('studio-compact',Boolean(prefs.compact));more.textContent=prefs.compact?'Más controles':'Compactar';more.setAttribute('aria-expanded',String(!prefs.compact));requestAnimationFrame(updateIslandInset);}
 function ensureOverlay(it){
 if(overlay)return;overlay=document.createElementNS(svgNS,'g');overlay.setAttribute('class','studio-assembly-overlay');overlay.setAttribute('pointer-events','none');$s('scene').appendChild(overlay);
-measurePath=document.createElementNS(svgNS,'path');measurePath.setAttribute('d',roundedRoute(wireRoute(it)));pathLength=measurePath.getTotalLength();
+measurePath=document.createElementNS(svgNS,'path');measurePath.setAttribute('d',map.querySelector('.connection[data-id="'+it.id+'"] .colored-wire')?.getAttribute('d')||roundedRoute(wireRoute(it)));pathLength=measurePath.getTotalLength();
 const count=Math.max(8,Math.min(2048,Math.ceil(pathLength/4)));routeSamples=Array.from({length:count+1},(_,i)=>measurePath.getPointAtLength(pathLength*i/count));routeCommands=routeSamples.slice(1).map(p=>' L'+p.x.toFixed(3)+' '+p.y.toFixed(3));
 overlayPaths=[['#173e33',7],[it.color||'#147c75',3]].map(([color,width])=>{const p=document.createElementNS(svgNS,'path');p.setAttribute('fill','none');p.setAttribute('stroke',color);p.setAttribute('stroke-width',width);p.setAttribute('vector-effect','non-scaling-stroke');p.setAttribute('stroke-linecap','round');p.setAttribute('stroke-linejoin','round');overlay.appendChild(p);return p;});overlayPath=overlayPaths.at(-1);
 overlayBoots=[it.a,it.b].map(h=>{const [x,y]=point(h),g=document.createElementNS(svgNS,'g');g.innerHTML='<rect x="-5" y="-5" width="10" height="10" rx="2" fill="#293e45"/><rect x="-3" y="-3" width="6" height="6" rx="1" fill="'+(it.color||'#147c75')+'"/>';overlay.appendChild(g);return {g,x,y};});
@@ -85,12 +85,14 @@ phaseStamp=stamp;$s('studioPhase').textContent=(a.playing?'':'Pausa · ')+['1/3 
 quickStatus.hidden=false;quickStatus.textContent=$s('studioPhase').textContent;
 document.querySelectorAll('[data-studio-action="pause"]').forEach(b=>{b.disabled=t>=1;b.textContent=a.playing?'Pausar':'Continuar';b.setAttribute('aria-pressed',String(!a.playing&&t<1));});
 }
+document.dispatchEvent(new CustomEvent('door-wire-animation'));
 }
 function tick(now){raf=0;const a=state.animation;if(!a||!a.playing)return;const dt=lastTime?Math.min(100,now-lastTime):0;lastTime=now;a.progress=Math.min(1,a.progress+dt*prefs.speed/3000);if(a.progress>=1)a.playing=false;drawAnimation();if(a.playing)raf=requestAnimationFrame(tick);}
 function cancelAssembly(){if(raf)cancelAnimationFrame(raf);raf=0;lastTime=0;state.animation=null;overlay?.remove();overlay=null;overlayPath=null;overlayBoots=[];overlayPaths=[];measurePath=null;routeSamples=[];routeCommands=[];phaseStamp='';animationElement?.classList.remove('studio-assembling');animationElement=null;board3d?.setAssembly?.(null);}
 function playAssembly(){
 const it=model.items.find(x=>x.id===selected);if(!it||it.kind!=='wire'||!canAnimate())return;cancelAssembly();stopFeedback();board3d?.stopReplay?.();state.animation={id:it.id,progress:0,playing:true};animationElement=map.querySelector('.connection[data-id="'+it.id+'"]');drawAnimation();lastTime=0;raf=requestAnimationFrame(tick);syncToolbar();
 }
+function seekAssembly(progress){const it=model.items.find(it=>it.id===selected);if(!it||it.kind!=='wire')return;cancelAssembly();state.animation={id:it.id,progress:Math.max(0,Math.min(1,progress)),playing:false};animationElement=map.querySelector('.connection[data-id="'+it.id+'"]');drawAnimation();syncToolbar();}
 function pauseAssembly(){const a=state.animation;if(!a)return;a.playing=!a.playing;if(raf)cancelAnimationFrame(raf);raf=0;lastTime=0;if(a.playing&&a.progress<1)raf=requestAnimationFrame(tick);drawAnimation();}
 function syncToolbar(){
 document.querySelectorAll('[data-studio-motion]').forEach(el=>{el.checked=canAnimate();el.disabled=motionQuery.matches;el.title=motionQuery.matches?'Tu dispositivo tiene activado el movimiento reducido':'Activar animaciones de ensamblaje';});
@@ -109,6 +111,6 @@ animateSelection=function(){const it=model.items.find(x=>x.id===selected);if(pre
 synchronizeMotion=function(...args){original.synchronizeMotion(...args);if(!canAnimate())cancelAssembly();syncToolbar();};
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&state.animation?.playing)pauseAssembly();});
 motionQuery.addEventListener('change',()=>{if(!canAnimate())cancelAssembly();syncToolbar();});
-window.doorStudio={inspect,closeInspector,showStrip,play:playAssembly,pause:pauseAssembly,cancel:cancelAssembly,sync:()=>{applyInspection();syncToolbar();},snapshot:()=>({chip:state.chip,pin:state.pin,related:state.related,strip:state.strip,stripHoles:stripHoles(state.strip),assembly:state.animation?{id:state.animation.id,progress:state.animation.progress}:null}),getState:()=>({chip:state.chip,pin:state.pin,related:[...state.related],strip:state.strip,stripHoles:stripHoles(state.strip),animation:state.animation?{...state.animation}:null,prefs:{...prefs}})};
+window.doorStudio={inspect,closeInspector,showStrip,play:playAssembly,seek:seekAssembly,pause:pauseAssembly,cancel:cancelAssembly,sync:()=>{applyInspection();syncToolbar();},snapshot:()=>({chip:state.chip,pin:state.pin,related:state.related,strip:state.strip,stripHoles:stripHoles(state.strip),assembly:state.animation?{id:state.animation.id,progress:state.animation.progress}:null}),getState:()=>({chip:state.chip,pin:state.pin,related:[...state.related],strip:state.strip,stripHoles:stripHoles(state.strip),animation:state.animation?{...state.animation}:null,prefs:{...prefs}})};
 setCompact();syncToolbar();sync3d();
 })();

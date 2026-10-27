@@ -133,3 +133,5 @@ Se mantienen los mismos IDs de conexiones, las mismas posiciones en protoboard y
 En finales, NC→5 V, NA/NO→GND, COM→PA/PC. Palanca suelta: permiso 1. Accionada: permiso 0. En mandos, COM→señal ABRIR/CERRAR/STOP; cada extremo→5 V o GND. La corredera mantiene la selección, por lo que no equivale a un pulsador momentáneo de cuatro patas.
 
 Referencias de forma y modelo: [SCMM-122](https://www.steren.com.mx/micro-switch-deslizable-de-1-polo-2-tiros-2-posiciones.html) y [SS0501A](https://www.steren.com.mx/micro-switch-con-palanca-de-lamina.html), fichas y fotografías oficiales de Steren.
+
+Los cables externos se registran como EXT_ABRIR_1…3, EXT_CERRAR_1…3, EXT_STOP_1…3, EXT_FCA_1…3, EXT_FCC_1…3 y EXT_MOTOR_1…2. Su recorrido usa el controlador de los demás cables, incluidos el contorno seleccionado y el aislamiento. Los contactos originales en placa no se mueven; las nuevas entradas hacen explícitos los cables que antes estaban dibujados dentro de las piezas. Las marcas anteriores conservan sus IDs.

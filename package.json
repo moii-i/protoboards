@@ -19,7 +19,8 @@
     "build:showcase": "node tools/build-showcase-previews.cjs",
     "test:workbench": "node tools/verify-workbench-browser.cjs",
     "test:external-controls": "node tools/verify-external-controls-browser.cjs",
-    "test:components": "node tools/verify-components-first-browser.cjs"
+    "test:components": "node tools/verify-components-first-browser.cjs",
+    "test:native-wires": "node tools/verify-native-external-wires-browser.cjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2",

@@ -41,11 +41,11 @@ async function main(){
   if(route.includes('ls151')){
    await evaluate("componentAssembly.seek(7,.35,'leads');");
    const a=await evaluate("board3d.diagnostics().externalControls.flatMap(c=>c.cables)");
-   assert.equal(a.filter(c=>c.visible).length,8);assert(a[7].drawCount>0&&a[7].progress===.35);
+   assert.equal(a.filter(c=>c.visible).length,15);assert(a[7].drawCount>0&&a[7].progress===.35);
    await evaluate("componentAssembly.seek(7,.75,'leads');");
    const b=await evaluate("board3d.diagnostics().externalControls.flatMap(c=>c.cables)");assert(b[7].drawCount>a[7].drawCount);assert.notDeepEqual(b[7].tip,a[7].tip);
    await evaluate("setRenderer('2d');componentAssembly.seek(7,.5,'leads');");
-   assert(await evaluate("Number(document.querySelector('[data-external-cable=\"STOP:1\"]').style.strokeDashoffset)<0"));
+   assert(await evaluate("document.querySelector('.studio-assembly-overlay')?.dataset.reveal>0"));
    await evaluate("document.querySelector('#expand').click();");await shot(route.includes('compacto')?'components-compact-external-leads':'components-ls151-external-leads');await evaluate("setRenderer('3d');");await waitFor("rendererMode==='3d'&&!board3d.diagnostics().moving");await shot(route.includes('compacto')?'components-compact-external-leads-3d':'components-ls151-external-leads-3d');await evaluate("componentAssembly.cancel();selectStep(0,false,{guided:false});componentAssembly.seek(7,.45);");await waitFor("!board3d.diagnostics().moving");await shot(route.includes('compacto')?'components-compact-placement-3d':'components-ls151-placement-3d');await evaluate("document.querySelector('#closeExpanded').click();");
   }
   await evaluate("componentAssembly.cancel();selectStep(0,false,{guided:false});setRenderer('2d');");
