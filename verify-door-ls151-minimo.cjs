@@ -1,5 +1,5 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
-const variant=process.argv.includes('--claro')?'ls151-claro':'ls151-minimo';
+const variant=process.argv.includes('--6k8')?'ls151-6k8':process.argv.includes('--9r')?'ls151-9r':process.argv.includes('--claro')?'ls151-claro':'ls151-minimo';
 const ctx=vm.createContext({window:{}});vm.runInContext(fs.readFileSync('protoboard-ah/puerta-'+variant+'-model.js','utf8')+fs.readFileSync('protoboard-ah/puerta-'+variant+'-layout.js','utf8')+';window.layout=model;',ctx);
 const src=ctx.window.DOOR_MODEL,m=ctx.window.layout;
 function union(){const p=new Map(),find=x=>{if(!p.has(x))p.set(x,x);if(p.get(x)!==x)p.set(x,find(p.get(x)));return p.get(x);};return{find,join:(a,b)=>p.set(find(a),find(b))};}
@@ -16,14 +16,14 @@ assert.equal(physical.find('SUPPLY:G5'),physical.find('SUPPLY:G6'));
 const seen=new Map();for(const c of src.components.filter(c=>c.type!=='rail'))for(let p=1;p<=c.pins;p++){const ref=c.id+'.'+p,k=physical.find(real(ref)),l=logical.find(ref);if(seen.has(k))assert.equal(seen.get(k).l,l,'unintended copper short '+ref+' '+seen.get(k).ref);else seen.set(k,{l,ref});}
 for(const c of src.components.filter(c=>['resistor','led','cap','motor'].includes(c.type)))assert.notEqual(physical.find(real(c.id+'.1')),physical.find(real(c.id+'.2')),'bypassed component '+c.id);
 for(const ref of src.unconnected)assert(!src.connections.some(w=>w.from===ref||w.to===ref),'unconnected pin wired '+ref);
-assert.equal(Object.keys(m.boards).length,variant==='ls151-claro'?2:1);assert.equal(src.components.filter(c=>c.type==='resistor').length,13);assert(src.components.filter(c=>c.type==='resistor').every(c=>c.ohms===1000));
+assert.equal(Object.keys(m.boards).length,src.clearLayout?2:1);assert.equal(src.components.filter(c=>c.type==='resistor').length,src.timingOption?.resistors??13);assert(src.components.filter(c=>c.type==='resistor').every(c=>c.ohms===(c.id==='R2'&&src.timingOption?.id==='6k8'?6800:1000)));
 assert.equal(src.components.filter(c=>c.type==='cap').length,1);assert.equal(src.components.find(c=>c.type==='cap').value,'100 µF');assert.equal(src.components.filter(c=>c.type==='dip').length,5);
 const same=(a,b)=>physical.find(real(a))===physical.find(real(b));
 for(const[d,r]of [['D1','RDA'],['D2','RDB']]){assert(same(r+'.1','VCC'));assert(same(r+'.2',d+'.3'));assert(same(d+'.3',d+'.8'));assert(!same(d+'.3','VCC'));}
 assert(!same('D1.3','D2.3'));
 if(src.clearLayout){
  const before={window:{}};vm.runInNewContext(fs.readFileSync('protoboard-ah/puerta-ls151-minimo-model.js','utf8'),before);
- for(const[ref,n]of Object.entries(before.window.DOOR_MODEL.bindings))assert.equal(src.bindings[ref],ref==='U3.13'?'VCC':n,'used electrical net changed '+ref);
+ for(const[ref,n]of Object.entries(before.window.DOOR_MODEL.bindings).filter(([r])=>!src.timingOption||!/^R2[A-G]\./.test(r)))assert.equal(src.bindings[ref],ref==='U3.13'?'VCC':n,'used electrical net changed '+ref);
  assert.equal(m.interboardConnections.length,7);assert.equal(m.interboardConnections.filter(i=>i.signal).map(i=>i.signal).sort().join(','),'G,M,NM,PA,STOP');
  for(const i of m.items.filter(i=>i.kind==='wire'))for(const h of [i.a,i.b])if(h[0]==='B')assert(h[1]!=='-T'&&h[1]!=='+B'&&!(h[1]==='-B'&&h[2]>31),'unused rail wired '+i.id);
  for(const d of m.displays)for(const i of m.items.filter(i=>i.kind==='wire'))for(const h of [i.a,i.b])if(h[0]==='B'&&Object.values(d.pins).some(p=>p[2]===h[2]))assert(['a','b','h','i','j','+T','-B'].includes(h[1]),'inaccessible hole under display '+i.id);
@@ -53,10 +53,11 @@ let cases=0;for(let mask=0;mask<32;mask++)for(let blink=0;blink<2;blink++){
 const digitMax=5.25/950*1000,lsBounds={M:digitMax+.6,NM:digitMax+.8,MD:digitMax,H:digitMax+.8,I:digitMax+.4,NT:digitMax,ZERO:digitMax,SB:digitMax,NSB:.4,G:.1,FA:.4};
 assert(Object.values(lsBounds).every(ma=>ma<8));
 const ledMax=6.3/950*1000;assert(ledMax<7);assert(6.3*6.3/950<.125);
-for(let i=0;i<7;i++){const id='R2'+String.fromCharCode(65+i);if(i===0)assert(same(id+'.1','U4.7'));if(i===6)assert(same(id+'.2','U4.6'));else assert(same(id+'.2','R2'+String.fromCharCode(66+i)+'.1'));}
+const chain=src.timingOption?.rbParts??Array.from({length:7},(_,i)=>'R2'+String.fromCharCode(65+i));
+for(let i=0;i<chain.length;i++){const id=chain[i];if(i===0)assert(same(id+'.1','U4.7'));if(i===chain.length-1)assert(same(id+'.2','U4.6'));else assert(same(id+'.2',chain[i+1]+'.1'));}
 assert(same('C4.1','U4.2')&&same('C4.1','U4.6')&&same('C4.2','GND'));
-const frequency=1/(Math.LN2*(1000+2*7000)*100e-6);assert(frequency>.95&&frequency<.98);
-const report={variant,digitalCases:cases,boards:Object.keys(m.boards).length,resistors:13,resistorOhms:1000,capacitors:1,timingMicrofarads:100,jumpers:m.items.filter(i=>i.kind==='wire').length,nominalBlinkHz:+frequency.toFixed(3),worstLSLowMilliAmps:lsBounds,checks:['no hole reuse','no accidental copper shorts','all nets continuous','common-anode series limits','independent LED driver channels','STOP and interlock','RC series chain'],pending:['analog simulation','display brightness and off-state levels','power integrity without bypass','physical build']};
+const rb=chain.reduce((sum,id)=>sum+src.components.find(c=>c.id===id).ohms,0);assert.equal(rb,src.timingOption?.rbOhms??7000);const frequency=1/(Math.LN2*(1000+2*rb)*100e-6);if(src.timingOption){assert(Math.abs(frequency-src.timingOption.hz)<1e-12);assert.equal(src.timingOption.periodMs,src.timingOption.highMs+src.timingOption.lowMs);}else assert(frequency>.95&&frequency<.98);
+const report={variant,digitalCases:cases,boards:Object.keys(m.boards).length,resistors:src.counts.looseResistors,resistorOhms:src.components.filter(c=>c.type==='resistor').map(c=>c.ohms),capacitors:1,timingMicrofarads:100,jumpers:m.items.filter(i=>i.kind==='wire').length,nominalBlinkHz:+frequency.toFixed(3),worstLSLowMilliAmps:lsBounds,checks:['no hole reuse','no accidental copper shorts','all nets continuous','common-anode series limits','independent LED driver channels','STOP and interlock','RC series chain'],pending:['analog simulation','display brightness and off-state levels','power integrity without bypass','physical build']};
 fs.writeFileSync('work/'+variant+'-verification.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report));
 const prep=vm.createContext({window:{}});vm.runInContext(fs.readFileSync('protoboard-ah/component-assembly.js','utf8')+';const model='+JSON.stringify(m)+';window.ComponentAssembly.prepare(model);window.prepared=model;',prep);
 assert.equal(prep.window.prepared.items.filter(i=>i.externalLead).length,17);

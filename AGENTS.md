@@ -15,3 +15,5 @@ La prioridad del usuario es facilitar al máximo el ensamblado físico y su repr
 - Se pueden estudiar limitadores compartidos de display si se acota toda la corriente y se declara la variación de brillo; no presentarlos como equivalentes a una resistencia por segmento.
 - Un resultado booleano, un cálculo de corriente y una animación no acreditan simulación analógica ni montaje real. Mantener visibles los pendientes de validación. No inventar evidencias del examen.
 - Conservar los montajes de referencia y separar el avance cuando cambien agujeros, piezas o valores. Documentar cambios y publicar solamente la versión verificada dentro de su alcance.
+
+- Opciones activas de puerta: ls151-9r (9 de 1 kΩ, RB=3 kΩ, ~2.06 Hz) y ls151-6k8 (6 de 1 kΩ + 1 de 6.8 kΩ, ~0.99 Hz). Ambas usan 100 µF, dos placas y las mismas redes de control. La de 6.8 kΩ requiere conseguir ese valor. No reintroducir variantes HC en el selector ni mezclar avances o PDF antiguos.
