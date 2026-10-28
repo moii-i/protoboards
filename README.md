@@ -1,5 +1,7 @@
 # Protoboards
 
+La prioridad de ensamblado y el inventario se documentan en `AGENTS.md`. La revisión de alternativas, corrientes, capacitores y técnicas de montaje está en [Simplificación del ensamblado](docs/simplificacion-ensamblado.md). El perfil independiente `ls151-minimo` estudia 13 resistencias de 1 kΩ, 100 µF y una placa; requiere validación analógica y física, especialmente brillo y alimentación sin bypass.
+
 Guías para Diseño Digital: montaje sobre protoboard, cable por cable, en 2D y 3D.
 
 Catálogo: https://protoboard-ah.vercel.app/circuitos · Letras: https://protoboard-ah.vercel.app/ · Examen: https://protoboard-ah.vercel.app/puerta

@@ -1,7 +1,7 @@
 (()=>{
   'use strict';
   const requested=new URLSearchParams(window.location.search).get('montaje');
-  const variant=['comunes','redes','ls','sinuln','ls151','ls151-compacto','ls151-ahorro'].includes(requested)?requested:'sinuln';
+  const variant=['comunes','redes','ls','sinuln','ls151','ls151-compacto','ls151-ahorro','ls151-minimo'].includes(requested)?requested:'sinuln';
   window.DOOR_VARIANT=variant;
   document.querySelectorAll('.circuit-picker a').forEach(a=>{a.removeAttribute('aria-current');if(a.getAttribute('href')===(variant.startsWith('ls151')?'/puerta?montaje=ls151':'/puerta'))a.setAttribute('aria-current','page');});
   const choice=document.getElementById('assemblyVariant');
@@ -12,6 +12,7 @@
   const retry=document.getElementById('assemblyRetry');
   choice.value=variant;
   const descriptions={
+    'ls151-minimo':'Propuesta calculada: 13 resistencias de 1 kΩ, C4 de 100 µF y una protoboard. Aprovecha canales libres del L293D y un NOR. Brillo y estabilidad sin bypass pendientes de prueba eléctrica y física.',
     'ls151-ahorro':'26 resistencias y cinco integrados: combina menos cables con la adaptación calculada de baja corriente. Segmentos y siete pull-up de 4.7 kΩ; se retiran R5/R9. La versión original de 28 permanece separada. Prueba eléctrica propia pendiente.',
     ls151:'Nuevo · Circuito de tus videos de Proteus. Cinco integrados: LS151, LS02, LS04, NE555 y L293D. 28 resistencias, dos placas y mandos SPDT. Sin ULN ni compuertas HC.',
     'ls151-compacto':'Adaptación calculada para simplificar el físico: mismos cinco integrados, 26 resistencias. Segmentos y pull-up de 4.7 kΩ; se retiran R5/R9. Prueba eléctrica de esta adaptación pendiente; no mezcles valores con la versión de Proteus.',
@@ -64,6 +65,11 @@
       :[['Órdenes','74HC153 · multiplexor doble'],['Control','74HC02 · cuatro NOR'],['Señales y parpadeo','74HC14 · seis Schmitt'],['Displays y LED','ULN2803A · en Proteus: ULN2803'],['Potencia','L293D · puente H'],['Dos placas','63 columnas por placa']];
     if(variant.startsWith('ls151')){roles.splice(0,roles.length,['Control','U1 · SN74LS151N'],['Estados','U2 · SN74LS02N'],['Inversión y amarillo','U3 · SN74LS04N'],['Rojo intermitente','U4 · NE555'],['Motor','U5 · L293D']);document.getElementById('heroAssembly').textContent='El circuito que construimos por bloques en Proteus, ahora cable por cable en dos protoboards. Cinco integrados disponibles, entradas SPDT y retornos independientes para amarillo y displays. '+(variant==='ls151-ahorro'?'26 resistencias y menos jumpers; adaptación calculada con guía propia.':variant==='ls151'?'Versión de 28 resistencias probada en los videos.':'26 resistencias: reducción calculada con segmentos y pull-up de 4.7 kΩ; comprobar antes del montaje.');}
     if(variant.startsWith('ls151')){const power=document.createElement('p');power.className='assembly-helper assembly-power-note';power.textContent='Un solo motor amarillo, con dos cables. Dos alimentaciones: +5 V regulados para lógica, LED y displays; VM de 6 V para potencia del motor. Une los negativos en GND y conserva separados los positivos. '+(variant!=='ls151'?'Esta variante usa 21 resistencias de 4.7 kΩ, 4 de 1 kΩ y 1 de 100 kΩ; sin R5/R9.':'Esta variante usa 20 resistencias de 1 kΩ, 7 de 2.2 kΩ y 1 de 100 kΩ; no sustituyas todas por 10 kΩ.');document.querySelector('.assembly-choice').append(power);}
+    if(source.minimalDesign){
+      document.getElementById('heroAssembly').textContent='Propuesta de laboratorio con tus materiales: 13 resistencias de 1 kΩ, un electrolítico de 100 µF y una protoboard. Incluye los mandos, finales, STOP, displays y LED del examen. Prueba eléctrica y física pendientes.';
+      document.querySelector('.assembly-power-note').textContent='Un motor amarillo. Lógica: +5 V regulados; VM=6 V para motor y los canales de LED del L293D. GND común. Trece resistencias de 1 kΩ; C4=100 µF de temporización. No usa 4.7 kΩ. Sin bypass cerámicos no se acredita estabilidad ante ruido.';
+      roles.splice(0,roles.length,['Control','U1 · SN74LS151N'],['Estados y buffer','U2 · SN74LS02N'],['Inversión','U3 · SN74LS04N'],['Parpadeo','U4 · NE555 · 100 µF'],['Motor y dos LED','U5 · L293D · los cuatro canales'],['Montaje','Una protoboard de 63 columnas']);
+    }
     const grid=document.getElementById('assemblyPinRoles');
     grid.replaceChildren(...roles.map(([title,description])=>{
       const row=document.createElement('span'),label=document.createElement('b'),detail=document.createElement('small');
@@ -74,6 +80,12 @@
     note.hidden=!['ls','sinuln'].includes(variant)&&!variant.startsWith('ls151');
     note.textContent=variant==='sinuln'?'El NE555 no reemplaza al ULN pata por pata. U4 ahora tiene 8 patas y ocupa A37–40. RL1 y RL6 de 1 kΩ son obligatorias además de las resistencias individuales: limitan la corriente de los grupos. U2/U3 deben ser 74HC02 y 74HC14. El verde cambia a alimentación desde U2.13. Sigue todos los pasos de esta variante con las fuentes desconectadas.':'Sigue este montaje completo: las resistencias de 2.2 kΩ van de MA y MC a +5 V; las de 470 Ω van de cada entrada a GND. U1 y U6 son de 14 patas: no sustituyen al multiplexor pata por pata. U6 se coloca en la placa B. Mantén el 74HC02 y el 74HC14 indicados en la guía.';
     if(variant.startsWith('ls151'))note.textContent=variant==='ls151-ahorro'?'26 resistencias: 21 de 4.7 kΩ, cuatro de 1 kΩ y una de 100 kΩ. Sin R5/R9. Conserva una resistencia por segmento y todos los capacitores. Usa solo los agujeros de esta variante. Prueba eléctrica y brillo pendientes.':variant==='ls151'?'Mismos pines y valores del esquema de Proteus. Amarillo separado en NY; R5/R9 son limitadores compartidos, además de las resistencias de segmento. Mandos y finales SPDT de tres terminales. Montaje físico pendiente.':'Solo cambian resistencias: 14 segmentos y 7 pull-up pasan a 4.7 kΩ; R5/R9 desaparecen. No añadas puentes sobre resistencias de 1 kΩ: sigue el montaje completo de esta variante. Brillo moderado; adaptación calculada pendiente de prueba eléctrica.';
+  }
+
+  function showMinimalSummary(source,layout){
+    const section=document.createElement('section');section.className='wiring-savings';
+    section.innerHTML='<div class="wiring-savings-head"><div><div class="eyebrow">PROPUESTA DE LABORATORIO · POR VALIDAR</div><h2>13 resistencias de las que tienes.</h2><p>Un electrolítico de 100 µF, una protoboard y los cinco integrados del LS151.</p></div><a href="/puerta?montaje=ls151">Conservar el montaje original →</a></div><div class="wiring-savings-counts"><p><strong>13 × 1 kΩ</strong><span>2 para displays, 3 para LED y 8 en el 555</span></p><p><strong>'+layout.wireSavings.jumpers+' jumpers</strong><span>más 17 cables de mandos y motor</span></p><p><strong>1 protoboard · 100 µF</strong><span>sin 4.7 kΩ ni otro integrado</span></p></div><details open><summary>Qué cambia y qué debes comprobar</summary><div class="wiring-savings-tips"><article><h3>Comunes del display</h3><p>RDA y RDB van del riel positivo al común de cada display. Los segmentos comparten su corriente total: el brillo puede variar. Nunca conectes los comunes directamente a +5 V.</p></article><article><h3>Canales libres aprovechados</h3><p>El cuarto NOR separa la carga de D1. El segundo par del L293D alimenta amarillo y verde; el primer par conserva el motor.</p></article><article><h3>El capacitor negro</h3><p>C4=100 µF temporiza el 555. RA=1 kΩ y RB=7 resistencias de 1 kΩ en serie dan aproximadamente 0.96 Hz. No hace a la vez el trabajo de desacoplo de alimentación.</p></article><article><h3>Validación pendiente</h3><p>Este perfil omite los cerámicos recomendados por los fabricantes. Que pueda funcionar sin ellos no garantiza estabilidad al arrancar el motor. Comprobar brillo, apagado real, tensiones y arranque en Proteus y en físico.</p></article></div></details><p><a href="./proteus-ls151-minimo.html">Conexiones por bloques para Proteus →</a> · <a href="./simplificacion-ensamblado.md">Investigación y alternativas</a></p>';
+    document.querySelector('.assembly-choice').after(section);
   }
 
   function showMaterials(source){
@@ -99,7 +111,7 @@
       else if(/enclavamiento/i.test(name))detail.textContent='Mantén la orden activa durante STOP y libérala al terminar el recorrido.';
       else if(/Final de carrera/i.test(name))detail.textContent='Usa COM y NC; el contacto abre al alcanzar su extremo.';
       else if(/Motor CC/i.test(name))detail.textContent='Comprueba corriente de bloqueo y capacidad del L293D.';
-      else if(/^Protoboard/i.test(name))detail.textContent=['ls','sinuln'].includes(variant)?'Placa A: cinco integrados. Placa B: entradas, indicadores y U6 · 74LS08.':'Placa A: integrados. Placa B: entradas e indicadores.';
+      else if(/^Protoboard/i.test(name)&&source.minimalDesign)detail.textContent='Una placa: temporizador, control, displays y driver. Los mandos y el motor permanecen externos.';else if(/^Protoboard/i.test(name))detail.textContent=['ls','sinuln'].includes(variant)?'Placa A: cinco integrados. Placa B: entradas, indicadores y U6 · 74LS08.':'Placa A: integrados. Placa B: entradas e indicadores.';
       else if(/Cables/i.test(name))detail.textContent='Sigue los extremos exactos de cada conexión del visor.';
       else if(/Fuente/i.test(name))detail.textContent='Lógica a 5 V y motor a 6 V, con tierras comunes.';
       else if(/2[.,]2\s*k/i.test(name))detail.textContent='Pull-up de MA y MC a +5 V: permite conectar las salidas LS con la lógica HC.';
@@ -124,9 +136,15 @@
     const prefix=variant.startsWith('ls151')?'puerta-'+variant:variant==='sinuln'?'puerta-sinuln':variant==='ls'?'puerta-ls':variant==='redes'?'puerta-redes':'puerta';
     await loadScript('./'+prefix+'-model.js');
     showAssembly(window.DOOR_MODEL);showMaterials(window.DOOR_MODEL);
+    if(window.DOOR_MODEL.minimalDesign){
+      document.querySelector('[data-view="B"]').hidden=true;
+      document.querySelector('[data-view="A"]').textContent='Placa única';
+      document.getElementById('assemblyElectricalNote').textContent=window.DOOR_MODEL.minimalDesign.warning;
+    }
     await loadScript('./'+prefix+'-layout.js');
     if(variant==='ls151-ahorro')showWireSavings(model);
-    if(variant.startsWith('ls151')){const b=document.createElement('button');b.type='button';b.dataset.view='motor';b.textContent='Motor externo';b.setAttribute('aria-pressed','false');document.querySelector('.view-buttons').appendChild(b);const badge=document.createElement('span');badge.textContent=variant==='ls151-ahorro'?model.wireSavings.saved+' jumpers menos respecto al LS151 original':'14 jumpers menos · resistencias junto al display';document.querySelector('.assembly-badges').appendChild(badge);}
+    if(window.DOOR_MODEL.minimalDesign)showMinimalSummary(window.DOOR_MODEL,model);
+    if(variant.startsWith('ls151')){const b=document.createElement('button');b.type='button';b.dataset.view='motor';b.textContent='Motor externo';b.setAttribute('aria-pressed','false');document.querySelector('.view-buttons').appendChild(b);const badge=document.createElement('span');badge.textContent=window.DOOR_MODEL.minimalDesign?model.wireSavings.saved+' jumpers menos · una protoboard':variant==='ls151-ahorro'?model.wireSavings.saved+' jumpers menos respecto al LS151 original':'14 jumpers menos · resistencias junto al display';document.querySelector('.assembly-badges').appendChild(badge);}
     if(variant.startsWith('ls151'))await loadScript('./external-controls-svg.js');
     if(variant.startsWith('ls151')){const b=document.createElement('button');b.type='button';b.dataset.view='controls';b.textContent='Mandos externos';b.setAttribute('aria-pressed','false');document.querySelector('.view-buttons').append(b);}
     await loadScript('./puerta-map.js');
@@ -138,6 +156,7 @@
     if(!window.doorGuide)throw new Error('La guía no terminó de iniciar.');
     status.textContent='Montaje cargado. Lógica comprobada por programa; validación eléctrica en Proteus y prueba física pendientes.';
     if(variant.startsWith('ls151'))status.textContent=variant==='ls151-ahorro'?'Adaptación calculada de 26 resistencias. '+model.wireSavings.saved+' jumpers menos; continuidad de todas las señales verificada por programa. Prueba eléctrica, brillo y montaje físico pendientes.':variant==='ls151'?'Lógica funcional observada en tus videos de Proteus. Coordenadas y conexiones verificadas por programa. Brillo y montaje físico pendientes.':'Adaptación calculada: coordenadas y lógica verificadas por programa. Resistencias modificadas pendientes de prueba eléctrica en Proteus y montaje físico.';
+    if(window.DOOR_MODEL.minimalDesign)status.textContent='13 resistencias de 1 kΩ · 100 µF · '+model.wireSavings.jumpers+' jumpers · una placa. Lógica y continuidad verificadas; brillo, simulación analógica y estabilidad física pendientes.';
     document.dispatchEvent(new CustomEvent('door-guide-ready',{detail:{variant}}));
   }
   window.doorReady=start().catch(error=>{

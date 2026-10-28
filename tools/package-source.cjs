@@ -1,7 +1,7 @@
 const fs=require('node:fs'),path=require('node:path');
 const destination=path.resolve(process.argv[2]||'work/release-source');fs.mkdirSync(destination,{recursive:true});
 // The ahorro layout generator imports this optimizer at build time.
-const files=['.gitignore','.gitattributes','README.md','CONTRIBUTING.md','package.json','package-lock.json','puerta-viewer-source.js','external-controls-geometry.mjs','verify-components-first.cjs','route-door-wires.cjs',...fs.readdirSync('.').filter(f=>/^(build-door-|verify-door-)/.test(f))];
+const files=['AGENTS.md','.gitignore','.gitattributes','README.md','CONTRIBUTING.md','package.json','package-lock.json','puerta-viewer-source.js','external-controls-geometry.mjs','verify-components-first.cjs','route-door-wires.cjs',...fs.readdirSync('.').filter(f=>/^(build-door-|verify-door-)/.test(f))];
 files.push('optimize-ls151-ahorro-layout.cjs');
 for(const directory of ['.github','docs','tools','protoboard-ah']){
  const walk=dir=>{for(const entry of fs.readdirSync(dir,{withFileTypes:true})){if(entry.name.startsWith('.')&&directory==='protoboard-ah')continue;const file=path.join(dir,entry.name);if(entry.isDirectory())walk(file);else if(!['puerta.js','puerta-viewer.js'].includes(entry.name))files.push(file);}};walk(directory);

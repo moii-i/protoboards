@@ -10,4 +10,4 @@ for(const [variant,entry]of Object.entries(manifest.variants)){
  const bytes=fs.readFileSync('protoboard-ah/'+entry.file);assert.equal(bytes.subarray(0,5).toString(),'%PDF-');assert.equal(hash(bytes),entry.sha256);assert(entry.pages>=3&&entry.pages<=20);assert.equal(textHash(Buffer.concat(entry.sourceFiles.map(f=>fs.readFileSync('protoboard-ah/'+f)))),entry.sourceHash,'Regenerate stale PDF '+variant);
  const context={window:{}};vm.runInNewContext(fs.readFileSync('protoboard-ah/'+entry.sourceFiles[1],'utf8')+';'+fs.readFileSync('protoboard-ah/component-assembly.js','utf8')+';window.ComponentAssembly.prepare(model);window.m=model;',context);assert.equal(context.window.m.items.length,entry.connections);
 }
-assert.equal(Object.keys(manifest.variants).length,7);console.log('PASS: 32 signal truth cases, powered-off state, seven PDF source hashes and matching variant connection counts.');
+assert.equal(Object.keys(manifest.variants).length,8);console.log('PASS: 32 signal truth cases, powered-off state, eight PDF source hashes and matching variant connection counts.');

@@ -1,6 +1,6 @@
 {
   "generator": "tools/build-mounting-pdfs.cjs",
-  "generatorHash": "c31454358127d5c21886987f1e0391acc5e0b491a21e63e62b8f7415a2a561a7",
+  "generatorHash": "a717c5b58d0a014961281a7cfe43365d6f8876c0b4885904053647786357d162",
   "variants": {
     "ls151": {
       "file": "montaje-ls151.pdf",
@@ -92,7 +92,7 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "632493cfd0736323c3d64ceda554391a4f050e1ed6f971cd7f6ce79c8700dbeb",
+      "sha256": "84be659272008ba700bd43279b3bb746969d614f699e36f8ec1a8a8e3c308852",
       "bytes": 832203,
       "pages": 14
     },
@@ -186,7 +186,7 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "baed93c086718b9ddb78b27d6d586741e682abb5e38de1edd67b6474e354c776",
+      "sha256": "b7c38446725432543f428605aa359c48b1f37f7c6be0a76f06f563af7f9f5778",
       "bytes": 820278,
       "pages": 13
     },
@@ -280,9 +280,79 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "a350277e68ace8f27715ca4e94d718e46fcdb42b467ee26a3d7fc7128dd0a923",
+      "sha256": "62ae52ace2e017e14d5ebf9525d06d4b55cfa0ee29526c6cef965356330c63d1",
       "bytes": 773735,
       "pages": 16
+    },
+    "ls151-minimo": {
+      "file": "montaje-ls151-minimo.pdf",
+      "sourceFiles": [
+        "puerta-ls151-minimo-model.js",
+        "puerta-ls151-minimo-layout.js",
+        "component-assembly.js",
+        "external-controls-svg.js",
+        "puerta-map.js"
+      ],
+      "sourceHash": "d1dda335f1058b7ab18b87b6e74bc6ad224d136855df177d2838a1ca7d7f5cb6",
+      "connections": 133,
+      "componentCount": 30,
+      "materials": [
+        {
+          "name": "Protoboard de 63 columnas",
+          "quantity": 1
+        },
+        {
+          "name": "SN74LS151N · control exclusivo",
+          "quantity": 1
+        },
+        {
+          "name": "SN74LS02N · estados",
+          "quantity": 1
+        },
+        {
+          "name": "SN74LS04N · inversores",
+          "quantity": 1
+        },
+        {
+          "name": "NE555 · parpadeo rojo",
+          "quantity": 1
+        },
+        {
+          "name": "L293D · puente H",
+          "quantity": 1
+        },
+        {
+          "name": "Display de ánodo común (verificar pinout real)",
+          "quantity": 2
+        },
+        {
+          "name": "Resistencia de 1 kΩ: 2 comunes, 3 LED y 8 temporización",
+          "quantity": 13
+        },
+        {
+          "name": "Electrolítico 100 µF para temporización del 555",
+          "quantity": 1
+        },
+        {
+          "name": "SCMM-122 · mando SPDT mantenido",
+          "quantity": 3
+        },
+        {
+          "name": "SS0501A · final SPDT COM/NC/NA",
+          "quantity": 2
+        },
+        {
+          "name": "LED rojo, amarillo y verde",
+          "quantity": 3
+        },
+        {
+          "name": "Motor amarillo y fuentes reguladas 5 V / 6 V, GND común",
+          "quantity": 1
+        }
+      ],
+      "sha256": "8662ef41c8072a6c53f555b2da5117f0ccc80fe64323fb7fe0e8d8cc76c19b81",
+      "bytes": 514937,
+      "pages": 12
     },
     "sinuln": {
       "file": "montaje-sinuln.pdf",
@@ -381,7 +451,7 @@
           "quantity": 1
         }
       ],
-      "sha256": "7e5833f3d16b89a75879abf383d767e65e07f512dab1997397847a9d70365519",
+      "sha256": "2cf5c6a668518129816aa374bde8e15e61b802d59bf7541a7972e48ec135f393",
       "bytes": 795395,
       "pages": 13
     },
@@ -482,7 +552,7 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "27554629f1ec0c990c3d430cf5dcc40d66e243780612612b6362de2e11113bb4",
+      "sha256": "a2dc04e2c1c56fd77ae682cc0e8797cf1243e5eaeb692fc1e971b1a049631536",
       "bytes": 779984,
       "pages": 13
     },
@@ -575,7 +645,7 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "ab723f7ad5fec062e2fbbccdde1da9d35bc27d22896575ec44f30d76e3381160",
+      "sha256": "b3ffd15daaee28c599332808392bfc3654fc375a7d1a0b556334367a4eb619e3",
       "bytes": 739739,
       "pages": 12
     },
@@ -668,7 +738,7 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "a30a91e698c1e00f7fbf2c5b56766dbc214cd43b5008856564df3f55816661df",
+      "sha256": "fe7d0dbe73ae6b11a13da0a0d97d9595f69a681c9c4c049e3b674749a974c66f",
       "bytes": 676814,
       "pages": 11
     }

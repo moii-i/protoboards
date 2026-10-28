@@ -1,5 +1,6 @@
-const fs=require('fs');const variant=process.argv.includes('--ls151-ahorro')?'ls151-ahorro':process.argv.includes('--ls151-compacto')?'ls151-compacto':process.argv.includes('--ls151')?'ls151':process.argv.includes('--sinuln')?'sinuln':process.argv.includes('--ls')?'ls':process.argv.includes('--redes')?'redes':'comunes',stem=variant.startsWith('ls151')?'puerta-'+variant:variant==='sinuln'?'puerta-sinuln':variant==='ls'?'puerta-ls':variant==='redes'?'puerta-redes':'puerta';global.window={};require('./protoboard-ah/'+stem+'-model.js');const src=window.DOOR_MODEL;
+const fs=require('fs');const variant=process.argv.includes('--ls151-minimo')?'ls151-minimo':process.argv.includes('--ls151-ahorro')?'ls151-ahorro':process.argv.includes('--ls151-compacto')?'ls151-compacto':process.argv.includes('--ls151')?'ls151':process.argv.includes('--sinuln')?'sinuln':process.argv.includes('--ls')?'ls':process.argv.includes('--redes')?'redes':'comunes',stem=variant.startsWith('ls151')?'puerta-'+variant:variant==='sinuln'?'puerta-sinuln':variant==='ls'?'puerta-ls':variant==='redes'?'puerta-redes':'puerta';global.window={};require('./protoboard-ah/'+stem+'-model.js');const src=window.DOOR_MODEL;
 const boards={A:{columns:63,xOffset:0,yOffset:0,railBreak:31},B:{columns:63,xOffset:2070,yOffset:0,railBreak:31}};
+if(src.boardCount===1)delete boards.B;
 const boardNames={1:'A',2:'B',3:'C',4:'D'},comps=src.components;
 function ph(ref){const [id,pin]=ref.split('.'),c=comps.find(c=>c.id===id);if(!c)return null;const p=+pin,h=c.holes?.[p],half=Math.ceil(c.pins/2);return {board:c.board,col:h?h.col:c.col+(p<=half?p-1:c.pins-p),row:h?h.row:p<=half?'f':'e'}}
 const isRail=p=>['+','-','VM','-B'].includes(p.row);
@@ -10,7 +11,7 @@ const h=p=>[boardNames[p.board],({'+':'+T','-':'-T',VM:'+B'})[p.row]||p.row,p.co
 function railHole(board,row,target){const cols=Array.from({length:63},(_,i)=>i+1).filter(col=>col!==32&&!occupied.has(key({board,row,col}))).sort((a,b)=>Math.abs(a-target)-Math.abs(b-target)||a-b);if(!cols.length)throw Error('rail exhausted');const p={board,row,col:cols[0]};occupied.add(key(p));return h(p)}
 // Both lower ground rails have explicit side and middle bridges. This keeps
 // lower-half ground leads below the ICs without changing the circuit or parts.
-const railHelpers=[];for(const board of [1,2]){for(const [suffix,a,b] of [['SIDE',{board,row:'-',col:1},{board,row:'-B',col:1}],['MID',{board,row:'-B',col:31},{board,row:'-B',col:33}]]){occupied.add(key(a));occupied.add(key(b));railHelpers.push({id:'RG_'+boardNames[board]+'_'+suffix,stage:1,net:'GND',signal:'GND',a:h(a),b:h(b),kind:'wire',value:'',label:suffix==='SIDE'?'Unir GND superior e inferior · placa '+boardNames[board]:'Unir mitades de GND inferior · placa '+boardNames[board],note:'Puente de cable normal. El riel -B comparte GND con -T; conserva +B separado. Instálalo antes de alimentar el circuito.',color:'#243344'});}}
+const railHelpers=[];for(const board of (src.boardCount===1?[1]:[1,2])){for(const [suffix,a,b] of [['SIDE',{board,row:'-',col:1},{board,row:'-B',col:1}],['MID',{board,row:'-B',col:31},{board,row:'-B',col:33}]]){occupied.add(key(a));occupied.add(key(b));railHelpers.push({id:'RG_'+boardNames[board]+'_'+suffix,stage:1,net:'GND',signal:'GND',a:h(a),b:h(b),kind:'wire',value:'',label:suffix==='SIDE'?'Unir GND superior e inferior · placa '+boardNames[board]:'Unir mitades de GND inferior · placa '+boardNames[board],note:'Puente de cable normal. El riel -B comparte GND con -T; conserva +B separado. Instálalo antes de alimentar el circuito.',color:'#243344'});}}
 function endpoint(ref,other,direct){if(['VCC','GND','VM'].includes(ref)){const o=ph(other),b=o?.board||1,row=ref==='GND'&&o&&'fghij'.includes(o.row)?'-B':{VCC:'+',GND:'-',VM:'VM'}[ref];return railHole(b,row,o?.col||1)}const p=ph(ref);if(!p)throw Error('Unknown '+ref);if(direct||isRail(p))return h(p);const comp=comps.find(c=>c.id===ref.split('.')[0]),o=ph(other),top='abcde'.includes(p.row);let rows=top?'abcde':'jihgf';if(!['VCC','GND','VM'].includes(other)&&o&&o.board===p.board&&top==='abcde'.includes(o.row))rows=comp?.type==='display'?(top?'abdec':'jifhg'):(top?'dcbae':'ghijf');const r=[...rows].find(r=>!occupied.has(key({...p,row:r})));if(!r)throw Error('strip exhausted '+ref);p.row=r;occupied.add(key(p));return h(p)}
 // Labels identify wires in Proteus; every connection still has physical endpoints.
 const parents=new Map(),findNet=r=>{if(!parents.has(r))parents.set(r,r);if(parents.get(r)!==r)parents.set(r,findNet(parents.get(r)));return parents.get(r);};
@@ -18,11 +19,11 @@ for(const w of src.connections)parents.set(findNet(w.from),findNet(w.to));
 const aliases=new Map();for(const [name,ref] of [...Object.entries(src.nodes||{}),...((variant==='sinuln'||variant.startsWith('ls151'))?[]:[['K_NM','U4.18'],['K_I','U4.17'],['K_NS','U4.16'],['K_H','U4.15'],['K_T','U4.14'],['K_M','U4.13'],['K_ROJO','U4.12'],...(variant!=='redes'?[['K_VERDE','U4.11']]:[])]),['VCC','VCC'],['GND','GND'],['VM','VM']]){aliases.set(findNet(ref),(variant.startsWith('ls151')?name:({PA:'P_A',PC:'P_C'})[name]||name));}
 function namedWire(ref){return aliases.get(findNet(ref));}
 const supplyPins={'JP1.1':['+5','+',4],'JP1.3':['G5','-',9],'JP1.5':['+6','VM',52],'JP1.13':['G6','-',57]};
-const directRail=c=>variant==='ls151-ahorro'&&!/^JP/.test(c.from)&&['VCC','GND','VM'].includes(c.to)&&(({'+':'VCC','-':'GND','-B':'GND',VM:'VM'})[ph(c.from)?.row]===c.to);
+const directRail=c=>(variant==='ls151-ahorro'||src.optimizePhysical)&&!/^JP/.test(c.from)&&['VCC','GND','VM'].includes(c.to)&&(({'+':'VCC','-':'GND','-B':'GND',VM:'VM'})[ph(c.from)?.row]===c.to);
 const directRails=src.connections.filter(directRail);
 function buildItems(connections){return connections.filter(c=>!directRail(c)).map(c=>{const a=ph(c.from),b=ph(c.to),direct=Boolean(a&&b&&!isRail(a)&&strip(a)===strip(b)),feed=supplyPins[c.from];let ends;if(feed&&['VCC','GND','VM'].includes(c.to)){ends=[['FUENTE',feed[0],0],railHole(1,feed[1],feed[2])];}else if(/^JP1\.[24]$/.test(c.from)&&/^JP2\./.test(c.to)){ends=[h(a),railHole(2,a.row,1)];}else ends=[endpoint(c.from,c.to,direct),endpoint(c.to,c.from,direct)];return {id:c.id,stage:c.stage,net:c.to==='VM'?'VM':c.to==='VCC'?'VCC':c.to==='GND'?'GND':'Signal',a:ends[0],b:ends[1],kind:direct?'link':'wire',value:'',label:c.label,note:direct?'Estos dos terminales ya comparten la misma tira de cinco contactos. No insertes un cable adicional.':c.note,fromRef:c.from,toRef:c.to,color:c.color}});}
 const initialOccupied=[...occupied];let items=buildItems(src.connections);
-let omitted=[];if(variant==='ls151-ahorro'){omitted=require('./optimize-ls151-ahorro-layout.cjs')(items,railHelpers,boards);occupied.clear();for(const k of initialOccupied)occupied.add(k);items=buildItems(src.connections.filter(c=>!omitted.includes(c.id)));}
+let omitted=[];if(variant==='ls151-ahorro'||src.optimizePhysical){omitted=require('./optimize-ls151-ahorro-layout.cjs')(items,railHelpers,boards);occupied.clear();for(const k of initialOccupied)occupied.add(k);items=buildItems(src.connections.filter(c=>!omitted.includes(c.id)));}
 
 items.push(...railHelpers);
 for(const it of items){it.signal=namedWire(it.fromRef);if(it.kind==='wire'&&it.signal&&!['VCC','GND','VM'].includes(it.signal))it.note=(it.note?it.note+' ':'')+'En Proteus: terminal DEFAULT '+it.signal+'. En protoboard: coloca el cable entre los dos agujeros indicados.';}
@@ -66,7 +67,7 @@ if(variant.startsWith('ls151')){
 
 if(variant.startsWith('ls151')){
  layout.externalControls=[];
- const names=['ABRIR','CERRAR','STOP','FCA','FCC'],centers=[2485,2795,3105,3495,3895];
+ const names=['ABRIR','CERRAR','STOP','FCA','FCC'],centers=src.externalControlCenters||[2485,2795,3105,3495,3895];
  for(const it of layout.items.filter(it=>it.kind==='switch')){
   const index=names.indexOf(it.partId),limit=index>2,cx=centers[index],cy=1040;
   const e={id:it.partId,model:limit?'ss0501a':'scmm-122',center:[cx,cy],bounds:[cx-155,930,cx+155,1250],
@@ -90,8 +91,15 @@ if(variant==='ls151-ahorro'){
 require('./route-door-wires.cjs')(layout);
 
 if(layout.externalControls){
- layout.bounds[3]=Math.max(layout.bounds[3],1320);layout.viewBoxes.B[3]=layout.bounds[3];
- layout.viewBoxes.controls=[2290,430,1870,920];
+ layout.bounds[3]=Math.max(layout.bounds[3],1320);if(layout.viewBoxes.B)layout.viewBoxes.B[3]=layout.bounds[3];
+ layout.viewBoxes.controls=src.boardCount===1?[0,800,2070,520]:[2290,430,1870,920];
+}
+
+if(src.boardCount===1){
+ layout.bounds[2]=2070;delete layout.viewBoxes.B;layout.viewBoxes.A=[0,0,2070,850];layout.viewBoxes.all=[0,0,2070,layout.bounds[3]];
+ layout.viewBoxes.motor=[1100,1240,980,510];layout.layoutVersion='door-ls151-minimo-13-v1';layout.minimalDesign=src.minimalDesign;
+ layout.wireSavings={baseline:'ls151',baselineJumpers:135,jumpers:items.filter(i=>i.kind==='wire').length,saved:135-items.filter(i=>i.kind==='wire').length,resistors:13,capacitors:1,externalLeads:17,directRailConnections:directRails.map(c=>c.id),omittedRedundantConnections:omitted};
+ layout.stages[0][1]=src.placementDescription;layout.checkpoints[9]='Propuesta calculada: comprobar brillo, niveles, arranque y estabilidad sin bypass. No acredita simulación eléctrica ni montaje físico.';
 }
 
 if(variant==='sinuln'){layout.stages[0][1]=src.placementDescription;layout.pinNames.U4=src.pinNames.U4;layout.pinNames.U3=src.pinNames.U3;}
