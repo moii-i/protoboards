@@ -56,7 +56,7 @@ if(variant.startsWith('ls151')){
  for(const it of layout.items)if(it.kind==='wire'&&palette[it.signal])it.color=palette[it.signal];
  for(const it of layout.items)if(it.kind==='motor'){it.externalMotor=src.externalMotor;it.note=src.components.find(c=>c.id==='MOTOR')?.assemblyNote||'Motorreductor TT amarillo externo: no se inserta en la placa. Sus dos cables llegan a los puntos A:j59 y A:j60 y desde allí a OUT1/OUT2 del L293D. La carcasa se muestra fuera de la protoboard.';}
  layout.stages[0][1]=src.placementDescription;
- layout.stages[9][1]='Prueba OF, rU, OP y SP. STOP pausa sin borrar el mando enclavado. Al terminar libera el mando antes de pedir el opuesto. '+(variant!=='ls151-compacto'?'Esquema funcional observado en los videos de Proteus; montaje físico pendiente.':'Adaptación de resistencias calculada; prueba eléctrica y física pendientes.');
+ layout.stages[9][1]='Prueba OF, rU, OP y SP. STOP pausa sin borrar el mando enclavado. Al terminar libera el mando antes de pedir el opuesto. '+(variant==='ls151'?'Esquema funcional observado en los videos de Proteus; montaje físico pendiente.':'Adaptación de resistencias calculada; prueba eléctrica y física pendientes.');
  layout.checkpoints[9]=layout.stages[9][1];
  for(const it of layout.items){
   if(it.kind==='switch'){const c=comps.find(c=>c.id===it.partId);it.spdt=true;it.third=h(ph(c.id+'.3'));it.note='Interruptor externo SPDT de 3 terminales: 1=contacto a +5 V; 2=COM/señal; 3=contacto a GND. En finales: NC=+5 V y NO=GND. Comprueba el común del modelo real; no copies el orden físico sin identificarlo.';}
@@ -82,7 +82,9 @@ if(variant.startsWith('ls151')){
 if(variant==='ls151-ahorro'){
  const vm=require('node:vm'),baseCtx=vm.createContext({});vm.runInContext(fs.readFileSync('protoboard-ah/puerta-ls151-layout.js','utf8')+';globalThis.result=model;',baseCtx);
  const before=baseCtx.result.items.filter(it=>it.kind==='wire').length,after=layout.items.filter(it=>it.kind==='wire').length;
- layout.wireSavings={baseline:'ls151',baselineJumpers:before,jumpers:after,saved:before-after,externalLeads:17,directRailConnections:directRails.map(c=>c.id),omittedRedundantConnections:omitted};
+ layout.layoutVersion='door-ls151-ahorro-26-v2';
+ layout.electricalBase=src.electricalBase;
+ layout.wireSavings={baseline:'ls151',resistors:src.counts.looseResistors,baselineResistors:28,baselineJumpers:before,jumpers:after,saved:before-after,externalLeads:17,directRailConnections:directRails.map(c=>c.id),omittedRedundantConnections:omitted};
  layout.stages[0][1]=src.placementDescription;layout.stages[8][1]+=' Comprueba especialmente las patas al riel y las tiras compartidas: no añadas jumpers sobre resistencias.';
 }
 require('./route-door-wires.cjs')(layout);

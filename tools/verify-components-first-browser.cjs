@@ -20,6 +20,10 @@ async function main(){
   await send('Page.navigate',{url:base+route});await waitFor("Boolean(window.componentAssembly)");
   if(route.includes('ls151-ahorro')){
    assert.equal(await evaluate("document.querySelector('#assemblyVariant').value"),'ls151-ahorro');
+   assert.equal(await evaluate("window.DOOR_MODEL.counts.looseResistors"),26);
+   assert(await evaluate("document.querySelector('.wiring-savings-counts').textContent.includes('26 resistencias')"));
+   assert(await evaluate("document.querySelector('#assemblySummary').textContent.includes('Prueba eléctrica propia pendiente')"));
+   assert(await evaluate("document.querySelector('.assembly-power-note').textContent.includes('21 resistencias de 4.7 kΩ')"));
    assert(await evaluate("document.querySelector('#assemblyVariant option[value=ls151]').textContent.includes('28 resistencias')"));
    assert.equal(await evaluate("model.wireSavings.saved"),49);assert.equal(await evaluate("window.DOOR_MODEL.components.filter(c=>c.type==='motor').length"),1);
    assert(await evaluate("document.querySelector('.assembly-power-note').textContent.includes('Un solo motor')"));

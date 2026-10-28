@@ -22,7 +22,7 @@ for(const variant of ['ls151','ls151-compacto','ls151-ahorro']){
  const gates=[['U2',[2,3],1],['U3',[1],2],['U3',[3],4],['U2',[5,6],4],['U2',[8,9],10],['U3',[5],6],['U3',[13],12]];
  const muxSelect=getValue(values,'U1.11')+2*getValue(values,'U1.10')+4*getValue(values,'U1.9'),data=[4,3,2,1,15,14,13,12][muxSelect],M=getValue(values,'U1.7')?0:getValue(values,'U1.'+data);setValue(values,'U1.5',M);setValue(values,'U1.6',1-M);
  for(const [u,ps,out]of gates)setValue(values,u+'.'+out,ps.some(p=>getValue(values,u+'.'+p))?0:1);
- if(variant!=='ls151-compacto')for(const [r,out]of [['R9','U1.5'],['R5','U1.6']])setValue(values,r+'.1',getValue(values,out));
+ if(variant==='ls151')for(const [r,out]of [['R9','U1.5'],['R5','U1.6']])setValue(values,r+'.1',getValue(values,out));
  const expectedM=!S&&((A&&!C&&PA)||(C&&!A&&PC));assert.equal(M,Number(expectedM));const message=S?'SP':expectedM?'rU':PA===0?'OP':'OF';
  for(let d=0;d<2;d++){let actual='';for(let s=0;s<7;s++){const id='R'+(13+d*7+s),ret=getValue(values,id+'.1');assert.notEqual(ret,undefined,'floating segment '+id);if(!ret)actual+='abcdefg'[s];}assert.equal(sorted(actual),sorted(glyph[message[d]]),mask+' '+message+' display'+d);}
  assert.equal(getValue(values,'LY.2'),M?0:1);assert.equal(getValue(values,'LG.2'),message==='OP'?0:1);
@@ -30,7 +30,7 @@ for(const variant of ['ls151','ls151-compacto','ls151-ahorro']){
  cases++;}
  assert.equal(m.externalMotor.model,'tt-yellow');assert(m.externalMotor.bounds[1]>750,'Motor body must be outside board');assert(m.bounds[3]>=m.externalMotor.bounds[3],'Motor must fit camera');assert(m.viewBoxes.motor,'Dedicated motor view');
  const shared=m.items.filter(it=>it.kind==='link'&&/^R(1[3-9]|2[0-6])\.2$/.test(it.fromRef||'')&&/^D[12]\./.test(it.toRef||''));assert.equal(shared.length,14,'All fourteen segment resistors should share a strip with their display pin');
- const compact=variant.endsWith('compacto'),r=src.components.filter(c=>c.type==='resistor');assert.equal(r.length,compact?26:28);assert.equal(src.components.filter(c=>c.type==='dip').length,5);
+ const compact=variant==='ls151-compacto'||src.electricalBase==='ls151-compacto',r=src.components.filter(c=>c.type==='resistor');assert.equal(r.length,compact?26:28);assert.equal(src.components.filter(c=>c.type==='dip').length,5);
  if(compact){assert(!src.components.some(c=>['R5','R9'].includes(c.id)));assert(r.filter(c=>c.role==='segment'||c.role==='pullup').every(c=>c.ohms===4700));}
  const electrical=compact?{M:6*3.75/4.465+5.25/4.465+.9,NM:2*3.75/4.465+5.25/4.465,H:3.75/4.465+5.25/4.465+.8,NY:3.75/.95+5.25/4.465}:{M:(6*3.75/(.95+6*.95))+5.25/2.09+.9,NM:(2*3.75/(.95+2*.95))+5.25/2.09,NY:3.75/.95+5.25/2.09};
  assert(Object.values(electrical).every(i=>i<8),'LS sink budget');

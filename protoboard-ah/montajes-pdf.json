@@ -1,6 +1,6 @@
 {
   "generator": "tools/build-mounting-pdfs.cjs",
-  "generatorHash": "3cfbf159a96254afc4e73fbaea45e6dee0f891656e02e22cdc50b8dee8f60e4f",
+  "generatorHash": "c31454358127d5c21886987f1e0391acc5e0b491a21e63e62b8f7415a2a561a7",
   "variants": {
     "ls151": {
       "file": "montaje-ls151.pdf",
@@ -92,8 +92,8 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "0487ab4be91102d39bed46e1ec23d5bf33fcf8f0221183d21594cc45a43a7e43",
-      "bytes": 831814,
+      "sha256": "632493cfd0736323c3d64ceda554391a4f050e1ed6f971cd7f6ce79c8700dbeb",
+      "bytes": 832203,
       "pages": 14
     },
     "ls151-compacto": {
@@ -186,9 +186,9 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "d79cd8482b54ea2bed9cf7011d023e6477e40d2519f5d166543022c91eb37327",
-      "bytes": 822581,
-      "pages": 14
+      "sha256": "baed93c086718b9ddb78b27d6d586741e682abb5e38de1edd67b6474e354c776",
+      "bytes": 820278,
+      "pages": 13
     },
     "ls151-ahorro": {
       "file": "montaje-ls151-ahorro.pdf",
@@ -199,9 +199,9 @@
         "external-controls-svg.js",
         "puerta-map.js"
       ],
-      "sourceHash": "19117e45ab961017b684ef04f2a70dde0038c15d8eea27f9287dad50ba61cdea",
-      "connections": 175,
-      "componentCount": 52,
+      "sourceHash": "e47c3446f78dc29c16c827e9789b1fc7b149a7abee15fc2605832a264a8a0dbb",
+      "connections": 172,
+      "componentCount": 50,
       "materials": [
         {
           "name": "Protoboard de 63 columnas",
@@ -244,12 +244,12 @@
           "quantity": 3
         },
         {
-          "name": "Resistencia de 1 kΩ · segmentos, LEDs, RA y límites",
-          "quantity": 20
+          "name": "Resistencia de 4.7 kΩ · 14 segmentos + 7 pull-up",
+          "quantity": 21
         },
         {
-          "name": "Resistencia de 2.2 kΩ · siete pull-up",
-          "quantity": 7
+          "name": "Resistencia de 1 kΩ · LEDs y RA",
+          "quantity": 4
         },
         {
           "name": "Resistencia de 100 kΩ · RB del 555",
@@ -280,9 +280,9 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "0349377f9cf6fb29cf195fb60fb502ec43e94c9d89adb1aae09fc2a95a2e2d59",
-      "bytes": 782320,
-      "pages": 17
+      "sha256": "a350277e68ace8f27715ca4e94d718e46fcdb42b467ee26a3d7fc7128dd0a923",
+      "bytes": 773735,
+      "pages": 16
     },
     "sinuln": {
       "file": "montaje-sinuln.pdf",
@@ -381,9 +381,9 @@
           "quantity": 1
         }
       ],
-      "sha256": "3e8f922e1323c12647d962b49b9b758e3336a204dbe03a12fa8f8178d9d844d0",
-      "bytes": 796216,
-      "pages": 14
+      "sha256": "7e5833f3d16b89a75879abf383d767e65e07f512dab1997397847a9d70365519",
+      "bytes": 795395,
+      "pages": 13
     },
     "ls": {
       "file": "montaje-ls.pdf",
@@ -482,9 +482,9 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "768648641d8f3d173e876d31184b569823474d0cb9d9b73e44d223ae6421e600",
-      "bytes": 782338,
-      "pages": 14
+      "sha256": "27554629f1ec0c990c3d430cf5dcc40d66e243780612612b6362de2e11113bb4",
+      "bytes": 779984,
+      "pages": 13
     },
     "comunes": {
       "file": "montaje-comunes.pdf",
@@ -575,9 +575,9 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "910e0226698c4da40fd0253f2a3f2521419d309ee946cbb3914d40cdc35c07ca",
-      "bytes": 741488,
-      "pages": 13
+      "sha256": "ab723f7ad5fec062e2fbbccdde1da9d35bc27d22896575ec44f30d76e3381160",
+      "bytes": 739739,
+      "pages": 12
     },
     "redes": {
       "file": "montaje-redes.pdf",
@@ -668,9 +668,9 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "5fe59cc687afc6aea83b5c44b6a11fa8bf81c7fa626dff63ffbf1aa9b9d928de",
-      "bytes": 678663,
-      "pages": 12
+      "sha256": "a30a91e698c1e00f7fbf2c5b56766dbc214cd43b5008856564df3f55816661df",
+      "bytes": 676814,
+      "pages": 11
     }
   }
 }

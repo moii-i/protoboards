@@ -6,6 +6,7 @@
 | --- | ---: | ---: | --- |
 | /puerta?montaje=ls151 | 5 | 28 | Función, pines y valores de los videos finales de Proteus |
 | /puerta?montaje=ls151-compacto | 5 | 26 | Adaptación calculada; requiere prueba eléctrica propia |
+| /puerta?montaje=ls151-ahorro | 5 | 26 | Adaptación calculada con 86 jumpers; requiere prueba eléctrica propia |
 
 Se conservan los montajes anteriores. Las dos nuevas opciones comparten visores, navegación, selección resaltada, animaciones, lupa 2D y controles flotantes. El progreso se guarda por variante.
 
