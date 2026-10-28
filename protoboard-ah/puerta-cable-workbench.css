@@ -1,4 +1,5 @@
 .is-cable #assemblyIsland,.is-cable #mapNav{display:none!important}
+.fullscreen .clean-workspace:has(.mapbox:not(.in-3d))>.component-assembly-panel[data-kind=leads]{display:none!important}
 .is-cable .assembly-stage-actions>.island-renderers{margin:0;background:var(--ws-subtle);border-color:var(--ws-border)}
 .is-cable .assembly-stage-actions #closeExpanded{position:static;inset:auto;box-shadow:none;font-size:11px}
 #cableStepMode{font-size:11px}
