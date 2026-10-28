@@ -1,7 +1,7 @@
 (()=>{
   'use strict';
   const requested=new URLSearchParams(window.location.search).get('montaje');
-  const variant=['comunes','redes','ls','sinuln','ls151','ls151-compacto','ls151-ahorro','ls151-minimo'].includes(requested)?requested:'sinuln';
+  const variant=['comunes','redes','ls','sinuln','ls151','ls151-compacto','ls151-ahorro','ls151-minimo','ls151-claro'].includes(requested)?requested:'ls151-claro';
   window.DOOR_VARIANT=variant;
   document.querySelectorAll('.circuit-picker a').forEach(a=>{a.removeAttribute('aria-current');if(a.getAttribute('href')===(variant.startsWith('ls151')?'/puerta?montaje=ls151':'/puerta'))a.setAttribute('aria-current','page');});
   const choice=document.getElementById('assemblyVariant');
@@ -12,6 +12,7 @@
   const retry=document.getElementById('assemblyRetry');
   choice.value=variant;
   const descriptions={
+    'ls151-claro':'Recomendado para cablear con espacio: 13 resistencias de 1 kΩ, un capacitor de 100 µF y dos placas por bloques. Mismo circuito; sólo cinco señales cruzan entre placas, más alimentación y tierra. Usa exclusivamente sus coordenadas.',
     'ls151-minimo':'Propuesta calculada: 13 resistencias de 1 kΩ, C4 de 100 µF y una protoboard. Aprovecha canales libres del L293D y un NOR. Brillo y estabilidad sin bypass pendientes de prueba eléctrica y física.',
     'ls151-ahorro':'26 resistencias y cinco integrados: combina menos cables con la adaptación calculada de baja corriente. Segmentos y siete pull-up de 4.7 kΩ; se retiran R5/R9. La versión original de 28 permanece separada. Prueba eléctrica propia pendiente.',
     ls151:'Nuevo · Circuito de tus videos de Proteus. Cinco integrados: LS151, LS02, LS04, NE555 y L293D. 28 resistencias, dos placas y mandos SPDT. Sin ULN ni compuertas HC.',
@@ -137,14 +138,14 @@
     await loadScript('./'+prefix+'-model.js');
     showAssembly(window.DOOR_MODEL);showMaterials(window.DOOR_MODEL);
     if(window.DOOR_MODEL.minimalDesign){
-      document.querySelector('[data-view="B"]').hidden=true;
+      document.querySelector('[data-view="B"]').hidden=window.DOOR_MODEL.boardCount===1;
       document.querySelector('[data-view="A"]').textContent='Placa única';
       document.getElementById('assemblyElectricalNote').textContent=window.DOOR_MODEL.minimalDesign.warning;
     }
     await loadScript('./'+prefix+'-layout.js');
     if(variant==='ls151-ahorro')showWireSavings(model);
-    if(window.DOOR_MODEL.minimalDesign)showMinimalSummary(window.DOOR_MODEL,model);
-    if(variant.startsWith('ls151')){const b=document.createElement('button');b.type='button';b.dataset.view='motor';b.textContent='Motor externo';b.setAttribute('aria-pressed','false');document.querySelector('.view-buttons').appendChild(b);const badge=document.createElement('span');badge.textContent=window.DOOR_MODEL.minimalDesign?model.wireSavings.saved+' jumpers menos · una protoboard':variant==='ls151-ahorro'?model.wireSavings.saved+' jumpers menos respecto al LS151 original':'14 jumpers menos · resistencias junto al display';document.querySelector('.assembly-badges').appendChild(badge);}
+    if(window.DOOR_MODEL.clearLayout){const css=document.createElement('link');css.rel='stylesheet';css.href='./puerta-clear-layout.css';document.head.append(css);await loadScript('./puerta-clear-layout.js');}else if(window.DOOR_MODEL.minimalDesign)showMinimalSummary(window.DOOR_MODEL,model);
+    if(variant.startsWith('ls151')){const b=document.createElement('button');b.type='button';b.dataset.view='motor';b.textContent='Motor externo';b.setAttribute('aria-pressed','false');document.querySelector('.view-buttons').appendChild(b);const badge=document.createElement('span');badge.textContent=window.DOOR_MODEL.minimalDesign?model.wireSavings.saved+' jumpers menos · '+window.DOOR_MODEL.boardCount+' protoboards':variant==='ls151-ahorro'?model.wireSavings.saved+' jumpers menos respecto al LS151 original':'14 jumpers menos · resistencias junto al display';document.querySelector('.assembly-badges').appendChild(badge);}
     if(variant.startsWith('ls151'))await loadScript('./external-controls-svg.js');
     if(variant.startsWith('ls151')){const b=document.createElement('button');b.type='button';b.dataset.view='controls';b.textContent='Mandos externos';b.setAttribute('aria-pressed','false');document.querySelector('.view-buttons').append(b);}
     await loadScript('./puerta-map.js');

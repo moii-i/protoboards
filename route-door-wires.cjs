@@ -21,7 +21,7 @@ module.exports=function routeWires(model){
   while(heap.length){const [,state,g]=heap.pop();if(g!==dist[state])continue;const n=Math.floor(state/3),dir=state%3;if(n===goal){end=state;break;}const x=n%nx,y=Math.floor(n/nx);
    for(const [next,axis]of [[x? n-1:-1,1],[x<nx-1?n+1:-1,1],[y?n-nx:-1,2],[y<ny-1?n+nx:-1,2]]){if(next<0||(blocked[next]&&next!==goal&&next!==start))continue;const ek=Math.min(n,next)+':'+Math.max(n,next),overlap=edges.get(ek)||0,cross=(axis===1?vertical[next]:horizontal[next]);const cost=step+(dir&&dir!==axis?19:0)+overlap*160+(next!==goal&&next!==start?cross*42:0),ns=next*3+axis,ng=g+cost;if(ng<dist[ns]){dist[ns]=ng;prev[ns]=state;heap.push([ng+heuristic(next),ns,ng]);}}
   }
-  if(end<0)throw Error('No orthogonal route for '+it.id);
+  if(end<0)throw Error('No orthogonal route for '+it.id+' '+JSON.stringify({a:it.a,b:it.b,start:a,goal:b}));
   const nodes=[];for(let q=end;q>=0;q=prev[q])nodes.push(Math.floor(q/3));nodes.reverse();
   for(let i=1;i<nodes.length;i++){const n=nodes[i-1],q=nodes[i],axis=Math.abs(n-q)===1?1:2,ek=Math.min(n,q)+':'+Math.max(n,q);edges.set(ek,(edges.get(ek)||0)+1);(axis===1?horizontal:vertical)[n]++;(axis===1?horizontal:vertical)[q]++;}
   const path=nodes.map(xy),first=path[0],last=path[path.length-1];

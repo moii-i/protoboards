@@ -6,11 +6,11 @@ const getJSON=(key,fallback={})=>{try{return JSON.parse(localStorage.getItem(key
 const setJSON=(key,value)=>{try{localStorage.setItem(key,JSON.stringify(value));}catch{}};
 const path=location.pathname.replace(/\.html$/,'');
 const isCatalog=path==='/circuitos',kind=path==='/puerta'?'puerta':path==='/555'?'555':'letras';
-const variants=['ls151','ls151-compacto','ls151-ahorro','ls151-minimo','sinuln','ls','comunes','redes'];
+const variants=['ls151','ls151-compacto','ls151-ahorro','ls151-minimo','ls151-claro','sinuln','ls','comunes','redes'];
 let doorVariant=new URLSearchParams(location.search).get('montaje');
-if(!variants.includes(doorVariant))doorVariant='sinuln';
-const lastDoor=getJSON('protoboards:last-door:v1','ls151');
-const doorHref='/puerta?montaje='+(variants.includes(lastDoor)?lastDoor:'ls151');
+if(!variants.includes(doorVariant))doorVariant='ls151-claro';
+const lastDoor=getJSON('protoboards:last-door:v1','ls151-claro');
+const doorHref='/puerta?montaje='+(variants.includes(lastDoor)?lastDoor:'ls151-claro');
 document.body.classList.add('design-enhanced');
 document.querySelector('.brand')?.setAttribute('href','/circuitos');
 const nav=document.querySelector('.site-header .nav');
