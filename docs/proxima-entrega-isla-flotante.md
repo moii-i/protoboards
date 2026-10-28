@@ -1,6 +1,6 @@
-# Propuesta de siguiente entrega
+# Entrega: isla flotante y controles del visor
 
-Estado: propuesta para revisión; no implementada. La web conserva la primera entrega publicada en el commit `00a7479`.
+Estado: implementada tras autorización del usuario. Conserva el circuito y los progresos de cada alternativa.
 
 ## 1. Recuperar la isla flotante de Cable por cable
 
@@ -34,3 +34,7 @@ Reducir información introductoria repetida y agrupar teoría/materiales en secc
 ## Verificación antes de publicar
 
 Revisar isla plegada/desplegada, arrastre y límites, 2D/3D, móvil vertical/horizontal, selección persistente, ausencia de etiquetas sobre extremos y marcado siempre manual. Probar también temas, perfiles y restauración de cámara, sin modificar redes ni coordenadas del circuito.
+
+## Validación de la entrega
+
+`npm run test:cables` comprueba las ocho situaciones: escritorio, móvil vertical/horizontal, tema nocturno, 3D, cable externo, recarga y cambio de alternativa. Verifica límites de la isla, plegado, teclado, recorrido manual, encuadres recordados, contorno y marcado explícito. `npm run test:workspace` conserva doce verificaciones de apariencia, paneles y cámara. `npm run check` comprueba construcción y los invariantes de los montajes. Estas pruebas no constituyen evidencias de simulación analógica ni de construcción física.

@@ -20,4 +20,4 @@ La prioridad del usuario es facilitar al máximo el ensamblado físico y su repr
 
 - Visores para estudiantes: no reintroducir rótulos flotantes de origen/destino ni botones grandes sobre el ensamblado. Conservar barra compacta y encuadre controlado por el alumno. Herramientas y ayuda usan áreas reservadas fuera del circuito; comprobar desktop y móvil. Apariencia y perfiles no deben modificar progreso, coordenadas ni colores eléctricos.
 
-- Proxima entrega: el usuario pide recuperar la isla flotante compacta dentro del visor para Cable por cable. Presentar primero la propuesta; no implementar ese cambio aun. Mantener ayuda/personalizacion aparte y nunca reintroducir rotulos sobre extremos. Ver docs/proxima-entrega-isla-flotante.md.
+- Entrega autorizada: isla flotante compacta dentro del visor solo en Cable por cable, plegable y reposicionable. Mantener ayuda/personalización aparte y nunca reintroducir rótulos sobre extremos. Recorrer o reproducir no confirma el montaje; el marcado es explícito. Ver docs/proxima-entrega-isla-flotante.md.

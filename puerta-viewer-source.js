@@ -56,7 +56,7 @@ export function createViewer({container, model, point, hole, onConnection, onPin
   const hpos = (h,y=.1) => toWorld(point(h),y);
   let active = false, raf = 0, cameraTween = null, routeTween = null, settleFrames = 0, snapshot = null;
   let lastBox = [...model.bounds], topView = false, lastPins = '', selectedId = null;
-  let fitDistance=1,viewAppearance={quality:'auto',background:'#edf1ed',motion:'full'};
+  let fitDistance=1,viewAppearance={quality:'auto',background:'#edf1ed',motion:'full'},selectionStyle={scale:1,intensity:1};
   let renderedFrames = 0, moved = false, wireClarity = true, isolateWires = false;
   const signalTrace=new THREE.Group();scene.add(signalTrace);let signalStamp='',signalPose=null,signalBuilds=0;
   function updateSignalTrace(value){
@@ -507,6 +507,8 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     restoreViewState(value){if(!value||!['camera','target'].every(k=>Array.isArray(value[k])&&value[k].length===3&&value[k].every(Number.isFinite)))return false;const distance=new THREE.Vector3().fromArray(value.camera).distanceTo(new THREE.Vector3().fromArray(value.target));if(distance<controls.minDistance||distance>controls.maxDistance)return false;cameraTween=null;const damping=controls.enableDamping;controls.enableDamping=false;controls.update();camera.position.fromArray(value.camera);controls.target.fromArray(value.target);topView=Boolean(value.topView);if(Array.isArray(value.box)&&value.box.length===4&&value.box.every(Number.isFinite)&&value.box[2]>0&&value.box[3]>0)lastBox=[...value.box];if(Number.isFinite(value.fitDistance)&&value.fitDistance>0)fitDistance=value.fitDistance;controls.update();controls.enableDamping=damping;canvas.dataset.moving='false';requestRender();return true;},
     setAppearance(value={}){if(['auto','economy','sharp'].includes(value.quality)&&value.quality!==viewAppearance.quality){viewAppearance.quality=value.quality;renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,value.quality==='economy'?1:value.quality==='sharp'?2:1.6));resize();}if(['full','reduced','off'].includes(value.motion))viewAppearance.motion=value.motion;if(value.background&&value.background!==viewAppearance.background){scene.background.set(value.background);viewAppearance.background=value.background;}if(viewAppearance.motion!=='full'&&cameraTween){camera.position.copy(cameraTween.toPos);controls.target.copy(cameraTween.toTarget);cameraTween=null;controls.update();canvas.dataset.moving='false';}requestRender();},
     getAppearance(){return {...viewAppearance};},
+    setSelectionStyle(value={}){if([1,1.4,1.8].includes(value.scale))selectionStyle.scale=value.scale;if([.5,.8,1].includes(value.intensity))selectionStyle.intensity=value.intensity;traceLayers.forEach((line,i)=>{line.material.linewidth=[10,7,3][i]*selectionStyle.scale;line.material.opacity=i===2?1:selectionStyle.intensity;});requestRender();},
+    getSelectionStyle(){return {...selectionStyle};},
     stopReplay(){routeTween=null;traveler.visible=false;requestRender();},
     capture(){renderer.render(scene,camera);return canvas.toDataURL('image/png');},
     preset(value){topView=value==='top';if(!topView){cameraTween=null;camera.position.copy(controls.target).add(new THREE.Vector3(12,70,75));controls.update();}focusBox(lastBox,true);},

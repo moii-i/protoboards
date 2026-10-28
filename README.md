@@ -148,3 +148,9 @@ La opción independiente `/puerta?montaje=ls151-ahorro` combina la adaptación c
 Generadores: `build-door-ls151-ahorro.cjs` y `optimize-ls151-ahorro-layout.cjs`. El optimizador retira únicamente conexiones ya realizadas por cobre o cables anteriores, sin unir a través de resistencias o capacitores. Las pruebas reconstruyen los nodos físicos, comprueban 32 combinaciones y derivan las cargas de cada salida a partir del netlist. Cota de M: 7.12 mA con VCC=5.25 V, resistencias -5%, Vf=1.5 V y VOL=0 V. Es un cálculo condicionado a esas hipótesis, no una medición ni una simulación analógica. Niveles, brillo, contacto real y corriente del motor requieren validación eléctrica y física.
 
 El PDF y el avance son independientes. `door-ls151-ahorro-26-v2` evita reutilizar confirmaciones de posiciones y valores anteriores. Reducir a 13 resistencias exigiría revisar otra arquitectura; esta variante mantiene una resistencia por cada uno de los 14 segmentos, tres para LEDs, dos del 555 y siete pull-up. No comparte un solo limitador entre varios segmentos en paralelo.
+
+## Isla flotante y controles del visor de puerta
+
+Cable por cable recupera una isla compacta, plegable y movible con arrastre o flechas de teclado. Las herramientas se abren en el área lateral: recorrido manual de la animación, repetición/pausa, velocidad, encuadres recordados para placa A/B y conjunto, y grosor/intensidad del contorno. No añade rótulos sobre los extremos ni cambia redes, colores, coordenadas o marcas de montaje.
+
+Las dos tarjetas actuales comparan 9 resistencias de 1 kΩ con 6 de 1 kΩ + 1 de 6.8 kΩ, con avance independiente. Las notas de distribución quedan en un desplegable. `npm run test:cables` verifica la entrega en navegador; `npm run test:workspace` verifica los ajustes de apariencia y cámara.

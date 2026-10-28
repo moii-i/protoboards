@@ -88,5 +88,5 @@
  const originalShow=showRenderer;
  showRenderer=function(...args){const result=originalShow(...args);board3d?.setAppearance?.(appearance());return result;};
  stage.classList.add('clean-workspace');syncSide();apply(false);
- window.doorWorkspace={setPreference,setProfile,open:()=>togglePreferences(true,$w('#workspacePreferences')),close:()=>togglePreferences(false),getState:()=>({preferences:{...prefs},effectiveMotion:effectiveMotion(),open,sideVisible:!aside.hidden,cached2D:twoCache?{box:[...twoCache.box],view:twoCache.view}:null,cached3D:Boolean(threeCache),renderer:rendererMode})};
+ window.doorWorkspace={setPreference,setProfile,registerTool(element){if(!(element instanceof HTMLElement)||sidePanels.includes(element))return false;aside.append(element);sidePanels.push(element);hiddenObserver.observe(element,{attributes:true,attributeFilter:['hidden']});syncSide();return true;},refreshTools:syncSide,open:()=>togglePreferences(true,$w('#workspacePreferences')),close:()=>togglePreferences(false),getState:()=>({preferences:{...prefs},effectiveMotion:effectiveMotion(),open,sideVisible:!aside.hidden,cached2D:twoCache?{box:[...twoCache.box],view:twoCache.view}:null,cached3D:Boolean(threeCache),renderer:rendererMode})};
 })();

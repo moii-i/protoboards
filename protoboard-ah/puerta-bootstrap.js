@@ -38,6 +38,7 @@
   for(const script of ['external-controls-svg','puerta-map','puerta-guide','puerta-studio','puerta-learning','puerta-signal-logic','puerta-lesson']){await loadScript('./'+script+'.js');if(script==='puerta-map'){const baseBands=window.bands;window.bands=value=>/^6[.,]8\s*k/.test(value)?['#176eb2','#788183','#c73b42','#c9a145']:baseBands(value);}}
   if(!window.doorGuide)throw Error('La guía no terminó de iniciar.');
   await loadScript('./puerta-workspace.js');
+  await loadScript('./puerta-cable-workbench.js');
   document.dispatchEvent(new CustomEvent('door-guide-ready',{detail:{variant}}));
  }
  window.doorReady=start().catch(error=>{status.textContent='No pudimos cargar el montaje. Vuelve a intentarlo.';status.setAttribute('role','alert');byId('assemblyRetry').hidden=false;console.error(error);});
