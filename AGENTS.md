@@ -6,6 +6,7 @@ La prioridad del usuario es facilitar al máximo el ensamblado físico y su repr
 - Evaluar cambios de arquitectura antes de aceptar un conteo elevado de resistencias, capacitores o integrados. Aprovechar compuertas y canales libres de los integrados existentes.
 - Comparar número de piezas, jumpers, placas, longitud de conexiones y facilidad de montaje; no optimizar solamente un contador.
 - El usuario autoriza dos protoboards y prioriza espacio, claridad y facilidad de cableado. Comparar agrupaciones por función; mantener los segmentos cerca de sus compuertas y pasar entre placas sólo las señales necesarias. No añadir piezas para ocupar la segunda placa.
+- En esta puerta hay un único motorreductor TT amarillo, con dos cables. Agrupar los tres LED y ordenar los tres cables de cada mando/final por recorridos reconocibles, sin cruzar las carcasas de los integrados ni dibujar motores adicionales.
 - Colocar los componentes por conectividad física. Un pull-up o pull-down debe compartir la tira del pin y alcanzar el riel cercano cuando sea posible; no enviarlo a otra placa para volver con un jumper.
 - Usar patas de componentes, tiras internas y rieles para conexiones reales; nunca tratar una resistencia o capacitor como un cortocircuito. No insertar dos terminales en un solo agujero. Verificar rieles partidos y separar 5 V de VM.
 - Acercar el 555 a su red RC, el driver al motor y la lógica de indicación a los displays. Evaluar una sola protoboard antes de ampliar a dos.

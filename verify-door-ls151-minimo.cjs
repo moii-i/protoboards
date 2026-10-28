@@ -61,3 +61,19 @@ fs.writeFileSync('work/'+variant+'-verification.json',JSON.stringify(report,null
 const prep=vm.createContext({window:{}});vm.runInContext(fs.readFileSync('protoboard-ah/component-assembly.js','utf8')+';const model='+JSON.stringify(m)+';window.ComponentAssembly.prepare(model);window.prepared=model;',prep);
 assert.equal(prep.window.prepared.items.filter(i=>i.externalLead).length,17);
 assert(prep.window.prepared.items.filter(i=>!['wire','link'].includes(i.kind)).every(i=>i.stage===0));
+if(src.clearLayout){
+ assert.equal(src.components.filter(c=>c.type==='motor').length,1);assert.equal(m.items.filter(i=>i.kind==='motor').length,1);assert.equal(m.externalMotor.model,'tt-yellow');assert.equal(m.externalMotor.terminals.length,2);
+ const leds=['LG','LY','LR'].map(id=>src.components.find(c=>c.id===id));assert.deepEqual(leds.map(c=>c.holes[1].col),[46,49,52]);assert(leds.every(c=>c.holes[1].row==='a'&&c.holes[2].row==='-'));
+ vm.runInContext(fs.readFileSync('protoboard-ah/puerta-clear-harness.js','utf8')+';window.DoorClearHarness.prepare(model);',prep);
+ const p=prep.window.prepared,rows={a:290,b:320,c:350,d:380,e:410,f:500,g:530,h:560,i:590,j:620,'+T':185,'-T':215,'-B':680,'+B':710};
+ const point=h=>h[0]==='EXT'?p.externalTerminals[h[1]+':'+h[2]].point:[95+p.boards[h[0]].xOffset+(h[2]-1)*30,rows[h[1]]];
+ const crosses=(a,b,r)=>a[0]===b[0]?a[0]>r[0]&&a[0]<r[2]&&Math.max(a[1],b[1])>r[1]&&Math.min(a[1],b[1])<r[3]:a[1]>r[1]&&a[1]<r[3]&&Math.max(a[0],b[0])>r[0]&&Math.min(a[0],b[0])<r[2];
+ for(const i of p.items.filter(i=>i.externalLead)){
+  assert(i.externalHarness);assert.equal(i.stage,i.externalLead.motor?5:2);assert.deepEqual(Array.from(i.route[0]),Array.from(point(i.a)));assert.deepEqual(Array.from(i.route.at(-1)),Array.from(point(i.b)));
+  for(let j=1;j<i.route.length;j++){const a=i.route[j-1],b=i.route[j];assert(a[0]===b[0]||a[1]===b[1]);
+   for(const c of p.externalControls){const[x,y]=c.center;assert(!crosses(a,b,[x-125,y-45,x+125,y+45]),'lead crosses control body '+i.id+' '+c.id);}
+   for(const chip of p.chips){const x=95+p.boards[chip.board].xOffset+(chip.start-1)*30;assert(!crosses(a,b,[x-15,420,x+(chip.pins/2-1)*30+15,490]),'lead crosses IC '+i.id+' '+chip.id);}
+  }
+ }
+ console.log('PASS grouped LEDs; one yellow TT motor/two leads; 17 shared 2D/3D harness routes avoid IC and switch bodies.');
+}

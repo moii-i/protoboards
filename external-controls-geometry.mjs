@@ -1,4 +1,9 @@
 /* Illustrative physical bodies; electrical nodes remain in the shared circuit model. */
+export function externalCableCurve(THREE,route,toWorld,start,end,height){
+ const points=[start,...route.map(p=>toWorld(p,height)),end],curve=new THREE.CurvePath();
+ for(let i=1;i<points.length;i++)if(points[i-1].distanceToSquared(points[i])>1e-12)curve.add(new THREE.LineCurve3(points[i-1],points[i]));
+ return curve;
+}
 export function buildExternalControl(api){
  const {THREE,it,group,mesh,box,roundedBox,toWorld,hpos,topLabel,contactShadow,pickables,switches,metal,dark}=api;
  const e=it.externalControl,c=toWorld(e.center,0),isSlide=e.model==='scmm-122';
@@ -61,7 +66,7 @@ export function buildExternalControl(api){
   const shrink=mesh(new THREE.CylinderGeometry(.19,.17,.65,16),sleeve,t.clone().add(new THREE.Vector3(0,-.09,.32)),group);shrink.rotation.x=Math.PI/2;
   const color=new THREE.MeshStandardMaterial({color:e.colors[i],roughness:.74});
   const turn=toWorld([e.center[0]-150-i*18,e.center[1]-155-i*17],1.7+i*.28),front=toWorld([e.center[0]+(i-1)*52,e.center[1]+135+i*10],.9+i*.18);
-  const route=new THREE.CatmullRomCurve3([t,tail,front,turn,toWorld([pointX(logical[i]),815+i*24],1.8+i*.28),port.clone().setY(1.1+i*.28),port],false,'centripetal');const cableGroup=new THREE.Group();group.add(cableGroup);
+  const route=e.cableRoutes?.[i]?externalCableCurve(THREE,e.cableRoutes[i],toWorld,t,port,e.cableHeights[i]):new THREE.CatmullRomCurve3([t,tail,front,turn,toWorld([pointX(logical[i]),815+i*24],1.8+i*.28),port.clone().setY(1.1+i*.28),port],false,'centripetal');const cableGroup=new THREE.Group();group.add(cableGroup);
   const wire=mesh(new THREE.TubeGeometry(route,96,.095,8,false),color,new THREE.Vector3(),cableGroup);wire.userData={id:it.id};pickables.push(wire);
   const plug=box(.3,.46,.3,port.clone().setY(.23),sleeve,cableGroup);const tip=mesh(new THREE.SphereGeometry(.17,12,8),new THREE.MeshBasicMaterial({color:0xe5b541}),t.clone(),cableGroup);tip.visible=false;cables.push({group:cableGroup,wire,curve:route,plug,tip,point:new THREE.Vector3(),normal:new THREE.Vector3(),terminal:i,progress:1});
   const tag=topLabel((isSlide?['+5','COM','GND']:['NC','COM','NA'])[i],t.clone().add(new THREE.Vector3(0,-.87,1.05)),1.45,1.8,{background:'#edf1ed',color:i===0?'#b64143':'#364e49',size:54});group.add(tag);

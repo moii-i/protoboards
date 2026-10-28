@@ -144,7 +144,7 @@
     }
     await loadScript('./'+prefix+'-layout.js');
     if(variant==='ls151-ahorro')showWireSavings(model);
-    if(window.DOOR_MODEL.clearLayout){const css=document.createElement('link');css.rel='stylesheet';css.href='./puerta-clear-layout.css';document.head.append(css);await loadScript('./puerta-clear-layout.js');}else if(window.DOOR_MODEL.minimalDesign)showMinimalSummary(window.DOOR_MODEL,model);
+    if(window.DOOR_MODEL.clearLayout){const css=document.createElement('link');css.rel='stylesheet';css.href='./puerta-clear-layout.css';document.head.append(css);await loadScript('./puerta-clear-harness.js');await loadScript('./puerta-clear-layout.js');}else if(window.DOOR_MODEL.minimalDesign)showMinimalSummary(window.DOOR_MODEL,model);
     if(variant.startsWith('ls151')){const b=document.createElement('button');b.type='button';b.dataset.view='motor';b.textContent='Motor externo';b.setAttribute('aria-pressed','false');document.querySelector('.view-buttons').appendChild(b);const badge=document.createElement('span');badge.textContent=window.DOOR_MODEL.minimalDesign?model.wireSavings.saved+' jumpers menos · '+window.DOOR_MODEL.boardCount+' protoboards':variant==='ls151-ahorro'?model.wireSavings.saved+' jumpers menos respecto al LS151 original':'14 jumpers menos · resistencias junto al display';document.querySelector('.assembly-badges').appendChild(badge);}
     if(variant.startsWith('ls151'))await loadScript('./external-controls-svg.js');
     if(variant.startsWith('ls151')){const b=document.createElement('button');b.type='button';b.dataset.view='controls';b.textContent='Mandos externos';b.setAttribute('aria-pressed','false');document.querySelector('.view-buttons').append(b);}

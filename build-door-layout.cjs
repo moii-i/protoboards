@@ -69,8 +69,8 @@ if(variant.startsWith('ls151')){
  layout.externalControls=[];
  const names=['ABRIR','CERRAR','STOP','FCA','FCC'],centers=src.externalControlCenters||[2485,2795,3105,3495,3895];
  for(const it of layout.items.filter(it=>it.kind==='switch')){
-  const index=names.indexOf(it.partId),limit=index>2,cx=centers[index],cy=1040;
-  const e={id:it.partId,model:limit?'ss0501a':'scmm-122',center:[cx,cy],bounds:[cx-155,930,cx+155,1250],
+  const index=names.indexOf(it.partId),limit=index>2,[cx,cy]=src.externalControlPositions?.[it.partId]||[centers[index],1040];
+  const e={id:it.partId,model:limit?'ss0501a':'scmm-122',center:[cx,cy],bounds:[cx-155,cy-110,cx+155,cy+210],
    terminals:[-45,0,45].map(dx=>[cx+dx,cy+80]),functions:limit?['NC · +5 V','COM · '+it.partId,'NA · GND']:['+5 V','COM · señal','GND'],
    colors:['#c94b4d',index===0?'#3679b5':index===1?'#b7664a':index===2?'#c33a60':index===3?'#8272ad':'#a58636','#293d52'],
    contactOrder:'functional-illustration',leadHoles:[it.a,it.b,it.third]};
@@ -91,8 +91,8 @@ if(variant==='ls151-ahorro'){
 require('./route-door-wires.cjs')(layout);
 
 if(layout.externalControls){
- layout.bounds[3]=Math.max(layout.bounds[3],1320);if(layout.viewBoxes.B)layout.viewBoxes.B[3]=layout.bounds[3];
- layout.viewBoxes.controls=(src.boardCount===1||src.clearLayout)?[0,800,2070,520]:[2290,430,1870,920];
+ layout.bounds[3]=Math.max(layout.bounds[3],1320,...layout.externalControls.map(e=>e.bounds[3]+70));if(layout.viewBoxes.B)layout.viewBoxes.B[3]=layout.bounds[3];
+ layout.viewBoxes.controls=src.externalControlsView||((src.boardCount===1||src.clearLayout)?[0,800,2070,520]:[2290,430,1870,920]);
 }
 
 if(src.boardCount===1){
@@ -102,7 +102,7 @@ if(src.boardCount===1){
  layout.stages[0][1]=src.placementDescription;layout.checkpoints[9]='Propuesta calculada: comprobar brillo, niveles, arranque y estabilidad sin bypass. No acredita simulación eléctrica ni montaje físico.';
 }
 
-if(src.clearLayout){for(const it of layout.items)if(it.kind==='wire'&&({MD:'#a86d36',SB:'#b95179',ZERO:'#607b83',NSB:'#b95179'})[it.signal])it.color=({MD:'#a86d36',SB:'#b95179',ZERO:'#607b83',NSB:'#b95179'})[it.signal];layout.layoutVersion='door-ls151-claro-13-v1';layout.clearLayout=true;layout.minimalDesign=src.minimalDesign;layout.electricalBase='ls151-minimo';layout.viewBoxes.motor=[400,1240,980,510];layout.viewBoxes.A=[40,120,1940,700];layout.viewBoxes.B=[2110,120,1940,700];layout.viewLabels={A:'A · Mandos, motor y temporizador',B:'B · Lógica y displays',bus:'Unión A ↔ B · siete conexiones'};layout.viewBoxes.bus=[1450,120,1500,720];layout.wireSavings={baseline:'ls151',baselineJumpers:135,jumpers:items.filter(i=>i.kind==='wire').length,saved:135-items.filter(i=>i.kind==='wire').length,resistors:13,capacitors:1,externalLeads:17};layout.interboardConnections=items.filter(i=>i.kind==='wire'&&i.a[0]!==i.b[0]&&i.a[0]!=='FUENTE'&&i.b[0]!=='FUENTE').map(i=>({id:i.id,signal:i.signal,from:i.a,to:i.b}));}
+if(src.clearLayout){for(const it of layout.items)if(it.kind==='wire'&&({MD:'#a86d36',SB:'#b95179',ZERO:'#607b83',NSB:'#b95179'})[it.signal])it.color=({MD:'#a86d36',SB:'#b95179',ZERO:'#607b83',NSB:'#b95179'})[it.signal];layout.layoutVersion='door-ls151-claro-13-v2';layout.clearLayout=true;layout.minimalDesign=src.minimalDesign;layout.electricalBase='ls151-minimo';layout.viewBoxes.motor=[70,950,1050,600];layout.viewBoxes.leds=[1330,120,440,460];layout.viewBoxes.A=[40,120,1940,700];layout.viewBoxes.B=[2110,120,1940,700];layout.viewLabels={A:'A · Mandos, motor y temporizador',B:'B · Lógica y displays',bus:'Unión A ↔ B · siete conexiones',leds:'LEDs juntos · verde, amarillo y rojo'};layout.viewBoxes.bus=[1450,120,1500,720];layout.wireSavings={baseline:'ls151',baselineJumpers:135,jumpers:items.filter(i=>i.kind==='wire').length,saved:135-items.filter(i=>i.kind==='wire').length,resistors:13,capacitors:1,externalLeads:17};layout.interboardConnections=items.filter(i=>i.kind==='wire'&&i.a[0]!==i.b[0]&&i.a[0]!=='FUENTE'&&i.b[0]!=='FUENTE').map(i=>({id:i.id,signal:i.signal,from:i.a,to:i.b}));}
 
 if(variant==='sinuln'){layout.stages[0][1]=src.placementDescription;layout.pinNames.U4=src.pinNames.U4;layout.pinNames.U3=src.pinNames.U3;}
 fs.writeFileSync('protoboard-ah/'+stem+'-layout.js','const model='+JSON.stringify(layout)+';\n');fs.writeFileSync('work/'+stem+'-layout.json',JSON.stringify(layout,null,2));console.log(JSON.stringify({variant,connections:items.length,chips:chips.length,arrays:layout.arrays.length,boards:Object.keys(boards).length,routing:layout.routingStats}));

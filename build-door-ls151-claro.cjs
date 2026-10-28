@@ -11,14 +11,18 @@ for(const id of ['U1','U2','U3','U4','U5'])get(id).col=positions[id];
 function place(id,holes,note){const c=get(id);c.col=holes[0][1];c.holes=Object.fromEntries(holes.map(([row,col],i)=>[i+1,{row,col}]));if(note)c.assemblyNote=note;}
 for(const id of ['D1','D2']){const start=positions[id],c=get(id);c.col=start;c.holes=Object.fromEntries(Array.from({length:10},(_,i)=>[i+1,{row:i<5?'g':'c',col:start+(i<5?i:9-i)}]));place(id==='D1'?'RDA':'RDB',[['+',start+2],['a',start+2]],'1 kΩ del riel +5 V al común del display en la misma tira. No añadas un jumper paralelo. El brillo compartido requiere prueba física.');}
 const driver=positions.U5,mux=positions.U1;
-place('R4',[['a',driver+5],['b',driver+10]],'1 kΩ de OUT3 al ánodo amarillo: sus patas completan la conexión, sin jumper adicional.');
-place('LY',[['a',driver+10],['-',driver+12]],'Ánodo a R4; cátodo directamente al riel GND, dejando libre el puente central.');
-place('R7',[['a',driver+2],['b',driver-3]],'1 kΩ de OUT4 al ánodo verde. Sus patas completan la conexión, sin jumper adicional.');
-place('LG',[['a',driver-3],['-',driver-3]],'Ánodo a R7; cátodo directamente al riel GND.');
+place('R4',[['a',driver+5],['b',49]],'1 kΩ de OUT3 al LED amarillo del grupo. Sus patas completan la conexión, sin jumper adicional.');
+place('LY',[['a',49],['-',49]],'LED amarillo junto al verde y rojo. Ánodo a R4; cátodo al riel GND.');
+place('R7',[['a',driver+2],['b',46]],'1 kΩ de OUT4 al LED verde del grupo. Sus patas completan la conexión, sin jumper adicional.');
+place('LG',[['a',46],['-',46]],'LED verde: primero del grupo verde–amarillo–rojo. Ánodo a R7; cátodo al riel GND.');
+place('R3',[['a',51],['b',52]],'1 kΩ junto al LED rojo. Un único jumper trae OUT3 del 555 a esta resistencia.');
+place('LR',[['a',52],['-',52]],'LED rojo junto a amarillo y verde; ánodo a R3 y cátodo al riel GND.');
 place('MOTOR',[['j',driver+2],['j',driver+5]],'Dos cables del motor directamente a OUT1/OUT2. El cuerpo queda fuera, frente al driver.');
 for(const[id,delta,row,hi,lo]of [['ABRIR',5,'a',4,5],['CERRAR',6,'a',5,6],['STOP',6,'j',6,7],['FCA',2,'j',7,3],['FCC',1,'j',8,-1]])place(id,[['+',mux+hi],[row,mux+delta],['-B',mux+lo]],'COM del mando en la misma tira del pin; contactos extremos directamente a los rieles. No hay jumper intermedio ni resistencia de entrada.');
-m.externalMotor={model:'tt-yellow',center:[880,1480],bounds:[440,1280,1325,1700],terminals:[[1260,1440],[1260,1500]],label:'Motorreductor TT · frente al L293D'};
+m.externalMotor={model:'tt-yellow',center:[550,1230],bounds:[110,1030,995,1450],terminals:[[930,1190],[930,1250]],label:'Único motor TT amarillo · dos cables'};
 m.externalControlCenters=[180,520,860,1250,1650];
+m.externalControlPositions={ABRIR:[1450,1040],CERRAR:[1800,1040],STOP:[2150,1040],FCA:[1250,1510],FCC:[2500,1510]};
+m.externalControlsView=[1050,750,1800,1100];
 m.supplyPins={'JP1.1':['+5','+',14],'JP1.3':['G5','-',14],'JP1.5':['+6','VM',driver+7],'JP1.13':['G6','-',driver+3]};
 m.sourceTerminals={'+5':[400,90],G5:[560,90],'+6':[820,90],G6:[980,90]};
 // B uses only its left lower ground rail. The unused inverter input may be tied
@@ -37,7 +41,7 @@ const strip=ref=>{const h=physical(ref);return h.board+':'+('abcde'.includes(h.r
 const distance=(a,b)=>{a=point(a);b=point(b);return Math.abs(a[0]-b[0])+Math.abs(a[1]-b[1]);};
 const stage=ref=>/^D[12]\.|^(RDA|RDB|LY|LG|LR|R3|R4|R7)\./.test(ref)?7:/^(R1|R2[A-G]|C4)\./.test(ref)||/^U4\.[234567]$/.test(ref)?6:/^MOTOR\.|^U5\.(1|2|3|6|7|9|10|11|14|15)$/.test(ref)?5:/^(ABRIR|CERRAR|STOP|FCA|FCC)\./.test(ref)?2:/^U1\./.test(ref)?3:4;
 const wire=(s,from,to,label,note='')=>m.connections.push({stage:s,from,to,label,note,color:to==='VCC'?'#db5266':to==='GND'?'#243344':to==='VM'?'#c17814':'#168c9c'});
-// Only rails that are used are bridged. VM stays on the left half of A.
+// Only rails that are used are bridged. VM powers the driver's half of A only.
 for(const[from,to,label]of [['JP1.7','JP1.8','Unir +5 V de A'],['JP1.9','JP1.10','Unir GND superior de A'],['JP1.2','JP2.1','A → B: +5 V'],['JP1.4','JP2.3','A → B: GND inferior'],['JP2.7','JP2.8','Unir +5 V de B'],['JP1.1','VCC','Fuente lógica +5 V'],['JP1.3','GND','Negativo de fuente lógica'],['JP1.5','VM','Fuente motor +6 V: sólo A'],['JP1.13','GND','Negativo de motor, junto al driver']]){wire(1,from,to,label);if(to.startsWith('JP'))m.connections.at(-1).color=physical(from).row==='+'?'#db5266':'#243344';}
 const nets=new Map();for(const[ref,n]of bindings){if(!nets.has(n))nets.set(n,[]);nets.get(n).push(ref);}
 for(const[n,refs]of nets){
