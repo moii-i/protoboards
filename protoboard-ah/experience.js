@@ -3,7 +3,7 @@
   const brand=document.querySelector('.brand'),hero=document.querySelector('.hero>div');
   if(hero){const actions=document.createElement('div');actions.className='hero-actions';actions.innerHTML='<a class="hero-start" href="#montaje">Empezar / continuar <span aria-hidden="true">↗</span></a><a href="#materiales">Ver materiales</a><span class="save-badge"><i aria-hidden="true"></i> Avance guardado automáticamente</span>';hero.append(actions);}
   function intro(){
-    if(reduced.matches||!brand||document.querySelector('.brand-intro'))return;
+    if(reduced.matches||['reduced','off'].includes(document.documentElement.dataset.workspaceMotion)||!brand||document.querySelector('.brand-intro'))return;
     const overlay=document.createElement('div');overlay.className='brand-intro';
     const mark=brand.querySelector('svg').cloneNode(true);mark.classList.add('intro-mark');
     const card=document.createElement('div');card.className='intro-card';card.append(mark);

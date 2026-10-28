@@ -10,7 +10,7 @@ let width=Number.isFinite(saved.width)?Math.min(340,Math.max(180,saved.width)):2
 let collapsed=Boolean(saved.collapsed),mobileCollapsed=typeof saved.mobileCollapsed==='boolean'?saved.mobileCollapsed:true;
 let transitions=0,lastTitle='',frame=0,stepAnimations=[],resizeDrag=null;
 const animations=new WeakMap(),sheets=new WeakSet();
-const canMove=()=>!reduced.matches&&document.getElementById('motion')?.checked!==false;
+const canMove=()=>!reduced.matches&&document.getElementById('motion')?.checked!==false&&!['reduced','off'].includes(document.documentElement.dataset.workspaceMotion);
 const save=()=>{try{localStorage.setItem(storage,JSON.stringify({width,collapsed,mobileCollapsed}));}catch{}};
 sidebar.id=sidebar.id||'workbenchSteps';
 layout.classList.add('bench-layout');document.body.classList.add('workbench-active');
@@ -142,6 +142,6 @@ function stopMotion(){
  if(canMove())return;cancelStepMotion();
  document.querySelectorAll('.design-tool-group').forEach(d=>{const a=animations.get(d);if(!a)return;const close=d.dataset.benchClosing==='true';a.onfinish=null;a.cancel();animations.delete(d);if(close){d.open=false;delete d.dataset.benchClosing;}d.querySelector('.design-tool-panel').inert=false;});
 }
-reduced.addEventListener('change',stopMotion);document.getElementById('motion')?.addEventListener('change',stopMotion);stopMotion();
+reduced.addEventListener('change',stopMotion);document.getElementById('motion')?.addEventListener('change',stopMotion);document.addEventListener('workspace-appearance-change',stopMotion);stopMotion();
 window.protoboardsWorkbench={setToolOpen,getState(){return {width,collapsed:isCollapsed(),mobile:small.matches,transitions,motion:canMove(),panels:[...document.querySelectorAll('.design-tool-group')].map(d=>({name:d.dataset.designTool,open:d.open,closing:d.dataset.benchClosing==='true',size:d.dataset.sheetSize}))};}};
 })();
