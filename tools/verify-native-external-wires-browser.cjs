@@ -16,7 +16,7 @@ async function main(){
  const results=[];
  await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
  await send('Page.addScriptToEvaluateOnNewDocument',{source:"sessionStorage.setItem('protoboards:welcome:v1','1');"});
- for(const variant of ['ls151','ls151-compacto']){
+ for(const variant of ['ls151','ls151-compacto','ls151-ahorro']){
   await send('Page.navigate',{url:base+'/puerta?montaje='+variant});await waitFor("Boolean(window.componentAssembly)&&Boolean(window.doorStudio)");
   await evaluate("motionEnabled=true;synchronizeMotion();document.querySelector('#studioAuto').checked=false;document.querySelector('#studioAuto').dispatchEvent(new Event('change',{bubbles:true}));selectStep(0,false,{guided:false});");
   const ids=await evaluate("model.items.filter(it=>it.externalLead).map(it=>it.id)");assert.equal(ids.length,17);
@@ -57,7 +57,7 @@ async function main(){
   }
   assert.equal(await evaluate("JSON.stringify([...marked].sort())"),beforeMarks);
   await evaluate("selectStep(0,false,{guided:false});setRenderer('2d');");assert.equal(await evaluate("document.querySelectorAll('#map .external-wire:not(.hidden)').length"),0);
-  results.push({variant,cables:17,controls:15,motor:2,nativeSelection:true,normalPlayPause:true,exact2DPath:true,exact3DOutline:true,persistentOutline:true,marksUnchanged:true});console.log(JSON.stringify(results.at(-1)));
+  results.push({variant,cables:17,controls:15,motorCables:2,nativeSelection:true,normalPlayPause:true,exact2DPath:true,exact3DOutline:true,persistentOutline:true,marksUnchanged:true});console.log(JSON.stringify(results.at(-1)));
  }
  assert.equal(errors.length,0,JSON.stringify(errors));assert.equal(failed.length,0,JSON.stringify(failed));
  fs.writeFileSync('work/qa/native-external-wires-results.json',JSON.stringify({base,results,errors,failed},null,2));console.log(JSON.stringify({pass:true,results}));ws.close();

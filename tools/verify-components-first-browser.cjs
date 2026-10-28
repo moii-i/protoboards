@@ -16,8 +16,19 @@ async function main(){
  const results=[];
  await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
  await send('Page.addScriptToEvaluateOnNewDocument',{source:"sessionStorage.setItem('protoboards:welcome:v1','1');"});
- for(const route of ['/', '/555',...['ls151','ls151-compacto','sinuln','ls','comunes','redes'].map(v=>'/puerta?montaje='+v)].filter(r=>!process.env.PROTOBOARD_ONLY||r===process.env.PROTOBOARD_ONLY)){
+ for(const route of ['/', '/555',...['ls151','ls151-compacto','ls151-ahorro','sinuln','ls','comunes','redes'].map(v=>'/puerta?montaje='+v)].filter(r=>!process.env.PROTOBOARD_ONLY||r===process.env.PROTOBOARD_ONLY)){
   await send('Page.navigate',{url:base+route});await waitFor("Boolean(window.componentAssembly)");
+  if(route.includes('ls151-ahorro')){
+   assert.equal(await evaluate("document.querySelector('#assemblyVariant').value"),'ls151-ahorro');
+   assert(await evaluate("document.querySelector('#assemblyVariant option[value=ls151]').textContent.includes('28 resistencias')"));
+   assert.equal(await evaluate("model.wireSavings.saved"),49);assert.equal(await evaluate("window.DOOR_MODEL.components.filter(c=>c.type==='motor').length"),1);
+   assert(await evaluate("document.querySelector('.assembly-power-note').textContent.includes('Un solo motor')"));
+   await evaluate("document.querySelector('.wiring-savings').scrollIntoView({block:'start'});");await shot('ahorro-desktop-comparison');
+   await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
+   assert(await evaluate("document.documentElement.scrollWidth<=innerWidth+1"),'No horizontal overflow on savings guide');
+   await evaluate("document.querySelector('.wiring-savings').scrollIntoView({block:'start'});");await shot('ahorro-mobile-comparison');
+   await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
+  }
   await evaluate("motionEnabled=true;synchronizeMotion();selectStep(0,false,{guided:false});setRenderer('2d');");
   const state=await evaluate("componentAssembly.getState()");assert(state.parts.length>0);assert(state.parts.every(c=>c.registered),JSON.stringify(state.parts.filter(c=>!c.registered)));
   assert(await evaluate("model.items.filter(it=>!ComponentAssembly.isWire(it)).every(it=>it.stage===0)"));

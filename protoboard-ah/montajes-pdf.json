@@ -1,6 +1,6 @@
 {
   "generator": "tools/build-mounting-pdfs.cjs",
-  "generatorHash": "62e244b7ea2a0aae279b06f7c3aeddb402f5fb931b022b6bcb9666976bd27643",
+  "generatorHash": "3cfbf159a96254afc4e73fbaea45e6dee0f891656e02e22cdc50b8dee8f60e4f",
   "variants": {
     "ls151": {
       "file": "montaje-ls151.pdf",
@@ -92,7 +92,7 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "162ac9b52980afbd1a2b17aa4c227d48a0215df37960b8c953108bf39d56f48f",
+      "sha256": "0487ab4be91102d39bed46e1ec23d5bf33fcf8f0221183d21594cc45a43a7e43",
       "bytes": 831814,
       "pages": 14
     },
@@ -186,9 +186,103 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "ed4b001cc891c1bf2b0d0c0ae52006e9e189b2c62217dee49cbc75670f5cd3fa",
-      "bytes": 822532,
+      "sha256": "d79cd8482b54ea2bed9cf7011d023e6477e40d2519f5d166543022c91eb37327",
+      "bytes": 822581,
       "pages": 14
+    },
+    "ls151-ahorro": {
+      "file": "montaje-ls151-ahorro.pdf",
+      "sourceFiles": [
+        "puerta-ls151-ahorro-model.js",
+        "puerta-ls151-ahorro-layout.js",
+        "component-assembly.js",
+        "external-controls-svg.js",
+        "puerta-map.js"
+      ],
+      "sourceHash": "19117e45ab961017b684ef04f2a70dde0038c15d8eea27f9287dad50ba61cdea",
+      "connections": 175,
+      "componentCount": 52,
+      "materials": [
+        {
+          "name": "Protoboard de 63 columnas",
+          "quantity": 2
+        },
+        {
+          "name": "SN74LS151N · control exclusivo",
+          "quantity": 1
+        },
+        {
+          "name": "SN74LS02N · estados",
+          "quantity": 1
+        },
+        {
+          "name": "SN74LS04N · inversores",
+          "quantity": 1
+        },
+        {
+          "name": "NE555 · parpadeo rojo",
+          "quantity": 1
+        },
+        {
+          "name": "L293D · puente H",
+          "quantity": 1
+        },
+        {
+          "name": "Display de 7 segmentos de ánodo común",
+          "quantity": 2
+        },
+        {
+          "name": "SCMM-122 · switch deslizable SPDT mantenido, 3 terminales",
+          "quantity": 3
+        },
+        {
+          "name": "SS0501A · microswitch de palanca SPDT COM/NC/NA",
+          "quantity": 2
+        },
+        {
+          "name": "LED amarillo, verde y rojo",
+          "quantity": 3
+        },
+        {
+          "name": "Resistencia de 1 kΩ · segmentos, LEDs, RA y límites",
+          "quantity": 20
+        },
+        {
+          "name": "Resistencia de 2.2 kΩ · siete pull-up",
+          "quantity": 7
+        },
+        {
+          "name": "Resistencia de 100 kΩ · RB del 555",
+          "quantity": 1
+        },
+        {
+          "name": "Capacitor cerámico 100 nF",
+          "quantity": 6
+        },
+        {
+          "name": "Capacitor cerámico 10 nF",
+          "quantity": 1
+        },
+        {
+          "name": "Capacitor electrolítico 10 µF",
+          "quantity": 1
+        },
+        {
+          "name": "Motor CC de baja corriente",
+          "quantity": 1
+        },
+        {
+          "name": "Fuente regulada 5 V y fuente motor 6 V con GND común",
+          "quantity": 1
+        },
+        {
+          "name": "Cables jumper",
+          "quantity": "según la guía"
+        }
+      ],
+      "sha256": "0349377f9cf6fb29cf195fb60fb502ec43e94c9d89adb1aae09fc2a95a2e2d59",
+      "bytes": 782320,
+      "pages": 17
     },
     "sinuln": {
       "file": "montaje-sinuln.pdf",
@@ -287,7 +381,7 @@
           "quantity": 1
         }
       ],
-      "sha256": "3fccb82bac6b86f5b82825fed75682ad5cb2ede3c7fc1f4d7760ef6dffcd1068",
+      "sha256": "3e8f922e1323c12647d962b49b9b758e3336a204dbe03a12fa8f8178d9d844d0",
       "bytes": 796216,
       "pages": 14
     },
@@ -388,7 +482,7 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "e720661cd39fdcd4b9f3efcb3cc67bca4e242aa4def3cd5a19ed740ae53a0368",
+      "sha256": "768648641d8f3d173e876d31184b569823474d0cb9d9b73e44d223ae6421e600",
       "bytes": 782338,
       "pages": 14
     },
@@ -481,7 +575,7 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "1170246e710a375bc209872e48361e39ca1285975651b1c9f16a75eb86e1b705",
+      "sha256": "910e0226698c4da40fd0253f2a3f2521419d309ee946cbb3914d40cdc35c07ca",
       "bytes": 741488,
       "pages": 13
     },
@@ -574,7 +668,7 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "9196db92adb81e44171ea62c39a035804ad3a0ea73c765a44fa309a407c9eab2",
+      "sha256": "5fe59cc687afc6aea83b5c44b6a11fa8bf81c7fa626dff63ffbf1aa9b9d928de",
       "bytes": 678663,
       "pages": 12
     }

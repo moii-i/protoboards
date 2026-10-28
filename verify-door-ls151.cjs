@@ -1,5 +1,5 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
-for(const variant of ['ls151','ls151-compacto']){
+for(const variant of ['ls151','ls151-compacto','ls151-ahorro']){
  const ctx=vm.createContext({window:{}});vm.runInContext(fs.readFileSync('protoboard-ah/puerta-'+variant+'-model.js','utf8')+fs.readFileSync('protoboard-ah/puerta-'+variant+'-layout.js','utf8')+';window.layout=model;',ctx);
  const src=ctx.window.DOOR_MODEL,m=ctx.window.layout;
  function uf(){const p=new Map(),find=x=>{if(!p.has(x))p.set(x,x);if(p.get(x)!==x)p.set(x,find(p.get(x)));return p.get(x)};return{find,join:(a,b)=>p.set(find(a),find(b))};}const physical=uf(),logical=uf(),used=new Map();
@@ -22,7 +22,7 @@ for(const variant of ['ls151','ls151-compacto']){
  const gates=[['U2',[2,3],1],['U3',[1],2],['U3',[3],4],['U2',[5,6],4],['U2',[8,9],10],['U3',[5],6],['U3',[13],12]];
  const muxSelect=getValue(values,'U1.11')+2*getValue(values,'U1.10')+4*getValue(values,'U1.9'),data=[4,3,2,1,15,14,13,12][muxSelect],M=getValue(values,'U1.7')?0:getValue(values,'U1.'+data);setValue(values,'U1.5',M);setValue(values,'U1.6',1-M);
  for(const [u,ps,out]of gates)setValue(values,u+'.'+out,ps.some(p=>getValue(values,u+'.'+p))?0:1);
- if(variant==='ls151')for(const [r,out]of [['R9','U1.5'],['R5','U1.6']])setValue(values,r+'.1',getValue(values,out));
+ if(variant!=='ls151-compacto')for(const [r,out]of [['R9','U1.5'],['R5','U1.6']])setValue(values,r+'.1',getValue(values,out));
  const expectedM=!S&&((A&&!C&&PA)||(C&&!A&&PC));assert.equal(M,Number(expectedM));const message=S?'SP':expectedM?'rU':PA===0?'OP':'OF';
  for(let d=0;d<2;d++){let actual='';for(let s=0;s<7;s++){const id='R'+(13+d*7+s),ret=getValue(values,id+'.1');assert.notEqual(ret,undefined,'floating segment '+id);if(!ret)actual+='abcdefg'[s];}assert.equal(sorted(actual),sorted(glyph[message[d]]),mask+' '+message+' display'+d);}
  assert.equal(getValue(values,'LY.2'),M?0:1);assert.equal(getValue(values,'LG.2'),message==='OP'?0:1);

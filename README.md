@@ -138,3 +138,9 @@ La lista del paso 1 permite confirmar cada pieza por separado. Se conservan los 
 Los quince cables de los mandos y los dos del motor LS151 son conexiones normales con IDs EXT_*. Aparecen en la lista y en Cable por cable, en sus bloques de cableado. Reutilizan selección, Repetir conexión, pausa, velocidad, Solo este cable y el contorno permanente del visor; no dependen de un reproductor aparte. El trazado 2D sigue el path visible y el contorno 3D muestrea la misma curva del tubo. `npm run test:components` comprueba las ocho guías en navegador; `npm test` incluye los invariantes eléctricos de esta reorganización.
 
 `npm run test:native-wires` comprueba los 17 cables externos de ambas variantes LS151: selección desde la lista, animación con la barra normal, pausa/reanudación, trazado 2D exacto, frontera 3D y contorno visible con animaciones desactivadas. No añade componentes ni cambia los nodos originales.
+
+## LS151: alternativa con ahorro de cables
+
+La opción independiente `/puerta?montaje=ls151-ahorro` conserva los cinco integrados, las 28 resistencias y los valores del LS151 original. La distribución reduce los jumpers de 135 a 86 (49 menos); se conservan 15 cables de mandos y dos cables de un solo motor amarillo. Doce resistencias llegan al riel, los capacitores comparten el pin próximo y GND, y los LED/limitadores usan contactos de la misma tira. La opción original `/puerta?montaje=ls151` se conserva. El avance y PDF de la alternativa son independientes. Validación de continuidad y 32 combinaciones por programa; distribución física pendiente de prueba.
+
+Generadores: `build-door-ls151-ahorro.cjs` y `optimize-ls151-ahorro-layout.cjs`. El optimizador retira únicamente conexiones ya realizadas por cobre o cables de etapas anteriores, sin unir a través de resistencias o capacitores. `verify-door-ls151-ahorro.cjs` compara el circuito y valores contra el original.

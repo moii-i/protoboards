@@ -1,7 +1,7 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const core=fs.readFileSync('protoboard-ah/component-assembly.js','utf8');
 const letterSource=fs.readFileSync('protoboard-ah/index.html','utf8').match(/const model=(.*?);\r?\n/)[1];
-for(const [name,file]of [['letras',null],['555','ne555-model.js'],...['ls151','ls151-compacto','sinuln','ls','comunes','redes'].map(v=>[v,(v==='comunes'?'puerta':'puerta-'+v)+'-layout.js'])]){
+for(const [name,file]of [['letras',null],['555','ne555-model.js'],...['ls151','ls151-compacto','ls151-ahorro','sinuln','ls','comunes','redes'].map(v=>[v,(v==='comunes'?'puerta':'puerta-'+v)+'-layout.js'])]){
  const ctx=vm.createContext({window:{}});vm.runInContext(core,ctx);
  vm.runInContext(file?fs.readFileSync('protoboard-ah/'+file,'utf8'):'const model='+letterSource+';',ctx);
  const before=vm.runInContext('JSON.stringify(model)',ctx),old=JSON.parse(before);
