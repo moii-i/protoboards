@@ -19,3 +19,5 @@ La prioridad del usuario es facilitar al máximo el ensamblado físico y su repr
 - Opciones activas de puerta: ls151-9r (9 de 1 kΩ, RB=3 kΩ, ~2.06 Hz) y ls151-6k8 (6 de 1 kΩ + 1 de 6.8 kΩ, ~0.99 Hz). Ambas usan 100 µF, dos placas y las mismas redes de control. La de 6.8 kΩ requiere conseguir ese valor. No reintroducir variantes HC en el selector ni mezclar avances o PDF antiguos.
 
 - Visores para estudiantes: no reintroducir rótulos flotantes de origen/destino ni botones grandes sobre el ensamblado. Conservar barra compacta y encuadre controlado por el alumno. Herramientas y ayuda usan áreas reservadas fuera del circuito; comprobar desktop y móvil. Apariencia y perfiles no deben modificar progreso, coordenadas ni colores eléctricos.
+
+- Proxima entrega: el usuario pide recuperar la isla flotante compacta dentro del visor para Cable por cable. Presentar primero la propuesta; no implementar ese cambio aun. Mantener ayuda/personalizacion aparte y nunca reintroducir rotulos sobre extremos. Ver docs/proxima-entrega-isla-flotante.md.
