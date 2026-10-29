@@ -157,4 +157,4 @@ Las dos tarjetas actuales comparan 9 resistencias de 1 kΩ con 6 de 1 kΩ + 1 de
 
 ## Puerta con 5011AS y dos DIP4
 
-La variante independiente `/puerta-catodo` usa el inventario LS del usuario: LS151, LS02, dos LS04, NE555 y L293D; 12 resistencias de1kΩ y4de10kΩ. Cinco pull-ups definen las entradas; los finales DIP son manuales. La corriente de los displays está limitada a un nivel bajo: brillo y legibilidad quedan pendientes de Proteus y prueba física. La web muestra lógica, no luminosidad. Ver [notas y alcance](docs/puerta-catodo-dip.md). `npm run test:catodo` comprueba redes, estados y visores.
+La revisión compacta `/puerta-catodo` usa LS151, LS02, un LS04, NE555 y L293D; 13 resistencias: 7×1 kΩ + 2.2 kΩ + 5.1 kΩ + 4×10 kΩ. SW1.3 ON=RUN/OFF=STOP; finales DIP manuales. El perfil experimental retira cerámicos; `?desacoplo=si` añade seis bypass recomendados, sin más cables. `?montaje=anterior` conserva 6IC/16R con avance separado. Brillo, fugas inversas, estabilidad, Proteus y prueba física siguen pendientes. Ver [revisión y alcance](docs/puerta-catodo-dip.md). `npm run test:catodo` comprueba redes, estados y visores.
