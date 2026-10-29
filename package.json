@@ -24,7 +24,8 @@
     "test:workspace": "node tools/verify-door-workspace-browser.cjs",
     "test:cables": "node tools/verify-door-cable-browser.cjs",
     "test:catodo": "node verify-door-dip-cc-compacto.cjs && node verify-door-dip-cc-compacto.cjs --bypass && node tools/verify-door-catodo-browser.cjs",
-    "test:theme": "node tools/verify-door-theme-browser.cjs"
+    "test:theme": "node tools/verify-door-theme-browser.cjs",
+    "test:hologram": "node tools/verify-component-hologram-browser.cjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2",

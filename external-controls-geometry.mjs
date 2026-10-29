@@ -5,14 +5,14 @@ export function externalCableCurve(THREE,route,toWorld,start,end,height){
  return curve;
 }
 export function buildExternalControl(api){
- const {THREE,it,group,mesh,box,roundedBox,toWorld,hpos,topLabel,contactShadow,pickables,switches,metal,dark}=api;
+ const {THREE,it,group,mesh,box,roundedBox,toWorld,hpos,topLabel,contactShadow,pickables,switches,metal,dark,componentLabels=true}=api;
  const e=it.externalControl,c=toWorld(e.center,0),isSlide=e.model==='scmm-122';
  const steel=new THREE.MeshStandardMaterial({color:0x5d6462,metalness:.76,roughness:.42});
  const plastic=new THREE.MeshStandardMaterial({color:isSlide?0x232a2b:0x3b9e9b,roughness:.6});
  const phenolic=new THREE.MeshStandardMaterial({color:0xad772c,roughness:.77});
  const solder=new THREE.MeshStandardMaterial({color:0xc6cbca,metalness:.87,roughness:.27});
  const sleeve=new THREE.MeshStandardMaterial({color:0x202a2b,roughness:.83});
- const addPick=o=>{o.userData={...o.userData,bit:it.value};pickables.push(o);return o;};
+ const addPick=o=>{o.userData={...o.userData,bit:it.value,componentHint:it.partId||it.id};pickables.push(o);return o;};
  function profile(w,h,r){
   const s=new THREE.Shape(),x=-w/2,y=-h/2;
   s.moveTo(x+r,y);s.lineTo(x+w-r,y);s.quadraticCurveTo(x+w,y,x+w,y+r);
@@ -69,12 +69,12 @@ export function buildExternalControl(api){
   const route=e.cableRoutes?.[i]?externalCableCurve(THREE,e.cableRoutes[i],toWorld,t,port,e.cableHeights[i]):new THREE.CatmullRomCurve3([t,tail,front,turn,toWorld([pointX(logical[i]),815+i*24],1.8+i*.28),port.clone().setY(1.1+i*.28),port],false,'centripetal');const cableGroup=new THREE.Group();group.add(cableGroup);
   const wire=mesh(new THREE.TubeGeometry(route,96,.095,8,false),color,new THREE.Vector3(),cableGroup);wire.userData={id:it.id};pickables.push(wire);
   const plug=box(.3,.46,.3,port.clone().setY(.23),sleeve,cableGroup);const tip=mesh(new THREE.SphereGeometry(.17,12,8),new THREE.MeshBasicMaterial({color:0xe5b541}),t.clone(),cableGroup);tip.visible=false;cables.push({group:cableGroup,wire,curve:route,plug,tip,point:new THREE.Vector3(),normal:new THREE.Vector3(),terminal:i,progress:1});
-  const tag=topLabel((isSlide?['+5','COM','GND']:['NC','COM','NA'])[i],t.clone().add(new THREE.Vector3(0,-.87,1.05)),1.45,1.8,{background:'#edf1ed',color:i===0?'#b64143':'#364e49',size:54});group.add(tag);
+  if(componentLabels){const tag=topLabel((isSlide?['+5','COM','GND']:['NC','COM','NA'])[i],t.clone().add(new THREE.Vector3(0,-.87,1.05)),1.45,1.8,{background:'#edf1ed',color:i===0?'#b64143':'#364e49',size:54});group.add(tag);}
   return {hole:logical[i],terminal,worldTerminal:t.toArray(),function:e.functions[i]};
  });
  function pointX(h){return api.point(h)[0];}
- const title=topLabel(it.value+' · '+e.model.toUpperCase(),c.clone().add(new THREE.Vector3(0,.065,-3.15)),10,3.1,{background:'#edf1ed',color:it.value==='STOP'?'#a64445':'#345a4a',size:45});group.add(title);
- const type=topLabel(isSlide?'DESLIZABLE · MANTENIDO':'PALANCA · FIN DE CARRERA',c.clone().add(new THREE.Vector3(0,.065,7.2)),10,2.8,{background:'#edf1ed',color:'#587363',size:37});group.add(type);
+ if(componentLabels){const title=topLabel(it.value+' · '+e.model.toUpperCase(),c.clone().add(new THREE.Vector3(0,.065,-3.15)),10,3.1,{background:'#edf1ed',color:it.value==='STOP'?'#a64445':'#345a4a',size:45});group.add(title);
+ const type=topLabel(isSlide?'DESLIZABLE · MANTENIDO':'PALANCA · FIN DE CARRERA',c.clone().add(new THREE.Vector3(0,.065,7.2)),10,2.8,{background:'#edf1ed',color:'#587363',size:37});group.add(type);}
  updateExternalControl(actuator,false);
  return {id:it.partId,model:e.model,center:e.center,bounds:e.bounds,connections,actuator,cables,wiringStage:it.wiringStage??it.stage};
 }

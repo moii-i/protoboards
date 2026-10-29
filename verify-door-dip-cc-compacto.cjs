@@ -2,7 +2,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const suffix=process.argv.includes('--bypass')?'dip-cc-compacto-filtro':'dip-cc-compacto';
 const c={window:{}};vm.runInNewContext(fs.readFileSync('protoboard-ah/puerta-'+suffix+'-model.js','utf8'),c);const m=c.window.DOOR_MODEL;
 const l={};vm.runInNewContext(fs.readFileSync('protoboard-ah/puerta-'+suffix+'-layout.js','utf8')+';globalThis.result=model',l);const layout=l.result;
-assert.equal(m.counts.integratedCircuits,5);assert.equal(m.components.filter(c=>c.type==='resistor').length,13);assert.equal(m.components.filter(c=>c.type==='resistor'&&c.ohms===10000).length,4);
+assert.equal(m.counts.integratedCircuits,5);assert.equal(m.components.filter(c=>c.type==='resistor').length,11);assert.equal(m.components.filter(c=>c.type==='resistor'&&c.ohms===10000).length,0);
 assert.deepEqual(JSON.parse(JSON.stringify(m.segmentPins)),{a:7,b:6,c:4,d:2,e:1,f:9,g:10});
 assert(m.components.filter(c=>c.type==='dip'&&!c.dipSwitch).every(c=>['SN74LS151N','SN74LS02N','SN74LS04N','NE555','L293D'].includes(c.label)),'only owned IC types');
 const ph=ref=>{const[id,p]=ref.split('.'),a=m.components.find(c=>c.id===id),n=+p;return [{1:'A',2:'B'}[a.board],({'+':'+T','-':'-T',VM:'+B'})[a.holes?.[n]?.row]||a.holes?.[n]?.row||(n>a.pins/2?'e':'f'),a.holes?.[n]?.col??a.col+(n>a.pins/2?a.pins-n:n-1)];};
@@ -24,10 +24,10 @@ function evaluate(bits){const v={GND:0,VCC:1,VM:1,A_N:1-bits.abrir,C_N:1-bits.ce
 const glyph={O:'abcdef',F:'aefg',r:'eg',U:'bcdef',S:'acdfg',P:'abefg'};
 for(let mask=0;mask<32;mask++){const b=Object.fromEntries(['abrir','cerrar','stop','fca','fcc'].map((k,i)=>[k,(mask>>i)&1])),v=evaluate(b),opening=b.abrir&&!b.cerrar&&!b.stop&&!b.fca,closing=b.cerrar&&!b.abrir&&!b.stop&&!b.fcc,message=b.stop?'SP':opening||closing?'rU':b.fca?'OP':'OF';assert.equal(v.M,Number(opening||closing),'motor mask '+mask);assert(!(opening&&closing));for(const[d,nets]of Object.entries(m.segmentNets)){const actual=Object.entries(nets).filter(([s,n])=>v[n]===1).map(([s])=>s).sort().join(''),expected=[...glyph[message[d==='D1'?0:1]]].sort().join('');assert.equal(actual,expected,'segments '+d+' mask '+mask);}}
 // Bounds below cover ideal forward current through common resistors, not reverse LED leakage.
-const displayBound=5.25/(20000*.95),hBound=displayBound+2*20e-6;
-assert(displayBound<=.0004&&hBound<=.0004,'ideal forward-current estimate only');
+const displayBound=5.25/(1000*.95);
+assert.equal(m.proteusReference.displayCommonOhms,1000);assert.equal(m.bindings['R2.1'],'D1_K');assert.equal(m.bindings['R4.1'],'D2_K');
 assert.equal(m.components.filter(c=>c.dipSwitch).length,2);assert.equal(m.components.filter(c=>c.type==='motor').length,1);
-assert.equal(m.components.filter(c=>c.type==='resistor'&&c.ohms===1000).length,7);
+assert.equal(m.components.filter(c=>c.type==='resistor'&&c.ohms===1000).length,9);
 assert.equal(m.components.filter(c=>c.type==='resistor'&&c.ohms===2200).length,1);
 assert.equal(m.components.filter(c=>c.type==='resistor'&&c.ohms===5100).length,1);
 assert.equal(m.components.filter(c=>c.type==='cap'&&c.value==='100 nF').length,process.argv.includes('--bypass')?6:0);
@@ -38,7 +38,7 @@ assert.equal(layout.items.filter(i=>i.kind==='wire').length,83,'LED grouping mus
 const rows={a:290,b:320,c:350,d:380,e:410,'-T':215},centers=['LR','LY','LG'].map(id=>{const a=ph(id+'.1'),b=ph(id+'.2');return [(a[2]+b[2])/2,(rows[a[1]]+rows[b[1]])/2];});
 assert(centers.every(p=>p[0]===centers[0][0]),'LED bodies aligned in one column');
 assert(centers[1][1]-centers[0][1]>=75&&centers[2][1]-centers[1][1]>=75,'LED centres at least 6.35 mm apart');
-assert.equal(m.progressRevision,'leds-v3','new holes use separate assembly marks');
+assert.equal(m.progressRevision,'proteus-11r-v1','new holes use separate assembly marks');
 for(let mask=0;mask<32;mask++){const b=Object.fromEntries(['abrir','cerrar','stop','fca','fcc'].map((k,i)=>[k,(mask>>i)&1])),v=evaluate(b);assert(!(v.M&&v.G),'shared LED resistor requires exclusive polarities');assert.equal(v.G,Number(!b.stop&&!v.M&&b.fca),'green indication');assert.equal(v.S,b.stop,'555 direct STOP');}
 const stopHigh=4.75-2200*1.05*(.0004+3*.00002);assert(stopHigh>2.3,'RESET and LS high margin');
-console.log(JSON.stringify({passed:true,variant:suffix,inputCases:32,resistors:13,ICs:5,DIP4:2,jumpers:layout.items.filter(i=>i.kind==='wire').length,idealForwardCommonMax_mA:displayBound*1000,STOP_highMin_V:stopHigh,scope:'Boolean logic, physical continuity, no shared holes, each jumper necessary. Reverse leakage, brightness, noise, Proteus and hardware unverified.'}));
+console.log(JSON.stringify({passed:true,variant:suffix,inputCases:32,resistors:11,ICs:5,DIP4:2,jumpers:layout.items.filter(i=>i.kind==='wire').length,idealForwardCommonMax_mA:displayBound*1000,STOP_highMin_V:stopHigh,scope:'Boolean logic, physical continuity, no shared holes, each jumper necessary. Matches observed Proteus logic and 1 kΩ commons. Physical drive current, brightness and noise unverified.'}));

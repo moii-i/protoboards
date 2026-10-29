@@ -128,3 +128,14 @@
 /* This legend sits outside the physical board; the printed rail marks stay intact. */
 :root[data-workspace-theme=night] body .breadboard>text:last-child{fill:var(--ws-muted)}
 :root[data-workspace-theme] body .arrow,:root[data-workspace-theme] body .stage-list button:not(.active) .number{color:var(--ws-muted)}
+
+/* A single projected name sits above the selected physical part. Pointer events
+   pass through so the label never blocks orbiting, tapping or assembly. */
+.component-hologram{position:absolute;z-index:6;box-sizing:border-box;pointer-events:none;transform:translate(-50%,-100%);display:grid;gap:5px;padding:11px 14px 12px;border:1px solid #77dcd9;border-radius:12px;background:#102c32f5;box-shadow:0 0 0 3px #70ded313,0 7px 24px #03171940;backdrop-filter:blur(8px);color:#effcff;text-align:left;font:12px/1.45 Manrope,system-ui,sans-serif;overflow-wrap:anywhere;isolation:isolate}
+.component-hologram[hidden]{display:none!important}
+.component-hologram:before{content:'';position:absolute;top:0;left:16px;right:16px;height:1px;background:#bcffef;box-shadow:0 0 9px #9cf0e8}
+.component-hologram:after{content:'';position:absolute;top:100%;left:50%;height:16px;border-left:1px solid #67dcd5aa}
+.component-hologram .hologram-kind{font-size:9px;letter-spacing:1.5px;font-weight:750;color:#92e8e2}
+.component-hologram strong,:root[data-workspace-theme] body .component-hologram strong{font-size:14px;line-height:1.4;color:#effcff}
+.component-hologram .hologram-detail{font-size:11px;line-height:1.5;color:#c6dde1}
+@media(max-width:650px){.component-hologram{padding:9px 11px;gap:3px}.component-hologram strong,:root[data-workspace-theme] body .component-hologram strong{font-size:13px}}
