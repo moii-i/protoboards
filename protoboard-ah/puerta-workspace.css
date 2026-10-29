@@ -1,7 +1,7 @@
 /* Interface surfaces only. Board geometry, component markings and wire colours
    belong to the electrical model and are never recoloured by these themes. */
 :root{--ws-page:#f6f5ef;--ws-surface:#fffefa;--ws-subtle:#f0f4eb;--ws-ink:#183b33;--ws-muted:#596c63;--ws-border:#d3dfcf;--ws-accent:#14664c;--ws-on-accent:#fff;--ws-focus:#a56b17;--ws-canvas:#edf1e9;--ws-font:1}
-:root[data-workspace-theme=night]{color-scheme:dark;--ws-page:#101c1c;--ws-surface:#192b2a;--ws-subtle:#223735;--ws-ink:#e5f0e9;--ws-muted:#b0c6ba;--ws-border:#42615a;--ws-accent:#a8d7bd;--ws-on-accent:#10291e;--ws-focus:#f0c66e;--ws-canvas:#122421}
+:root[data-workspace-theme=night]{color-scheme:dark;--ws-page:#101918;--ws-surface:#182522;--ws-subtle:#22342e;--ws-ink:#edf5ef;--ws-muted:#b5c8be;--ws-border:#607b6e;--ws-accent:#adddbd;--ws-on-accent:#10271b;--ws-focus:#ffd180;--ws-canvas:#16231f;--ws-hover:#2b4438;--ws-warning-bg:#3b301c;--ws-warning-ink:#ffe0a0;--ws-danger-bg:#482928;--ws-danger-ink:#ffd2cc;--paper:var(--ws-page);--surface:var(--ws-surface);--ink:var(--ws-ink);--muted:var(--ws-muted);--line:var(--ws-border);--green:var(--ws-accent);--soft:var(--ws-subtle);--amber:var(--ws-warning-ink);--blue:#bbceff;--design-shadow:0 8px 30px #0003}
 :root[data-workspace-theme=contrast]{--ws-page:#fff;--ws-surface:#fff;--ws-subtle:#f0f3f2;--ws-ink:#071f1a;--ws-muted:#203e35;--ws-border:#34584b;--ws-accent:#034f37;--ws-focus:#805000;--ws-canvas:#e8eeea}
 :root[data-workspace-text=large]{--ws-font:1.12}:root[data-workspace-text=larger]{--ws-font:1.24}
 :root[data-workspace-theme] body{background:var(--ws-page);color:var(--ws-ink)}
@@ -83,3 +83,48 @@
 @media(max-width:900px){.assembly-viewports{height:clamp(340px,60svh,600px)}.assembly-viewports.has-side{grid-template-columns:minmax(0,1fr);height:clamp(460px,80svh,740px);grid-template-rows:minmax(200px,1fr) minmax(0,38%)}.assembly-side{grid-column:1;grid-row:2;border-left:0;border-top:1px solid var(--ws-border);max-height:320px}.fullscreen .assembly-viewports.has-side{height:100%;grid-template-rows:minmax(160px,1fr) minmax(0,38%)}.fullscreen .assembly-side{max-height:none}.assembly-stage-actions>span{font-size:10px}.clean-workspace .assembly-island{max-height:35svh;overflow:auto}.assembly-viewports.has-side .mapbox{grid-row:1}}
 @media(max-height:500px) and (min-width:651px){.assembly-viewports.has-side{grid-template-columns:minmax(0,1fr) 275px;grid-template-rows:minmax(0,1fr)!important}.assembly-side{grid-column:2;grid-row:1!important;border-top:0;border-left:1px solid var(--ws-border);max-height:none}.clean-workspace .assembly-island .island-context{display:none}.assembly-stage-actions>span{display:none}.clean-workspace .assembly-island{max-height:32svh}.assembly-footer{display:none}}
 @media(prefers-reduced-motion:reduce){.clean-workspace *{animation:none!important;transition:none!important}}
+
+/* Night surfaces and their text travel together. Never target SVG text, fills,
+   component colours or wire strokes: the breadboards stay faithful to the parts. */
+:root[data-workspace-theme=night] body :is(.hero h1,.eyebrow,.save-badge,.bench-toolbar strong,.bench-toolbar span,.design-footer strong,.design-tool-group>summary,.studio-inspector-head small,.learning-head small,.learning-result small,#studioPhase,#lessonStatus,.test-icon,.three-selection-status){color:var(--ws-ink)}
+:root[data-workspace-theme=night] body :is(.small,.legend-note,.arrow,.loupe-toggle,.framing-control,.learning-muted,.studio-inspector-note,.lesson-signal-note,.wiring-savings-counts span){color:var(--ws-muted)}
+:root[data-workspace-theme=night] body a{color:var(--ws-accent)}
+:root[data-workspace-theme=night] body .hero-start{background:var(--ws-accent);color:var(--ws-on-accent);border-color:var(--ws-accent)}
+:root[data-workspace-theme=night] body .hero-start.secondary{background:var(--ws-surface);color:var(--ws-ink);border-color:var(--ws-border)}
+:root[data-workspace-theme=night] body :is(.routing-help,.checkpoint,.connection-tip,.note,.pin-grid span,.preview-circuit,#diagnosis,.connection-card .counter,.ledger-details code,.studio-pins button b,.lesson-value-line>strong,.detail-loupe,.loupe-bar,.design-nav-menu>div,.clear-layout-summary,.data-entry,.frequency span){background:var(--ws-subtle);color:var(--ws-ink);border-color:var(--ws-border)}
+:root[data-workspace-theme=night] body :is(.pin-grid b,.checkpoint b,.note b,.studio-pin-wires button b,.learning-result small){color:inherit}
+:root[data-workspace-theme=night] body :is(button,select,input[type=search],input[type=text],input[type=number],.lesson-pdf-link){background:var(--ws-surface);color:var(--ws-ink);border-color:var(--ws-border)}
+:root[data-workspace-theme=night] body :is(button,select,input)::placeholder{color:var(--ws-muted);opacity:1}
+:root[data-workspace-theme=night] body select option{background:var(--ws-surface);color:var(--ws-ink)}
+:root[data-workspace-theme=night] body :is(button,a,summary):hover{border-color:var(--ws-accent)}
+:root[data-workspace-theme=night] body button:not(:disabled):hover{background:var(--ws-hover);color:var(--ws-ink)}
+:root[data-workspace-theme=night] body :is(button[aria-pressed=true],button[aria-selected=true],.stage-list button.active,.scene-switch button.active,.view-buttons button.active){background:var(--ws-hover);color:var(--ws-ink);border-color:var(--ws-accent)}
+:root[data-workspace-theme=night] body :is(button.primary,#cableMark){background:var(--ws-accent);color:var(--ws-on-accent);border-color:var(--ws-accent)}
+:root[data-workspace-theme=night] body :is(button.primary,#cableMark):hover{background:#c3ebcf;color:var(--ws-on-accent)}
+:root[data-workspace-theme=night] body :is(button.primary,#cableMark)>*{color:inherit}
+:root[data-workspace-theme=night] body :is(.stage-list button .number,.studio-pins button b){background:var(--ws-subtle);color:var(--ws-muted)}
+:root[data-workspace-theme=night] body .stage-list button.active .number{background:var(--ws-accent);color:var(--ws-on-accent)}
+:root[data-workspace-theme=night] body :is(.ledger-details tr:hover,.ledger-details tr.active,.learning-result:hover){background:var(--ws-hover);color:var(--ws-ink)}
+:root[data-workspace-theme=night] body :is(.connection-tip,.checkpoint,.studio-strip-info,.cc-status){border-color:#aa9054;background:var(--ws-warning-bg)!important;color:var(--ws-warning-ink)}
+:root[data-workspace-theme=night] body :is(.connection-tip,.checkpoint,.cc-status) :is(p,strong,b,summary,a){color:inherit}
+:root[data-workspace-theme=night] body .cc-profile-links a{background:var(--ws-surface);color:var(--ws-ink);border-color:var(--ws-border)}
+:root[data-workspace-theme=night] body .cc-profile-links a[aria-current=page]{background:var(--ws-hover);color:var(--ws-ink);border-color:var(--ws-accent)}
+:root[data-workspace-theme=night] body :is(.door-test-state,.door-test-signals>[data-door-led]){background:var(--ws-subtle);color:var(--ws-muted);border-color:var(--ws-border)}
+:root[data-workspace-theme=night] body .door-test-signals>[data-door-led].on{background:#214b35;color:#c2f3d1}
+:root[data-workspace-theme=night] body .door-test-signals>[data-door-led=yellow].on{background:var(--ws-warning-bg);color:var(--ws-warning-ink)}
+:root[data-workspace-theme=night] body .door-test-signals>[data-door-led=red].on{background:var(--ws-danger-bg);color:var(--ws-danger-ink)}
+:root[data-workspace-theme=night] body :is(.door-test-controls button[data-door=stop],.lesson-command-row button[data-lesson-door=stop])[aria-pressed=true]{background:var(--ws-danger-bg);color:var(--ws-danger-ink);border-color:#d88d82}
+:root[data-workspace-theme=night] body .lesson-value-line>strong[data-level="1"]{background:var(--ws-warning-bg);color:var(--ws-warning-ink);border-color:#aa9054}
+:root[data-workspace-theme=night] body :is(#threeOrigin,#threeDestination){color:var(--ws-ink);border-color:var(--ws-border)}
+:root[data-workspace-theme=night] body .site-header{background:#142b22;border-color:var(--ws-border)}
+:root[data-workspace-theme=night] body .site-header :is(.brand,.nav a){color:var(--ws-ink)}
+:root[data-workspace-theme=night] body .site-header .nav .design-catalog-link{background:var(--ws-accent);color:var(--ws-on-accent)}
+:root[data-workspace-theme=night] body .site-header .nav .design-nav-menu a{color:var(--ws-ink)}
+:root[data-workspace-theme=night] body .learning-dialog::backdrop{background:#050d0acc}
+:root[data-workspace-theme=night] :is(button,a,summary,select,input,[tabindex]):focus-visible{outline:3px solid var(--ws-focus);outline-offset:3px}
+:root[data-workspace-theme=night] body :is(.check-stage,.ledger-details th,.ledger-details tr.selected,.ledger-details tr.current){background:var(--ws-subtle);color:var(--ws-ink);border-color:var(--ws-border)}
+:root[data-workspace-theme=night] body .learning-results small{color:var(--ws-muted)}
+:root[data-workspace-theme=night] body #viewerTestClose{background:var(--ws-surface);color:var(--ws-ink);border-color:var(--ws-border)}
+/* This legend sits outside the physical board; the printed rail marks stay intact. */
+:root[data-workspace-theme=night] body .breadboard>text:last-child{fill:var(--ws-muted)}
+:root[data-workspace-theme] body .arrow,:root[data-workspace-theme] body .stage-list button:not(.active) .number{color:var(--ws-muted)}

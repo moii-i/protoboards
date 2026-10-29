@@ -33,7 +33,7 @@
  const originalMoveCamera=moveCamera,originalScrollBehavior=scrollBehavior;
  moveCamera=function(box,animate){return originalMoveCamera(box,animate&&effectiveMotion()==='full');};
  scrollBehavior=()=>effectiveMotion()==='full'?originalScrollBehavior():'auto';
- function appearance(){return {background:prefs.theme==='night'?'#122421':prefs.theme==='contrast'?'#e8eeea':'#edf1e9',quality:prefs.quality,motion:effectiveMotion()};}
+ function appearance(){return {background:getComputedStyle(root).getPropertyValue('--ws-canvas').trim()||'#edf1e9',quality:prefs.quality,motion:effectiveMotion()};}
  function apply(savePrefs=true){
   root.dataset.workspaceTheme=prefs.theme;root.dataset.workspaceDensity=prefs.density;root.dataset.workspaceText=prefs.text;root.dataset.workspaceMotion=effectiveMotion();
   panel.querySelectorAll('[data-theme-choice]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.themeChoice===prefs.theme)));
