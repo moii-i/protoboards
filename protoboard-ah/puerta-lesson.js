@@ -3,7 +3,7 @@
 const byId=id=>document.getElementById(id),ns='http://www.w3.org/2000/svg',map=byId('map'),stage=map.closest('.map-stage');
 let enabled=false,chosen='M',lastStamp='',signalLayer=null;
 const wireGroups=new Map();for(const it of model.items.filter(x=>x.kind==='wire')){const key=it.signal||it.net;if(!wireGroups.has(key))wireGroups.set(key,[]);wireGroups.get(key).push(it);}
-const aliases=model.assemblyVariant.startsWith('ls151')?{M:'M',STOP:'STOP',NY:'NY',PA:'PA',PC:'PC',ABRIR:'ABRIR',CERRAR:'CERRAR'}:{M:'M',STOP:'S',PA:'P_A',PC:'P_C',ABRIR:'A',CERRAR:'C'};
+const aliases=model.dipCathode?{M:'M',STOP:'S',PA:'PA',PC:'PC',ABRIR:'A_N',CERRAR:'C_N'}:model.assemblyVariant.startsWith('ls151')?{M:'M',STOP:'STOP',NY:'NY',PA:'PA',PC:'PC',ABRIR:'ABRIR',CERRAR:'CERRAR'}:{M:'M',STOP:'S',PA:'P_A',PC:'P_C',ABRIR:'A',CERRAR:'C'};
 for(const k of ['MA','MC'])if(wireGroups.has(k))aliases[k]=k;
 const labels={M:'Movimiento habilitado',STOP:'Prioridad de parada',NY:'Retorno del LED amarillo',PA:'Permiso para abrir',PC:'Permiso para cerrar',ABRIR:'Mando de apertura',CERRAR:'Mando de cierre',MA:'Movimiento de apertura',MC:'Movimiento de cierre'};
 const signalButton=document.createElement('button');signalButton.type='button';signalButton.id='lessonSignals';signalButton.textContent='Señales';signalButton.setAttribute('aria-pressed','false');
@@ -17,7 +17,7 @@ stage.appendChild(card);
 function values(){return DoorSignalLogic.evaluate(door,power);}
 function signalSnapshot(){
  if(!enabled||!power||step!==LAST)return null;
- const raw=aliases[chosen],ids=(wireGroups.get(raw)||[]).map(it=>it.id);return {active:true,name:chosen,raw,value:values()[chosen],ids};
+ const raw=aliases[chosen],ids=(wireGroups.get(raw)||[]).map(it=>it.id);return {active:true,name:chosen,raw,value:values()[aliases[chosen]],ids};
 }
 function explain(name,v){
  if(!power)return 'La prueba está apagada. Enciéndela para ver los estados lógicos.';

@@ -2,7 +2,7 @@
 
 La prioridad del usuario es facilitar al máximo el ensamblado físico y su reproducción en Proteus. Esta prioridad se aplica a nuevos circuitos y a revisiones del proyecto.
 
-- Partir del inventario confirmado; distinguirlo de los componentes que recomendó un asistente. Para esta revisión se confirmaron 22 resistencias de 1 kΩ, displays de ánodo común y un electrolítico de 100 µF. Los cinco integrados del perfil LS151 son la base de trabajo existente, no una nueva confirmación de inventario.
+- Partir del inventario confirmado; distinguirlo de los componentes que recomendó un asistente. Para esta revisión se confirmaron 22 resistencias de 1 kΩ, displays 5011AS de cátodo común (corrige la identificación anterior) y un electrolítico de 100 µF. Los cinco integrados del perfil LS151 son la base de trabajo existente, no una nueva confirmación de inventario.
 - Evaluar cambios de arquitectura antes de aceptar un conteo elevado de resistencias, capacitores o integrados. Aprovechar compuertas y canales libres de los integrados existentes.
 - Comparar número de piezas, jumpers, placas, longitud de conexiones y facilidad de montaje; no optimizar solamente un contador.
 - El usuario autoriza dos protoboards y prioriza espacio, claridad y facilidad de cableado. Comparar agrupaciones por función; mantener los segmentos cerca de sus compuertas y pasar entre placas sólo las señales necesarias. No añadir piezas para ocupar la segunda placa.
@@ -21,3 +21,5 @@ La prioridad del usuario es facilitar al máximo el ensamblado físico y su repr
 - Visores para estudiantes: no reintroducir rótulos flotantes de origen/destino ni botones grandes sobre el ensamblado. Conservar barra compacta y encuadre controlado por el alumno. Herramientas y ayuda usan áreas reservadas fuera del circuito; comprobar desktop y móvil. Apariencia y perfiles no deben modificar progreso, coordenadas ni colores eléctricos.
 
 - Entrega autorizada: isla flotante compacta dentro del visor solo en Cable por cable, plegable y reposicionable. Mantener ayuda/personalización aparte y nunca reintroducir rótulos sobre extremos. Recorrer o reproducir no confirma el montaje; el marcado es explícito. Ver docs/proxima-entrega-isla-flotante.md.
+
+- Inventario actualizado: se permiten LS02, LS04, LS08, LS86, LS32, LS00 y LS151, sin LS240 ni HCT. La variante /puerta-catodo usa LS02 + dosLS04 + LS151 + NE555 + L293D, dosDIP4,12resistencias1k y4de10k. No atribuir una cantidad de10k al usuario: solo se confirmó que tiene ese valor. No prometer legibilidad con20k en comunes; Proteus y montaje físico pendientes. Ver docs/puerta-catodo-dip.md.

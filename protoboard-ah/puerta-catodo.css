@@ -1,0 +1,7 @@
+.cc-status{margin:18px 0 24px;padding:18px 22px;border:1px solid var(--ws-border,#ccd5ca);border-left:4px solid #9a6b25;border-radius:12px;background:var(--ws-surface,#fffdf5);color:var(--ws-ink,#27473a)}
+.cc-status p{font-size:13px;line-height:1.7;margin:10px 0}.cc-status>a{font-size:12px;color:inherit}.cc-dip-key{display:flex;gap:9px;flex-wrap:wrap}
+.cc-dip-key span{padding:8px 12px;border:1px solid #cad6cc;border-radius:8px;font-size:12px}
+.cc-page .assembly-option-cards{grid-template-columns:minmax(0,1fr)}
+.cc-page .lesson-pdf-link[hidden],.cc-page .lesson-tools-footer a[hidden]{display:none!important}
+.cc-page .component-assembly-panel[data-kind=leads]{display:none!important}
+.cc-page .resource p{overflow-wrap:anywhere}

@@ -154,3 +154,7 @@ El PDF y el avance son independientes. `door-ls151-ahorro-26-v2` evita reutiliza
 Cable por cable recupera una isla compacta, plegable y movible con arrastre o flechas de teclado. Las herramientas se abren en el área lateral: recorrido manual de la animación, repetición/pausa, velocidad, encuadres recordados para placa A/B y conjunto, y grosor/intensidad del contorno. No añade rótulos sobre los extremos ni cambia redes, colores, coordenadas o marcas de montaje.
 
 Las dos tarjetas actuales comparan 9 resistencias de 1 kΩ con 6 de 1 kΩ + 1 de 6.8 kΩ, con avance independiente. Las notas de distribución quedan en un desplegable. `npm run test:cables` verifica la entrega en navegador; `npm run test:workspace` verifica los ajustes de apariencia y cámara.
+
+## Puerta con 5011AS y dos DIP4
+
+La variante independiente `/puerta-catodo` usa el inventario LS del usuario: LS151, LS02, dos LS04, NE555 y L293D; 12 resistencias de1kΩ y4de10kΩ. Cinco pull-ups definen las entradas; los finales DIP son manuales. La corriente de los displays está limitada a un nivel bajo: brillo y legibilidad quedan pendientes de Proteus y prueba física. La web muestra lógica, no luminosidad. Ver [notas y alcance](docs/puerta-catodo-dip.md). `npm run test:catodo` comprueba redes, estados y visores.

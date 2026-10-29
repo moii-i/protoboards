@@ -22,7 +22,8 @@
     "test:components": "node tools/verify-components-first-browser.cjs",
     "test:native-wires": "node tools/verify-native-external-wires-browser.cjs",
     "test:workspace": "node tools/verify-door-workspace-browser.cjs",
-    "test:cables": "node tools/verify-door-cable-browser.cjs"
+    "test:cables": "node tools/verify-door-cable-browser.cjs",
+    "test:catodo": "node verify-door-dip-cc.cjs && node tools/verify-door-catodo-browser.cjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2",

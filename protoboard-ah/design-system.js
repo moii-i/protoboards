@@ -5,12 +5,12 @@ const icon=name=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const getJSON=(key,fallback={})=>{try{return JSON.parse(localStorage.getItem(key)||'null')||fallback;}catch{return fallback;}};
 const setJSON=(key,value)=>{try{localStorage.setItem(key,JSON.stringify(value));}catch{}};
 const path=location.pathname.replace(/\.html$/,'');
-const isCatalog=path==='/circuitos',kind=path==='/puerta'?'puerta':path==='/555'?'555':'letras';
-const variants=['ls151-9r','ls151-6k8'];
-let doorVariant=new URLSearchParams(location.search).get('montaje');
+const isCatalog=path==='/circuitos',kind=(path==='/puerta'||path==='/puerta-catodo')?'puerta':path==='/555'?'555':'letras';
+const variants=['ls151-9r','ls151-6k8','dip-cc'];
+let doorVariant=path==='/puerta-catodo'?'dip-cc':new URLSearchParams(location.search).get('montaje');
 if(!variants.includes(doorVariant))doorVariant='ls151-9r';
 const lastDoor=getJSON('protoboards:last-door:v1','ls151-9r');
-const doorHref='/puerta?montaje='+(variants.includes(lastDoor)?lastDoor:'ls151-9r');
+const doorHref=lastDoor==='dip-cc'?'/puerta-catodo':'/puerta?montaje='+(variants.includes(lastDoor)?lastDoor:'ls151-9r');
 document.body.classList.add('design-enhanced');
 document.querySelector('.brand')?.setAttribute('href','/circuitos');
 const nav=document.querySelector('.site-header .nav');

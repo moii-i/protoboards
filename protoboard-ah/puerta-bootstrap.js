@@ -1,6 +1,8 @@
 (()=>{
  'use strict';
  const requested=new URLSearchParams(location.search).get('montaje');
+ if(requested==='dip-cc'){location.replace('./puerta-catodo'+location.hash);return;}
+ const ccLink=document.createElement('p');ccLink.className='assembly-helper';ccLink.innerHTML='<a href="./puerta-catodo">Nueva variante: 5011AS de cátodo común y dos DIP de 4 posiciones →</a>';document.querySelector('.assembly-choice').after(ccLink);
  const variants=['ls151-9r','ls151-6k8'];
  const variant=variants.includes(requested)?requested:'ls151-9r';
  window.DOOR_VARIANT=variant;
