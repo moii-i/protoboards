@@ -10,8 +10,8 @@ La variante publicada en /puerta-catodo usa el inventario confirmado: LS151, LS0
 | Resistencias | 16 | 13 |
 | Jumpers y cables de fuente en placa | 88 | 83 |
 | Cables externos de motor, aparte | 2 | 2 |
-| Cruces de pares de cables dibujados | 86 | 67 |
-| Longitud de trazado, unidades gráficas | 43680 | 35625 |
+| Cruces de pares de cables dibujados | 86 | 64 |
+| Longitud de trazado, unidades gráficas | 43680 | 35595 |
 | Electrolítico de temporización | 100 µF | 100 µF |
 | Cerámicos dibujados | 7 × 100 nF | 0 en experimental / 6 en recomendado |
 
@@ -20,6 +20,17 @@ La longitud es una métrica del trazado SVG/3D a paso constante, no una medició
 Los positivos siempre usan rieles diferentes: +T=5 V, +B de A derecha=6 V. No dependen del corte central para aislar voltajes. Negativos comunes, con bancos de GND cableados explícitamente. Alimentaciones de chips bajan al riel cercano; los enlaces de rieles forman un árbol. Ningún agujero aloja dos terminales. En B solo se usan los bancos de riel señalados por los cables, no toda la longitud automáticamente.
 
 ## Las 13 resistencias
+
+Los tres LED están alineados en una columna sobre la placa A: rojo arriba, amarillo al centro y verde abajo. Se usan sus propias patas dobladas, sin agregar piezas ni jumpers. La separación mínima entre centros es 6.35 mm sobre la cuadrícula nominal de la placa; comprobar que los cuerpos reales caben y que sus patas no se tocan antes de energizar.
+
+| Pieza | Primera pata | Segunda pata |
+| --- | --- | --- |
+| Rojo, ánodo / cátodo | A:a50 | A:-T45 |
+| Amarillo, ánodo / cátodo | A:b49 | A:c46 |
+| Verde, ánodo / cátodo | A:e46 | A:e49 |
+| R3 de 1 kΩ, sin polaridad | A:a51 | A:b50 |
+
+La lógica y los valores permanecen iguales. Las tiras superiores 46 y 49 conectan amarillo/verde en antiparalelo; rojo alcanza directamente el riel negativo con su cátodo. El montaje compacto usa la revisión de avance `leds-v3`, sin borrar ni reutilizar las marcas guardadas de la distribución anterior. El perfil con desacoplo incluye el mismo grupo de LED y conserva 83 cables.
 
 | Función | Cantidad y valor | Justificación |
 | --- | --- | --- |

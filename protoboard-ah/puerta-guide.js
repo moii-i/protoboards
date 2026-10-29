@@ -2,7 +2,7 @@ const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(
 let wireClarity=true,isolateWires=false;try{wireClarity=localStorage.getItem('protoboard:puerta:clarity:v1')!=='false';}catch{}
 let loupeEnabled=true,loupeSide='route';try{loupeEnabled=localStorage.getItem('protoboard:puerta:loupe:v1')!=='false';}catch{}
 let framing='all';try{framing=localStorage.getItem('protoboard:puerta:framing:v1')||'all';}catch{}if(!['all','board','cable'].includes(framing))framing='all';
-const LAST=model.stages.length-1,stateKey='protoboard:puerta:'+window.DOOR_VARIANT+(window.DOOR_VARIANT==='ls151-claro'?':placement:v4':window.DOOR_VARIANT.startsWith('ls151')?':placement:v3':':routing:v2');let saved={};try{saved=JSON.parse(localStorage.getItem(stateKey)||'{}')||{};}catch{}
+const LAST=model.stages.length-1,stateKey='protoboard:puerta:'+window.DOOR_VARIANT+(window.DOOR_VARIANT==='ls151-claro'?':placement:v4':window.DOOR_VARIANT.startsWith('ls151')?':placement:v3':':routing:v2')+(model.progressRevision?':'+model.progressRevision:'');let saved={};try{saved=JSON.parse(localStorage.getItem(stateKey)||'{}')||{};}catch{}
 let step=Number.isInteger(saved.step)&&saved.step>=0&&saved.step<=LAST?saved.step:0,code=Number.isFinite(saved.code)?Math.max(0,Math.min(100,saved.code)):50,selected=null,view='step',zoom=0;
 let displayPins={},completed=new Set(Array.isArray(saved.completed)?saved.completed.filter(n=>Number.isInteger(n)&&n>=0&&n<=LAST):[]),marked=new Set(Array.isArray(saved.marked)?saved.marked.filter(id=>model.items.some(x=>x.id===id)):[]);
 const motionQuery=matchMedia('(prefers-reduced-motion: reduce)'),feedbackAnimations=new Set();let motionEnabled=saved.motion!==false,cameraFrame=0,cameraTarget=null,uiReady=false;

@@ -1,5 +1,15 @@
 (()=>{'use strict';
  const ns='http://www.w3.org/2000/svg';
+ if(model.ledCluster){
+  for(const it of model.items.filter(i=>i.kind==='led')){
+   const g=document.querySelector('[data-id="'+it.id+'"]'),[x1,y1]=point(it.a),[x2,y2]=point(it.b),mx=(x1+x2)/2,my=(y1+y2)/2,side=x1<x2?-1:1;
+   const lead=g?.querySelector('path');if(!lead)continue;
+   lead.setAttribute('d','M'+x1+' '+y1+' V'+(y1-14)+' L'+(mx+side*14)+' '+(my-23)+' M'+x2+' '+y2+' V'+(y2-14)+' L'+(mx-side*14)+' '+(my-23));
+   lead.setAttribute('fill','none');lead.dataset.ledLeads=it.partId;
+  }
+  const helper=document.createElement('p');helper.className='assembly-helper';helper.textContent='LED juntos, de arriba abajo: rojo, amarillo y verde. Se actualizaron los agujeros de los LED, R3 y el recorrido de conexiones; sus propias patas evitan añadir jumpers. Este montaje usa un avance separado para evitar reutilizar marcas de posiciones anteriores.';
+  document.querySelector('.assembly-choice').append(helper);
+ }
  for(const c of model.chips.filter(c=>c.dipSwitch)){
   const g=document.querySelector('[data-chip="'+c.id+'"]'),[x,y]=point([c.board,'e',c.start]);
   const body=g.querySelector('rect');body.setAttribute('fill','#ad2e37');

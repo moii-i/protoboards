@@ -34,6 +34,11 @@ assert.equal(m.components.filter(c=>c.type==='cap'&&c.value==='100 nF').length,p
 assert.equal(m.bindings['U4.4'],'S');assert.equal(m.bindings['SW1.6'],'S');assert(m.stopClosedRun);
 assert.equal(m.bindings['LG.1'],m.bindings['LY.2']);assert.equal(m.bindings['LG.2'],m.bindings['LY.1']);
 assert.equal(m.bindings['U5.10'],'M');assert.equal(m.bindings['U5.15'],'G');
+assert.equal(layout.items.filter(i=>i.kind==='wire').length,83,'LED grouping must not add jumpers');
+const rows={a:290,b:320,c:350,d:380,e:410,'-T':215},centers=['LR','LY','LG'].map(id=>{const a=ph(id+'.1'),b=ph(id+'.2');return [(a[2]+b[2])/2,(rows[a[1]]+rows[b[1]])/2];});
+assert(centers.every(p=>p[0]===centers[0][0]),'LED bodies aligned in one column');
+assert(centers[1][1]-centers[0][1]>=75&&centers[2][1]-centers[1][1]>=75,'LED centres at least 6.35 mm apart');
+assert.equal(m.progressRevision,'leds-v3','new holes use separate assembly marks');
 for(let mask=0;mask<32;mask++){const b=Object.fromEntries(['abrir','cerrar','stop','fca','fcc'].map((k,i)=>[k,(mask>>i)&1])),v=evaluate(b);assert(!(v.M&&v.G),'shared LED resistor requires exclusive polarities');assert.equal(v.G,Number(!b.stop&&!v.M&&b.fca),'green indication');assert.equal(v.S,b.stop,'555 direct STOP');}
 const stopHigh=4.75-2200*1.05*(.0004+3*.00002);assert(stopHigh>2.3,'RESET and LS high margin');
 console.log(JSON.stringify({passed:true,variant:suffix,inputCases:32,resistors:13,ICs:5,DIP4:2,jumpers:layout.items.filter(i=>i.kind==='wire').length,idealForwardCommonMax_mA:displayBound*1000,STOP_highMin_V:stopHigh,scope:'Boolean logic, physical continuity, no shared holes, each jumper necessary. Reverse leakage, brightness, noise, Proteus and hardware unverified.'}));
