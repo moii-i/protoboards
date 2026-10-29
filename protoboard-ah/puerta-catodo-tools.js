@@ -6,6 +6,7 @@
    const lead=g?.querySelector('path');if(!lead)continue;
    lead.setAttribute('d','M'+x1+' '+y1+' V'+(y1-14)+' L'+(mx+side*14)+' '+(my-23)+' M'+x2+' '+y2+' V'+(y2-14)+' L'+(mx-side*14)+' '+(my-23));
    lead.setAttribute('fill','none');lead.dataset.ledLeads=it.partId;
+   const label=g.querySelector('text');if(label){label.setAttribute('x',String(mx+32));label.setAttribute('y',String(my-30));label.setAttribute('text-anchor','start');}
   }
   const helper=document.createElement('p');helper.className='assembly-helper';helper.textContent='LED juntos, de arriba abajo: rojo, amarillo y verde. Se actualizaron los agujeros de los LED, R3 y el recorrido de conexiones; sus propias patas evitan añadir jumpers. Este montaje usa un avance separado para evitar reutilizar marcas de posiciones anteriores.';
   document.querySelector('.assembly-choice').append(helper);
