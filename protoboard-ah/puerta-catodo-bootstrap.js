@@ -12,6 +12,7 @@
  el('assemblyRetry').onclick=()=>location.reload();
  async function start(){
   await load('puerta-dip-cc-model');await load('puerta-dip-cc-layout');
+  document.querySelector('[data-view="A"]').textContent='A · DIP, control y motor';document.querySelector('[data-view="B"]').textContent='B · Lógica y displays';
   el('assemblyCount').textContent=window.DOOR_MODEL.counts.physicalComponents+' piezas principales';
   el('assemblyMaterials').replaceChildren(...window.DOOR_MODEL.materials.map(m=>{const li=document.createElement('li'),b=document.createElement('b');b.textContent=m.quantity+' × '+m.name;li.append(b);return li;}));
   el('assemblyPinRoles').replaceChildren(...model.chips.map(c=>{const s=document.createElement('span');s.textContent=c.id+' · '+c.label;s.style.padding='8px';return s;}));
