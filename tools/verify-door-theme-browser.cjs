@@ -1,13 +1,14 @@
 const fs=require('node:fs'),path=require('node:path'),{spawnSync}=require('node:child_process'),{pathToFileURL}=require('node:url');
 const root=path.resolve(__dirname,'..'),app=path.join(root,'protoboard-ah'),out=path.join(root,'work/qa');fs.mkdirSync(out,{recursive:true});
-const modes=process.argv.slice(2).length?process.argv.slice(2):['page','preferences','inspector','signals','dialog','mobile','3d','paper','reference','stop','moving','contrast'];
+const modes=process.argv.slice(2).length?process.argv.slice(2):['page','preferences','inspector','signals','dialog','mobile','3d','paper','reference','stop','moving','contrast','power'];
 for(const mode of modes){
 const test=`<script>(async()=>{const wait=ms=>new Promise(r=>setTimeout(r,ms)),check=(x,m)=>{if(!x)throw Error(m)};let result={mode:${JSON.stringify(mode)},passed:false};try{
-for(let i=0;i<200&&!window.doorReady;i++)await wait(50);await window.doorReady;await document.fonts.ready;
+for(let i=0;i<200&&!window.doorReady;i++)await wait(50);await window.doorReady;document.querySelector('.intro-skip')?.click();await wait(450);await document.fonts.ready;
 const ws=doorWorkspace,topology=JSON.stringify(model.bindings),progress=JSON.stringify({marked:doorGuide.getState().marked,completed:doorGuide.getState().completed}),electrical=[...document.querySelectorAll('#map .colored-wire')].map(n=>n.getAttribute('stroke'));
 ws.setPreference('effects','off');ws.setPreference('theme',result.mode==='paper'?'paper':result.mode==='contrast'?'contrast':'night');motionEnabled=false;synchronizeMotion();selectStep(LAST);setMode('cable');selectCable(model.items.find(i=>i.kind==='wire').id,{scroll:false});
 if(['preferences','inspector','signals','mobile','3d'].includes(result.mode)){document.querySelector('#expand').click();ws.open();}
 if(result.mode==='inspector'){doorStudio.inspect('U4');await wait(80);document.querySelector('.studio-pins button')?.click();}
+if(result.mode==='power'){document.querySelector('#powerReview').open=true;document.querySelectorAll('#powerReview details').forEach(d=>d.open=true);}
 if(result.mode==='signals')document.querySelector('#lessonSignals')?.click();
 if(result.mode==='dialog'){const dialog=document.querySelector('.learning-dialog');dialog.showModal();}
 if(['stop','moving'].includes(result.mode)){power=true;Object.assign(door,{abrir:true,cerrar:false,stop:result.mode==='stop',fca:false,fcc:false});paintLEDs();document.querySelector('#lessonSignals')?.click();document.querySelector('#viewerTestToggle')?.click();}

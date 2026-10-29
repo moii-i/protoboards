@@ -3,7 +3,7 @@
  const q=new URLSearchParams(location.search),previous=q.get('montaje')==='anterior',filtered=!previous&&q.get('desacoplo')==='si';
  const variant=previous?'dip-cc':filtered?'dip-cc-compacto-filtro':'dip-cc-compacto';
  window.DOOR_VARIANT=variant;const el=id=>document.getElementById(id);
- const load=src=>new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='./'+src+'.js?v=proteus-contactos-v2';s.onload=resolve;s.onerror=()=>reject(Error('No se pudo cargar '+src));document.body.append(s);});
+ const load=src=>new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='./'+src+'.js?v=alimentacion-v1';s.onload=resolve;s.onerror=()=>reject(Error('No se pudo cargar '+src));document.body.append(s);});
  el('assemblyVariant').innerHTML='<option value="'+variant+'">5011AS · dos DIP4 · '+(previous?'referencia 16':'11')+' resistencias</option>';
  el('assemblyChoiceTitle').textContent=previous?'Referencia anterior de cátodo común.':'Tu montaje de Proteus, trasladado a la protoboard.';
  el('heroAssembly').textContent=previous?'Referencia: seis integrados y dieciséis resistencias. Conserva su avance y sus conexiones originales.':'Cinco integrados: LS151, LS02, un LS04, NE555 y L293D. Dos DIP4, dos displays 5011AS y un motor TT amarillo.';
@@ -20,7 +20,7 @@
   el('assemblyElectricalNote').textContent=previous?'Referencia anterior con dos LS04. Positivos separados: +T=5 V y +B de A=6 V.':'Un solo LS04. SW1.3 ON=RUN / OFF=STOP. Verde y amarillo en antiparalelo entre OUT3/OUT4, con R13 compartida. Positivos separados: +T=5 V y +B de A derecha=6 V.';
   el('materialsTimingNote').textContent=previous?'RA=1 kΩ; RB=3×1 kΩ; C4=100 µF, 2.06 Hz ideal.':'R11=1 kΩ; R6=5.1 kΩ; C1=100 µF, 1.29 Hz ideal. R2/R4: una sola resistencia de 1 kΩ a GND por display, como en Proteus.';
   document.querySelector('.assembly-helper').textContent='Los pull-up definen las cinco entradas DIP. Finales manuales; negativos comunes y positivos separados. El avance es independiente por perfil.';
-  for(const script of ['puerta-proteus-logic','external-controls-svg','puerta-map','puerta-guide','puerta-studio','puerta-learning','puerta-signal-logic','puerta-lesson','puerta-workspace','puerta-cable-workbench','puerta-catodo-tools'])await load(script);
+  for(const script of ['puerta-proteus-logic','external-controls-svg','puerta-map','puerta-guide','puerta-studio','puerta-learning','puerta-signal-logic','puerta-lesson','puerta-workspace','puerta-cable-workbench','puerta-catodo-tools','puerta-power-data','puerta-alimentacion'])await load(script);
   document.dispatchEvent(new CustomEvent('door-guide-ready',{detail:{variant}}));
   for(const a of document.querySelectorAll('#lessonPdf,.lesson-tools-footer a'))a.hidden=true;
   el('assemblyStatus').textContent=previous?'Referencia anterior: validación física pendiente.':'Conexiones cotejadas con el Proteus grabado. Lógica y continuidad verificadas por programa; montaje físico pendiente.';

@@ -26,7 +26,8 @@
     "test:catodo": "node verify-door-dip-cc-compacto.cjs && node verify-door-dip-cc-compacto.cjs --bypass && node tools/verify-door-catodo-browser.cjs",
     "test:theme": "node tools/verify-door-theme-browser.cjs",
     "test:hologram": "node tools/verify-component-hologram-browser.cjs",
-    "test:proteus": "node verify-door-proteus-logic.cjs && node tools/verify-proteus-contacts-browser.cjs"
+    "test:proteus": "node verify-door-proteus-logic.cjs && node tools/verify-proteus-contacts-browser.cjs",
+    "test:power": "node audit-door-power.cjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2",
