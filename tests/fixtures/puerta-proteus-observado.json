@@ -1,0 +1,20 @@
+{
+  "source": "Capturas y grabaciones aportadas por el usuario, 2026-10-29",
+  "pins": {
+    "U1": {"1":"GND","2":"PA","3":"PC","4":"GND","5":"M","6":"NM","7":"S","8":"GND","9":"GND","10":"C_N","11":"A_N","12":"GND","13":"GND","14":"GND","15":"GND","16":"VCC"},
+    "U2": {"1":"I","2":"M","3":"S","4":"NT","5":"H","6":"FA","7":"GND","8":"PA","9":"H","10":"G","11":"PA","12":"PA","13":"FA","14":"VCC"},
+    "U3": {"1":"I","2":"H","3":"NM","4":"M_D","5":"M","6":"NM_D2","7":"GND","8":"NS_D","9":"S","10":"NNT_D","11":"NT","12":"HIGH_D","13":"GND","14":"VCC"},
+    "U4": {"1":"GND","2":"T","3":"Q","4":"S","6":"T","7":"DISCH","8":"VCC"},
+    "U5": {"1":"M","2":"A_N","3":"MOTOR_A","4":"GND","5":"GND","6":"MOTOR_B","7":"C_N","8":"VM","9":"VCC","10":"M","11":"LY_DRV","12":"GND","13":"GND","14":"LG_DRV","15":"G","16":"VCC"},
+    "D1": {"1":"NS_D","2":"NM","3":"D1_K","4":"NM","6":"I","7":"NM","8":"D1_K","9":"NM","10":"H"},
+    "D2": {"1":"HIGH_D","2":"M_D","3":"D2_K","4":"M_D","6":"NNT_D","7":"NM_D2","8":"D2_K","9":"HIGH_D","10":"NM_D2"}
+  },
+  "contacts": {"SW1":{"1":"A_N","2":"C_N","3":"S"},"SW2":{"1":"PA","2":"PC"}},
+  "cases": [
+    {"capture":"163945 / 163951", "contactLevels":[0,0,0,0,0], "message":"OP", "direction":0},
+    {"capture":"164140 / 164144", "contactLevels":[1,0,1,0,0], "message":"SP", "direction":0},
+    {"capture":"164234 / 164241", "contactLevels":[0,1,1,0,0], "message":"SP", "direction":0},
+    {"capture":"164256 / 164300", "contactLevels":[1,0,0,0,1], "message":"rU", "direction":-1}
+  ],
+  "limits": "Lectura de niveles rojos/azules y mensajes visibles. No se fuerza como caso la pareja 164025/164029: sus estados no se pueden correlacionar inequívocamente con imágenes separadas. Tierra del L293D cotejada también con el video posterior. No acredita medidas eléctricas ni hardware."
+}

@@ -14,12 +14,13 @@ export function createComponentHologram({THREE,scene,container,camera,canvas,req
  function dismiss(){current=null;card.hidden=true;halo.visible=false;canvas.setAttribute('aria-describedby','threeHelp');requestRender();}
  function select(id,{toggle=false}={}){
   const target=resolve(id);if(!target||(toggle&&current?.id===target.id)){dismiss();return;}
-  if(current?.id!==target.id){current=target;kind.textContent={led:'INDICADOR',res:'RESISTENCIA',switch:'CONTROL'}[target.type];name.textContent=target.title;detail.textContent=target.detail||'';detail.hidden=!target.detail;card.dataset.component=target.id;card.dataset.kind=target.type;}
+  if(current?.id!==target.id){current=target;kind.textContent={led:'INDICADOR',res:'RESISTENCIA',switch:'CONTROL'}[target.type];name.textContent=target.title;detail.textContent=typeof target.detail==='function'?target.detail():target.detail||'';detail.hidden=!detail.textContent;card.dataset.component=target.id;card.dataset.kind=target.type;}
   canvas.setAttribute('aria-describedby','threeHelp '+card.id);layout();requestRender();
  }
  function sync(token,id){if(token===selectionToken)return;selectionToken=token;select(id);}
  function layout(){
   if(!enabled||!current||!visible(current.group)){card.hidden=true;halo.visible=false;return;}
+  const nextDetail=typeof current.detail==='function'?current.detail():current.detail||'';if(detail.textContent!==nextDetail)detail.textContent=nextDetail;detail.hidden=!nextDetail;
   const rect=container.getBoundingClientRect();if(!rect.width||!rect.height)return;
   current.group.updateWorldMatrix(true,false);anchor.copy(current.anchor).applyMatrix4(current.group.matrixWorld);camera.updateMatrixWorld();
   partScreen.copy(anchor).project(camera);

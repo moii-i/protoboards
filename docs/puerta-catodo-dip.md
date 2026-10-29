@@ -90,6 +90,14 @@ También se corrigió el accionamiento 3D: pulsar una columna de la carcasa del 
 
 ## Perfiles, validación y pendientes
 
+La prueba de la revisión `proteus-contactos-v2` calcula segmentos, LED y sentido del motor mediante los pines del LS151, LS02, LS04, RESET del NE555 y L293D. Se retiró la selección de mensajes por estados ideales en este perfil. Las resistencias y los contactos SPST definen los niveles de entrada. El temporizador conserva su fase nominal; no se simulan corrientes, brillo o transitorios analógicos.
+
+Los controles 2D, 3D y botones usan una sola función de accionamiento. STOP conserva su polaridad del cableado: contacto cerrado=RUN, abierto=STOP. El nombre flotante del DIP seleccionado muestra las posiciones ON/OFF actuales. Enter y Espacio accionan también los contactos en 2D. No se añadieron componentes ni jumpers, y el avance de montaje se conserva.
+
+`tests/fixtures/puerta-proteus-observado.json` registra 85 asignaciones de pin cotejadas y cuatro observaciones consistentes de la tanda reciente: OP, SP, SP y rU de cierre. Los lados de un contacto SPST son intercambiables; se comparan sus pares de redes. La pareja de capturas 164025/164029 no permite una correlación inequívoca de los niveles con el mensaje y no se fuerza como caso de prueba. Las fotografías separadas no registran las acciones entre capturas.
+
+`npm run test:proteus` comprueba los cuatro casos, las 32 combinaciones y fallos deliberados de un segmento y del ENABLE del motor. En Chrome reproduce los contactos con eventos reales de ratón, STOP y reanudación, parpadeo observado durante un periodo, teclado y conservación del progreso. Los finales manuales permanecen independientes, incluso si se activan ambos, como en el circuito de Proteus.
+
 - /puerta-catodo: compacto experimental sin cerámicos.
 - /puerta-catodo?desacoplo=si: compacto con seis bypass recomendados, sin cables extra.
 - /puerta-catodo?montaje=anterior: referencia 6IC/16R, conserva conexiones y progreso.

@@ -1,0 +1,17 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const api=require('./protoboard-ah/puerta-proteus-logic.js'),evidence=require('./tests/fixtures/puerta-proteus-observado.json');
+for(const variant of ['dip-cc-compacto','dip-cc-compacto-filtro']){
+ const context={window:{}};vm.runInNewContext(fs.readFileSync('protoboard-ah/puerta-'+variant+'-model.js','utf8'),context);const model=JSON.parse(JSON.stringify(context.window.DOOR_MODEL)),circuit=api.compile(model);
+ for(const [id,pins]of Object.entries(evidence.pins))for(const [pin,net]of Object.entries(pins))assert.equal(model.bindings[id+'.'+pin],net,'Proteus '+id+'.'+pin);
+ for(const [id,positions]of Object.entries(evidence.contacts))for(const [p,signal]of Object.entries(positions))assert.deepEqual([model.bindings[id+'.'+p],model.bindings[id+'.'+(9-Number(p))]].sort(),['GND',signal].sort(),'SPST pair '+id+'.'+p);
+ for(const row of evidence.cases){const [a,c,s,pa,pc]=row.contactLevels,contacts={SW1:{1:!a,2:!c,3:!s},SW2:{1:!pa,2:!pc}},actual=circuit.evaluate(contacts);assert.equal(actual.message,row.message,row.capture);assert.equal(actual.motor.direction,row.direction,row.capture);assert.deepEqual(['A_N','C_N','S','PA','PC'].map(n=>actual.values[n]),row.contactLevels);}
+ for(let mask=0;mask<32;mask++){
+  const input=Object.fromEntries(['abrir','cerrar','stop','fca','fcc'].map((n,i)=>[n,Boolean(mask&(1<<i))])),contacts=api.contactsFromInputs(input,model),result=circuit.evaluate(contacts),opening=input.abrir&&!input.cerrar&&!input.stop&&!input.fca,closing=input.cerrar&&!input.abrir&&!input.stop&&!input.fcc;
+  assert.equal(result.message,input.stop?'SP':opening||closing?'rU':input.fca?'OP':'OF');assert.equal(result.motor.direction,opening?1:closing?-1:0);assert.equal(result.leds.LY,opening||closing);assert.equal(result.leds.LG,!input.stop&&!opening&&!closing&&input.fca);assert.equal(result.leds.LR,input.stop);
+  const low=circuit.evaluate(contacts,{blink:false});assert(!low.leds.LR);assert.equal(low.message,result.message);const off=circuit.evaluate(contacts,{powered:false});assert.equal(off.message,'- -');assert(!Object.values(off.leds).some(Boolean));assert(!off.motor.moving);
+ }
+ const open={SW1:{1:false,2:false,3:true},SW2:{1:true,2:false}},mutated=structuredClone(model);mutated.bindings['D1.6']='GND';assert.equal(api.compile(mutated).evaluate(open).message,'?P','Display follows actual segment pin, not a canned OP state');
+ const disabled=structuredClone(model);disabled.bindings['U5.1']='GND';const v=api.compile(disabled).evaluate({SW1:{1:true,2:false,3:true},SW2:{1:false,2:false}});assert.equal(v.message,'rU');assert(!v.motor.moving,'Disabled physical driver does not animate a motor despite the movement glyph');
+ const probe={window:{}};vm.runInNewContext('const model='+JSON.stringify(disabled)+';'+fs.readFileSync('protoboard-ah/puerta-proteus-logic.js','utf8')+fs.readFileSync('protoboard-ah/puerta-signal-logic.js','utf8'),probe);const signals=probe.window.DoorSignalLogic.evaluate({abrir:true,cerrar:false,stop:false,fca:false,fcc:false});assert.equal(signals.M,1,'Probe shows the M wire even if the driver is disabled');assert.equal(signals.MA,0,'A disabled bridge has no opening drive');
+ console.log(JSON.stringify({variant,passed:true,recordedCases:evidence.cases.length,inputCases:32,pinsCompared:Object.values(evidence.pins).reduce((n,p)=>n+Object.keys(p).length,0),segmentAndDriverFaults:true}));
+}
