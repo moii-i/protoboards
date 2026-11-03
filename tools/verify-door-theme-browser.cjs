@@ -12,7 +12,7 @@ if(result.mode==='power'){document.querySelector('#powerReview').open=true;docum
 if(result.mode==='signals')document.querySelector('#lessonSignals')?.click();
 if(result.mode==='dialog'){const dialog=document.querySelector('.learning-dialog');dialog.showModal();}
 if(['stop','moving'].includes(result.mode)){power=true;Object.assign(door,{abrir:true,cerrar:false,stop:result.mode==='stop',fca:false,fcc:false});paintLEDs();document.querySelector('#lessonSignals')?.click();document.querySelector('#viewerTestToggle')?.click();}
-if(result.mode==='3d'){await setRenderer('3d');check(board3d,'3D loaded');check(board3d.getAppearance().background==='#16231f','3D background matches theme');}
+if(result.mode==='3d'){await setRenderer('3d');check(board3d,'3D loaded');check(board3d.getAppearance().background===getComputedStyle(document.documentElement).getPropertyValue('--ws-canvas').trim(),'3D background matches theme');}
 await wait(150);
 function rgb(s){const x=s.match(/[\\d.]+/g)?.map(Number)||[0,0,0];return [x[0],x[1],x[2],x[3]??1];}
 function over(a,b){const t=a[3]+b[3]*(1-a[3]);return [0,1,2].map(i=>(a[i]*a[3]+b[i]*b[3]*(1-a[3]))/(t||1)).concat(t);}
@@ -32,7 +32,7 @@ check(topology===JSON.stringify(model.bindings),'theme changes electrical topolo
 // Navigation may change selection but theme itself must never mark a connection.
 check(progress===JSON.stringify({marked:doorGuide.getState().marked,completed:doorGuide.getState().completed}),'theme changes assembly marks');
 check(document.documentElement.scrollWidth<=innerWidth+1,'horizontal overflow');
-if(result.mode==='preferences'){const saved=JSON.parse(localStorage.getItem('protoboards:appearance:v1'));check(saved.theme==='night','saved night');ws.setPreference('theme','paper');check(getComputedStyle(document.body).color==='rgb(24, 59, 51)','paper restored');ws.setPreference('theme','night');}
+if(result.mode==='preferences'){const saved=JSON.parse(localStorage.getItem('protoboards:appearance:v1'));check(saved.theme==='night','saved night');ws.setPreference('theme','paper');check(getComputedStyle(document.body).color==='rgb(33, 56, 45)','paper restored');ws.setPreference('theme','night');}
 result={...result,passed:failures.length===0,checked,failures,gradients};
 }catch(e){result.error=e.stack||e.message;}const p=document.createElement('pre');p.id='theme-qa-result';p.textContent=JSON.stringify(result);p.style.cssText='position:fixed;bottom:0;left:0;z-index:999999;background:white;color:black;font:9px Arial;max-width:95vw';document.body.append(p);})();</script>`;
 const fixture=path.join(out,'theme-'+mode+'.html'),page=mode==='reference'?'puerta.html':'puerta-catodo.html';

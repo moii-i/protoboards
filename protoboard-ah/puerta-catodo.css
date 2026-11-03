@@ -59,11 +59,6 @@
   }
 }
 
-:root[data-workspace-theme=night]:has(.cc-page){
-  --ws-page:#101613;--ws-surface:#19221d;--ws-subtle:#242f28;
-  --ws-ink:#f4f1e6;--ws-muted:#bac8bd;--ws-border:#52655a;
-  --ws-accent:#b8e2b7;--ws-on-accent:#142619;--ws-hover:#304237;--ws-canvas:#28372e;
-}
 .cc-workbench .stage-header[hidden]{display:none}
 .cc-workbench .workspace{min-width:0}
 .cc-bench-overview{

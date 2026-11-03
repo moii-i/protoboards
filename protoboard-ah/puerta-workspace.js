@@ -4,10 +4,8 @@
  'use strict';
  if(!window.doorGuide||window.doorWorkspace)return;
  const $w=s=>document.querySelector(s),root=document.documentElement,stage=$w('.map-stage'),map=$w('#map'),mapbox=$w('.mapbox'),island=$w('#assemblyIsland');
- const storage='protoboards:appearance:v1';
- const defaults={theme:'paper',density:'comfortable',text:'normal',quality:'auto',effects:'system',profile:'custom'};
- const allowed={theme:['paper','night','contrast'],density:['compact','comfortable'],text:['normal','large','larger'],quality:['auto','economy','sharp'],effects:['system','full','reduced','off'],profile:['custom','study','build','present']};
- let prefs={...defaults};try{const raw=JSON.parse(localStorage.getItem(storage)||'{}');for(const key of Object.keys(allowed))if(allowed[key].includes(raw[key]))prefs[key]=raw[key];}catch{}
+ const settings=window.protoboardsAppearance;
+ const {setPreference,setProfile}=settings;
  let open=false,sideFrame=0,request=0,pendingMode=null,threeCache=null,twoCache=null,lastLauncher=null;
  const head=document.createElement('div');head.className='assembly-stage-head';
  const actions=document.createElement('div');actions.className='assembly-stage-actions';
@@ -28,34 +26,28 @@
  function syncSide(){sideFrame=0;const visible=sidePanels.some(p=>!p.hidden);aside.hidden=!visible;viewports.classList.toggle('has-side',visible);}
  function scheduleSide(){if(!sideFrame)sideFrame=requestAnimationFrame(syncSide);}
  const hiddenObserver=new MutationObserver(scheduleSide);for(const tool of sidePanels)hiddenObserver.observe(tool,{attributes:true,attributeFilter:['hidden']});
- const reduced=matchMedia('(prefers-reduced-motion:reduce)');
- const effectiveMotion=()=>prefs.effects==='system'?(reduced.matches?'reduced':'full'):prefs.effects;
+ const effectiveMotion=()=>settings.getState().effects;
  const originalMoveCamera=moveCamera,originalScrollBehavior=scrollBehavior;
  moveCamera=function(box,animate){return originalMoveCamera(box,animate&&effectiveMotion()==='full');};
  scrollBehavior=()=>effectiveMotion()==='full'?originalScrollBehavior():'auto';
- function appearance(){return {background:getComputedStyle(root).getPropertyValue('--ws-canvas').trim()||'#edf1e9',quality:prefs.quality,motion:effectiveMotion()};}
- function apply(savePrefs=true){
-  root.dataset.workspaceTheme=prefs.theme;root.dataset.workspaceDensity=prefs.density;root.dataset.workspaceText=prefs.text;root.dataset.workspaceMotion=effectiveMotion();
+ function appearance(){return {background:getComputedStyle(root).getPropertyValue('--ws-canvas').trim()||'#edf1e9',quality:settings.getState().preferences.quality,motion:effectiveMotion()};}
+ function apply({preferences:prefs,effects,saved}){
   panel.querySelectorAll('[data-theme-choice]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.themeChoice===prefs.theme)));
   panel.querySelectorAll('[data-profile]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.profile===prefs.profile)));
   for(const [id,key]of [['appearanceText','text'],['appearanceDensity','density'],['appearanceEffects','effects'],['appearanceQuality','quality']])document.getElementById(id).value=prefs[key];
   board3d?.setAppearance?.(appearance());
-  const replay=$w('.brand-replay');if(replay)replay.hidden=reduced.matches||effectiveMotion()!=='full';
-  document.dispatchEvent(new CustomEvent('workspace-appearance-change',{detail:{effects:effectiveMotion()}}));
-  if(savePrefs){try{localStorage.setItem(storage,JSON.stringify(prefs));$w('#appearanceSaved').textContent='Ajustes guardados.';}catch{$w('#appearanceSaved').textContent='Ajustes aplicados durante esta sesión.';}}
+  const replay=$w('.brand-replay');if(replay)replay.hidden=effects!=='full';
+  if(typeof saved==='boolean')$w('#appearanceSaved').textContent=saved?'Ajustes guardados.':'Ajustes aplicados durante esta sesión.';
  }
- function setPreference(key,value){if(!allowed[key]?.includes(value))return false;prefs[key]=value;prefs.profile='custom';apply();return true;}
- const profiles={study:{density:'comfortable',text:'large',quality:'auto',effects:'system'},build:{density:'compact',text:'normal',quality:'auto',effects:'reduced'},present:{density:'comfortable',text:'large',quality:'sharp',effects:'full'}};
- function setProfile(name){if(!profiles[name])return false;Object.assign(prefs,profiles[name],{profile:name});apply();return true;}
  function togglePreferences(value,launcher=document.activeElement){open=Boolean(value);panel.hidden=!open;$w('#workspacePreferences').setAttribute('aria-expanded',String(open));syncSide();if(open){lastLauncher=launcher;$w('#appearanceClose').focus({preventScroll:true});}else if(lastLauncher?.isConnected)lastLauncher.focus({preventScroll:true});}
  $w('#workspacePreferences').onclick=()=>togglePreferences(!open,$w('#workspacePreferences'));
  $w('#appearanceClose').onclick=()=>togglePreferences(false);
  panel.querySelectorAll('[data-theme-choice]').forEach(b=>b.onclick=()=>setPreference('theme',b.dataset.themeChoice));
  panel.querySelectorAll('[data-profile]').forEach(b=>b.onclick=()=>setProfile(b.dataset.profile));
  for(const [id,key]of [['appearanceText','text'],['appearanceDensity','density'],['appearanceEffects','effects'],['appearanceQuality','quality']])document.getElementById(id).onchange=e=>setPreference(key,e.target.value);
- $w('#appearanceReset').onclick=()=>{prefs={...defaults};apply();};
+ $w('#appearanceReset').onclick=settings.reset;
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&open&&!$w('dialog[open]')){e.preventDefault();e.stopImmediatePropagation();togglePreferences(false);}},true);
- reduced.addEventListener('change',()=>apply(false));
+ document.addEventListener('workspace-appearance-change',event=>apply(event.detail));
  const readBox=()=>map.getAttribute('viewBox').trim().split(/\s+/).map(Number);
  const context=()=>JSON.stringify([step,selected,view,readBox()]);
  const validBox=b=>Array.isArray(b)&&b.length===4&&b.every(Number.isFinite)&&b[2]>0&&b[3]>0;
@@ -87,6 +79,6 @@
  // When a saved 3D view finishes its first asynchronous load, apply appearance too.
  const originalShow=showRenderer;
  showRenderer=function(...args){const result=originalShow(...args);board3d?.setAppearance?.(appearance());return result;};
- stage.classList.add('clean-workspace');syncSide();apply(false);
- window.doorWorkspace={setPreference,setProfile,registerTool(element){if(!(element instanceof HTMLElement)||sidePanels.includes(element))return false;aside.append(element);sidePanels.push(element);hiddenObserver.observe(element,{attributes:true,attributeFilter:['hidden']});syncSide();return true;},refreshTools:syncSide,open:()=>togglePreferences(true,$w('#workspacePreferences')),close:()=>togglePreferences(false),getState:()=>({preferences:{...prefs},effectiveMotion:effectiveMotion(),open,sideVisible:!aside.hidden,cached2D:twoCache?{box:[...twoCache.box],view:twoCache.view}:null,cached3D:Boolean(threeCache),renderer:rendererMode})};
+ stage.classList.add('clean-workspace');syncSide();apply(settings.getState());
+ window.doorWorkspace={setPreference,setProfile,registerTool(element){if(!(element instanceof HTMLElement)||sidePanels.includes(element))return false;aside.append(element);sidePanels.push(element);hiddenObserver.observe(element,{attributes:true,attributeFilter:['hidden']});syncSide();return true;},refreshTools:syncSide,open:()=>togglePreferences(true,$w('#workspacePreferences')),close:()=>togglePreferences(false),getState:()=>({preferences:settings.getState().preferences,effectiveMotion:effectiveMotion(),open,sideVisible:!aside.hidden,cached2D:twoCache?{box:[...twoCache.box],view:twoCache.view}:null,cached3D:Boolean(threeCache),renderer:rendererMode})};
 })();

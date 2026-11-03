@@ -23,14 +23,22 @@ async function main(){
  assert(await evaluate("document.querySelector('.catalog-featured h1').textContent === 'Control de puerta' && document.querySelectorAll('.catalog-practices [data-circuit-card]').length === 2"));
  assert(await evaluate("[...document.querySelectorAll('.circuit-preview-label')].every(label => label.getBoundingClientRect().height < 40)"));
  await shot('catalog-desktop');
- await evaluate("document.querySelector('#catalogTheme').click()");
- assert(await evaluate("document.documentElement.dataset.workspaceTheme === 'night' && document.querySelector('#catalogTheme').getAttribute('aria-pressed') === 'true'"));
+ await evaluate("document.querySelector('.appearance-launch').click(); document.querySelector('[data-appearance-theme=night]').click(); document.querySelector('[data-appearance-profile=build]').click()");
+ assert(await evaluate("document.querySelector('#siteAppearance').open && document.documentElement.dataset.workspaceTheme === 'night' && document.documentElement.dataset.workspaceDensity === 'compact' && document.documentElement.dataset.workspaceMotion === 'reduced'"));
+ await shot('appearance-desktop');
+ await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+ await waitFor("!document.querySelector('#siteAppearance').open && document.activeElement.classList.contains('appearance-launch')");
  await send('Page.reload');
- await waitFor("document.querySelector('#catalogTheme')?.getAttribute('aria-pressed') === 'true' && document.querySelectorAll('.showcase-preview-play').length === 3");
+ await waitFor("document.querySelector('[data-appearance-theme=night]')?.getAttribute('aria-pressed') === 'true' && document.querySelector('[data-appearance-profile=build]')?.getAttribute('aria-pressed') === 'true' && document.querySelectorAll('.showcase-preview-play').length === 3");
  assert.equal(await evaluate("getComputedStyle(document.body).backgroundColor"),'rgb(17, 25, 22)');
  await waitFor("document.querySelector('.catalog-featured .circuit-card-preview img').naturalWidth === 960");
  await shot('catalog-night');
- await evaluate("document.querySelector('#catalogTheme').click()");
+ await evaluate("document.querySelector('.appearance-launch').click(); document.querySelector('[data-appearance-theme=contrast]').click()");
+ assert.equal(await evaluate("document.documentElement.dataset.workspaceTheme"),'contrast');
+ const descriptionSize=await evaluate("parseFloat(getComputedStyle(document.querySelector('.catalog-featured .circuit-card-description')).fontSize)");
+ await evaluate("const sizeControl=document.querySelector('[data-appearance-setting=text]'); sizeControl.value='larger'; sizeControl.dispatchEvent(new Event('change'))");
+ assert(await evaluate("parseFloat(getComputedStyle(document.querySelector('.catalog-featured .circuit-card-description')).fontSize)") > descriptionSize);
+ await evaluate("document.querySelector('.site-appearance-reset').click(); document.querySelector('.site-appearance-close').click()");
  const doorCard='[data-circuit-card="puerta"]';
  const doorAction=doorCard+' [data-catalog-action]';
  assert.equal(await evaluate(`document.querySelector(${JSON.stringify(doorAction)}).getAttribute('href')`),'/puerta-catodo#montaje');
@@ -51,6 +59,7 @@ async function main(){
  await delay(1400);assert.equal(await evaluate('protoboardsShowcase.getState().previews[1].index'),0);assert.equal(await evaluate('protoboardsShowcase.getState().previews[1].running'),false);
  await evaluate("document.querySelectorAll('.showcase-preview-play')[1].click()");await waitFor("protoboardsShowcase.getState().previews[1].index===1");
  await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'no-preference'}]});
+ await evaluate("document.querySelector('.appearance-launch').click(); document.querySelector('[data-appearance-theme=night]').click(); document.querySelector('[data-appearance-profile=study]').click(); document.querySelector('.site-appearance-close').click()");
  // Use the browser's native link navigation so cross-document snapshots are exercised.
  await evaluate("protoboardsShowcase.stopPreviews();document.querySelectorAll('[data-catalog-action]')[1].scrollIntoView({block:'center',behavior:'instant'});");
  const link=await evaluate("(()=>{const r=document.querySelectorAll('[data-catalog-action]')[1].getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()");
@@ -63,6 +72,7 @@ async function main(){
  const viewerResults=[];
  for(const [key,route] of [['letras','/'],['555','/555'],['puerta','/puerta?montaje=ls151'],['puerta-catodo','/puerta-catodo']]){
   await send('Page.navigate',{url:base+route});await waitFor("Boolean(window.protoboardsShowcase)&&Boolean(document.getElementById('threeViewport')?.dataset.showcaseInstalled)");
+  assert(await evaluate("document.querySelector('.site-header .appearance-launch') && document.documentElement.dataset.workspaceTheme === 'night' && document.documentElement.dataset.workspaceText === 'large' && getComputedStyle(document.body).backgroundColor === 'rgb(17, 25, 22)'"),key);
   await evaluate("document.querySelector('.brand-intro')?.remove();setRenderer('2d');document.querySelector('.map-stage').scrollIntoView({block:'center',behavior:'instant'});");
   const progress=await evaluate('JSON.stringify({marked:[...marked],completed:[...completed],step,selected})');
   pauses.length=0;await send('Fetch.enable',{patterns:[{urlPattern:'*visor-*-3d.js*',requestStage:'Request'}]});
@@ -83,6 +93,10 @@ async function main(){
   viewerResults.push({key,heldBundle:true,referenceImage:true,readyFade:true,progressUnchanged:true,cachedLoad:true,cancelTest:key==='555'});
  }
  assert.equal(await evaluate('step'),2,'The cathode guide resumes the saved stage');
+ await evaluate("document.querySelector('.appearance-launch').click(); document.querySelector('[data-appearance-theme=paper]').click()");
+ assert(await evaluate("doorWorkspace.getState().preferences.theme === 'paper' && document.querySelector('[data-theme-choice=paper]').getAttribute('aria-pressed') === 'true'"));
+ await evaluate("document.querySelector('.site-appearance-close').click(); doorWorkspace.setPreference('theme','night')");
+ assert(await evaluate("document.querySelector('[data-appearance-theme=night]').getAttribute('aria-pressed') === 'true'"));
  assert(await evaluate("document.body.classList.contains('cc-workbench') && !document.querySelector('.sidebar').inert && document.querySelectorAll('.sidebar #stageList button').length === model.stages.length && !document.querySelector('.cc-bench-rail')"));
  assert(await evaluate("document.querySelector('.sidebar').getBoundingClientRect().right < document.querySelector('.workspace').getBoundingClientRect().left"));
  await evaluate("document.querySelector('[data-bench-size=wide]').click()");
@@ -143,6 +157,10 @@ async function main(){
  await send('Page.navigate',{url:base+'/circuitos'});await waitFor('Boolean(window.protoboardsShowcase)');
  await waitFor("document.querySelector('.catalog-featured .circuit-card-preview img').naturalWidth === 960");
  assert(await evaluate("document.documentElement.scrollWidth <= innerWidth+1 && document.querySelector('.catalog-featured .circuit-card-preview').getBoundingClientRect().bottom <= document.querySelector('.catalog-featured h1').getBoundingClientRect().top"));
+ await evaluate("document.querySelector('.appearance-launch').click()");
+ await waitFor("document.querySelector('#siteAppearance').open && Math.abs(document.querySelector('#siteAppearance').getBoundingClientRect().bottom - innerHeight) <= 2 && document.querySelector('#siteAppearance').getBoundingClientRect().width <= innerWidth");
+ await shot('appearance-mobile');
+ await evaluate("document.querySelector('.site-appearance-close').click()");
  await shot('catalog-mobile');
  await evaluate("document.querySelectorAll('.showcase-preview-play')[0].scrollIntoView({block:'center',behavior:'instant'});document.querySelectorAll('.showcase-preview-play')[0].click();");await waitFor("protoboardsShowcase.getState().previews[0].running");assert(await evaluate("document.documentElement.scrollWidth<=innerWidth+2"));await shot('showcase-mobile-preview');
  await evaluate("document.querySelector('.design-footer').scrollIntoView({block:'end',behavior:'instant'});");await waitFor("!protoboardsShowcase.getState().previews[0].running");
