@@ -37,7 +37,7 @@
   const css=document.createElement('link');css.rel='stylesheet';css.href='./puerta-clear-layout.css';document.head.append(css);
   await loadScript('./puerta-clear-harness.js');await loadScript('./puerta-clear-layout.js');
   for(const [view,label]of [['motor','Motor externo'],['controls','Mandos externos']]){const b=document.createElement('button');b.type='button';b.dataset.view=view;b.textContent=label;b.setAttribute('aria-pressed','false');document.querySelector('.view-buttons').append(b);}
-  for(const script of ['external-controls-svg','puerta-map','puerta-guide','puerta-studio','puerta-learning','puerta-signal-logic','puerta-lesson']){await loadScript('./'+script+'.js'+(['puerta-map','puerta-guide'].includes(script)?'?v=componentes-v1':''));if(script==='puerta-map'){const baseBands=window.bands;window.bands=value=>/^6[.,]8\s*k/.test(value)?['#176eb2','#788183','#c73b42','#c9a145']:baseBands(value);}}
+  for(const script of ['external-controls-svg','puerta-map','puerta-guide','puerta-studio','puerta-learning','puerta-signal-logic','puerta-lesson']){await loadScript('./'+script+'.js'+(script==='puerta-guide'?'?v=jumpers-v2':script==='puerta-map'?'?v=componentes-v1':''));if(script==='puerta-map'){const baseBands=window.bands;window.bands=value=>/^6[.,]8\s*k/.test(value)?['#176eb2','#788183','#c73b42','#c9a145']:baseBands(value);}}
   if(!window.doorGuide)throw Error('La guía no terminó de iniciar.');
   await loadScript('./puerta-workspace.js?v=apariencia-v1');
   await loadScript('./puerta-cable-workbench.js');

@@ -153,7 +153,7 @@ async function setRenderer(value){
  sceneStatus('Preparando el montaje 3D…');$$('[data-renderer="3d"]').forEach(b=>b.setAttribute('aria-busy','true'));
  try{
   if(!board3d){
-   if(!board3dLoading)board3dLoading=import('./visor-puerta-3d.js?v=componentes-v1').then(({createViewer})=>createViewer({container:$('#threeViewport'),model,point,hole,onConnection:id=>selectCable(id),onPin:(u,p)=>window.doorStudio&&model.chips.some(c=>c.id===u)?window.doorStudio.inspect(u,p):pinDetail(u,p),onChip:u=>window.doorStudio?.inspect(u),onHole:h=>window.doorStudio?.showStrip(h),onSwitch:bit=>{const name={ABRIR:'abrir',CERRAR:'cerrar',STOP:'stop',FCA:'fca',FCC:'fcc'}[bit];if(!name)return;if(step===LAST||model.dipCathode)toggleDoorInput(name);else selectCable('P_'+bit)},onFailure:message=>{rendererRequest++;board3d?.dispose();board3d=null;board3dLoading=null;showRenderer('2d');sceneStatus(message);}}));
+   if(!board3dLoading)board3dLoading=import('./visor-puerta-3d.js?v=jumpers-v2').then(({createViewer})=>createViewer({container:$('#threeViewport'),model,point,hole,onConnection:id=>selectCable(id),onPin:(u,p)=>window.doorStudio&&model.chips.some(c=>c.id===u)?window.doorStudio.inspect(u,p):pinDetail(u,p),onChip:u=>window.doorStudio?.inspect(u),onHole:h=>window.doorStudio?.showStrip(h),onSwitch:bit=>{const name={ABRIR:'abrir',CERRAR:'cerrar',STOP:'stop',FCA:'fca',FCC:'fcc'}[bit];if(!name)return;if(step===LAST||model.dipCathode)toggleDoorInput(name);else selectCable('P_'+bit)},onFailure:message=>{rendererRequest++;board3d?.dispose();board3d=null;board3dLoading=null;showRenderer('2d');sceneStatus(message);}}));
    board3d=await board3dLoading;
   }
   if(request!==rendererRequest)return;

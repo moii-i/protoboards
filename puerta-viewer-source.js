@@ -62,11 +62,19 @@ export function createViewer({container, model, point, hole, onConnection, onPin
   const lensShapes=Object.fromEntries(Object.entries(displaySpec.segments).map(([key,points])=>[key,displayLensGeometry(points)]));
   const [decimalX,decimalZ,decimalRadius]=displaySpec.decimal;
   lensShapes.dp=displayLensGeometry(Array.from({length:16},(_,i)=>[decimalX+decimalRadius*Math.cos(i*Math.PI/8),decimalZ+decimalRadius*Math.sin(i*Math.PI/8)]));
-  const bootWidth=jumper.flexible.housingWidth/pitch;
-  const bootGeometry=new RoundedBoxGeometry(bootWidth,.67,bootWidth,1,.065);
+  const flexible=jumper.flexible;
+  const bootWidth=flexible.housingWidth/pitch,bootLength=flexible.housingLength/pitch;
+  const bootBase=.18,bootTop=bootBase+bootLength,collarHeight=.65,collarBase=bootTop-.14;
+  const jacketPort=collarBase+collarHeight-.05,insertionTravel=.85;
+  const bootGeometry=new RoundedBoxGeometry(bootWidth,bootLength,bootWidth,2,.073);
   const bootMaterial=textured('#27282b',.51,.016);
-  const collarGeometry=new THREE.CylinderGeometry(.26,.32,.16,10);
-  const contactGeometry=new RoundedBoxGeometry(.19,.32,.19,1,.028);
+  const collarMaterial=textured('#303136',.56,.014);
+  const collarGeometry=new THREE.CylinderGeometry(.23,flexible.strainReliefDiameter/pitch/2,collarHeight,16);
+  const contactWidth=flexible.contactWidth/pitch;
+  const contactGeometry=new RoundedBoxGeometry(contactWidth,.48,contactWidth,1,.027);
+  const contactMaterial=new THREE.MeshStandardMaterial({color:0xb3a071,roughness:.36,metalness:.46});
+  const seamGeometry=new THREE.BoxGeometry(.022,bootLength-.42,.025);
+  const latchGeometry=new RoundedBoxGeometry(.3,.49,.045,1,.02);
   const solidTipGeometry=new THREE.CylinderGeometry(jumper.solid.conductorDiameter/pitch/2,jumper.solid.conductorDiameter/pitch/2,.32,8);
   const centerX=model.bounds[0]+model.bounds[2]/2,centerZ=model.bounds[1]+model.bounds[3]/2;
   const toWorld = ([x,z], y=.1) => new THREE.Vector3((x-centerX)/30, y, (z-centerZ)/30);
@@ -117,6 +125,38 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     }
     const end=clean[clean.length-1];if(cursor.distanceTo(end)>1e-6)path.add(new THREE.LineCurve3(cursor,end));
     return path;
+  }
+  function flexibleRoute(a,b,route,height){
+    const points=(route||[a,b]).map(p=>p.clone().setY(height)).filter((p,i,list)=>!i||p.distanceTo(list[i-1])>1e-6);
+    const first=points[0],last=points.at(-1);
+    const startDirection=points[1].clone().sub(first).normalize(),endDirection=last.clone().sub(points.at(-2)).normalize();
+    const startRun=Math.min(2.45,first.distanceTo(points[1])*.44),endRun=Math.min(2.45,last.distanceTo(points.at(-2))*.44);
+    const enter=first.clone().addScaledVector(startDirection,startRun),leave=last.clone().addScaledVector(endDirection,-endRun);
+    const start=a.clone().add(new THREE.Vector3(0,jacketPort,0)),end=b.clone().add(new THREE.Vector3(0,jacketPort,0));
+    const raisedStart=start.clone().add(new THREE.Vector3(0,.62,0)),raisedEnd=end.clone().add(new THREE.Vector3(0,insertionTravel,0));
+    const curve=new THREE.CurvePath();
+    // CurvePath already parameterizes by length. Use the same distances for the tube and its outline.
+    curve.getPointAt=curve.getPoint.bind(curve);
+    curve.getTangentAt=curve.getTangent.bind(curve);
+    curve.add(new THREE.LineCurve3(start,raisedStart));
+    curve.add(new THREE.CubicBezierCurve3(raisedStart,raisedStart.clone().add(new THREE.Vector3(0,.62,0)),enter.clone().addScaledVector(startDirection,-startRun*.52),enter));
+    for(const piece of roundedRoute([enter,...points.slice(1,-1),leave]).curves)curve.add(piece);
+    curve.add(new THREE.CubicBezierCurve3(leave,leave.clone().addScaledVector(endDirection,endRun*.52),raisedEnd.clone().add(new THREE.Vector3(0,.64,0)),raisedEnd));
+    curve.add(new THREE.LineCurve3(raisedEnd,end));
+    return curve;
+  }
+  function flexiblePlug(end,parent,materials,id){
+    const plug=new THREE.Group();plug.position.copy(end);parent.add(plug);
+    const add=(geometry,material,x,y,z)=>mesh(geometry,material,new THREE.Vector3(x,y,z),plug);
+    const pin=add(contactGeometry,materials.pin,0,bootBase-.18,0);
+    const housing=add(bootGeometry,materials.housing,0,bootBase+bootLength/2,0);
+    const collar=add(collarGeometry,materials.collar,0,collarBase+collarHeight/2,0);
+    for(const face of [-1,1]){
+      add(seamGeometry,materials.collar,bootWidth*.28,bootBase+bootLength/2,face*bootWidth*.499);
+      add(latchGeometry,materials.collar,0,bootBase+bootLength*.37,face*bootWidth*.499);
+    }
+    for(const part of [pin,housing,collar]){part.userData={id};pickables.push(part);}
+    return plug;
   }
   function texture(draw,width=1024,height=512) {
     const c=document.createElement('canvas');c.width=width;c.height=height;
@@ -236,23 +276,20 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     if(it.externalLead)return;
     const a=hpos(it.a),b=hpos(it.b),len=a.distanceTo(b),isRes=it.kind==='res',isPart=it.kind!=='wire';
     const routed=!isPart&&Array.isArray(it.route)&&it.route.length>=2;
+    const hasHousing=!isPart&&it.a[0]!==it.b[0];
     const height=isPart?.6:routed?Math.max(.48,Number(it.routeHeight)||.78):it.a[0]!==it.b[0]?2.6+(Number(it.id.slice(1))%3)*.22:Math.min(2.25,.65+len*.065);
     const group=new THREE.Group(),plugs=[];scene.add(group);const mid=a.clone().lerp(b,.5);mid.y=height;
-    // Shared hole endpoints stay fixed. Upright ends and round insulation make bends legible.
+    // A flexible jumper's metal contacts reach the holes; its jacket meets the two collars.
     const routePoints=routed?[a,...it.route.map(p=>toWorld(p,height)),b]:null;
-    const curve=routed?roundedRoute(routePoints):new THREE.CatmullRomCurve3(isRes?[a,a.clone().setY(.45),a.clone().setY(1.65),a.clone().setY(2.8),a.clone().setY(3.14),b.clone().setY(3.14),b.clone().setY(2.7),b]:[a,a.clone().setY(.36),a.clone().lerp(b,.18).setY(height),mid,a.clone().lerp(b,.82).setY(height),b.clone().setY(.36),b],false,'centripetal');
+    const curve=hasHousing?flexibleRoute(a,b,routePoints,height):routed?roundedRoute(routePoints):new THREE.CatmullRomCurve3(isRes?[a,a.clone().setY(.45),a.clone().setY(1.65),a.clone().setY(2.8),a.clone().setY(3.14),b.clone().setY(3.14),b.clone().setY(2.7),b]:[a,a.clone().setY(.36),a.clone().lerp(b,.18).setY(height),mid,a.clone().lerp(b,.82).setY(height),b.clone().setY(.36),b],false,'centripetal');
     const material=new THREE.MeshStandardMaterial({color:it.color||(model.colors||{})[it.net]||'#087f93',roughness:.42,metalness:.02});
-    const wire=mesh(new THREE.TubeGeometry(curve,routed?Math.max(48,routePoints.length*12):len>12?64:40,isPart?.046:it.routingClass==='power'?.145:.125,10,false),isPart?metal.clone():material,new THREE.Vector3(),group);wire.visible=it.kind==='wire';wire.userData={id:it.id};pickables.push(wire);
+    const samples=hasHousing?Math.max(64,Math.ceil(curve.getLength()*3)):routed?Math.max(48,routePoints.length*12):len>12?64:40;
+    const wire=mesh(new THREE.TubeGeometry(curve,samples,isPart?.046:it.routingClass==='power'?.145:.125,10,false),isPart?metal.clone():material,new THREE.Vector3(),group);wire.visible=it.kind==='wire';wire.userData={id:it.id};pickables.push(wire);
     if(!isPart){
-      const flexible=it.a[0]!==it.b[0],pinMaterial=metal.clone(),housingMaterial=flexible?bootMaterial.clone():null;
+      const terminalMaterials=hasHousing?{pin:contactMaterial.clone(),housing:bootMaterial.clone(),collar:collarMaterial.clone()}:{pin:metal.clone()};
       for(const end of [a,b]){
-        const pin=mesh(flexible?contactGeometry:solidTipGeometry,pinMaterial,end.clone().setY(.09),group);
-        const terminal=[pin];
-        if(flexible){
-          terminal.push(mesh(bootGeometry,housingMaterial,end.clone().setY(.53),group));
-          terminal.push(mesh(collarGeometry,housingMaterial,end.clone().setY(.92),group));
-        }
-        plugs.push(terminal.map(mesh=>({mesh,home:mesh.position.clone()})));
+        const terminal=hasHousing?flexiblePlug(end,group,terminalMaterials,it.id):mesh(solidTipGeometry,terminalMaterials.pin,end.clone().setY(.09),group);
+        plugs.push([{mesh:terminal,home:terminal.position.clone()}]);
       }
     }
     if(isRes){
@@ -334,7 +371,8 @@ export function createViewer({container, model, point, hole, onConnection, onPin
         const glyph=topLabel(stop?'STOP':'I / O',center.clone().add(new THREE.Vector3(0,.73,0)),.9,.4,{background:stop?'#bd4139':'#245f95',color:'#fff',size:40});group.add(glyph);
       }
     }
-    connections.set(it.id,{group,wire,material,curve,a,b,it,routed,routePoints,height,plugs});
+    const approach=hasHousing?1-insertionTravel/curve.getLength():1;
+    connections.set(it.id,{group,wire,material,curve,a,b,it,routed,routePoints,height,plugs,approach});
     if(!['wire','link'].includes(it.kind))componentGroups.set(it.partId||it.id,{group,holes:[it.a,it.b,...it.third?[it.third]:[]],external:Boolean(it.externalControl||it.externalMotor),home:group.position.clone()});
   }
   model.items.forEach(makeConnection);
@@ -496,13 +534,17 @@ export function createViewer({container, model, point, hole, onConnection, onPin
   revealCap.visible=false;
   for(const pair of c.plugs||[])for(const p of pair){p.mesh.visible=true;p.mesh.position.copy(p.home);}
  }
+ function jacketProgress(c,t){
+  const approach=c.approach??1;
+  return t<.78?approach*smooth((t-.22)/.56):approach+(1-approach)*smooth((t-.78)/.22);
+ }
  function setAssembly(value){
   if(assemblyPose.id&&assemblyPose.id!==value?.id)restoreAssembly(connections.get(assemblyPose.id));
   restoreTraceFrontier();
   if(!value){if(assemblyPose.id)restoreAssembly(connections.get(assemblyPose.id));assemblyPose={id:null,progress:1};traceGeometry.instanceCount=traceGeometry.getAttribute('instanceStart')?.count||0;requestRender();return;}
   const c=connections.get(value.id);if(!c||c.it.kind!=='wire')return;assemblyPose={id:value.id,progress:THREE.MathUtils.clamp(value.progress,0,1)};
   routeTween=null;traveler.visible=false;
-  const t=assemblyPose.progress,fraction=smooth((t-.22)/.56),geometry=c.wire.geometry;
+  const t=assemblyPose.progress,fraction=jacketProgress(c,t),geometry=c.wire.geometry;
   restoreFrontier(c);
   const segments=geometry.parameters.tubularSegments,radial=geometry.parameters.radialSegments,scaled=fraction*segments,whole=Math.floor(scaled),partial=scaled-whole,ring=Math.min(segments,whole+1);
   // Only move the advancing ring. No geometry allocation or growing triangles per frame.
@@ -522,7 +564,7 @@ export function createViewer({container, model, point, hole, onConnection, onPin
   const visibleSegments=fraction<=0?0:Math.ceil(scaled);
   geometry.setDrawRange(0,visibleSegments*radial*6);
   // Cap the advancing jacket on the same sampled position as the highlighted wire.
-  revealCap.visible=c.group.visible&&fraction>0&&fraction<1;
+  revealCap.visible=c.group.visible&&fraction>0&&fraction<1&&!(c.approach<1&&t>=.78);
   if(revealCap.visible){
     revealCap.position.copy(revealPoint);
     revealCap.scale.setScalar(geometry.parameters.radius);
@@ -533,15 +575,18 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     traceGeometry.instanceCount=visibleSegments;
     if(visibleSegments>0&&fraction<1){const attr=traceGeometry.getAttribute('instanceEnd');traceFrontier=visibleSegments-1;attr.setXYZ(traceFrontier,revealPoint.x,revealPoint.y,revealPoint.z);attr.data.needsUpdate=true;}
   }
-  (c.plugs||[]).forEach((pair,i)=>{const k=smooth(i?(t-.78)/.22:t/.22);for(const p of pair){p.mesh.visible=i?t>=.78:true;p.mesh.position.copy(p.home);p.mesh.position.y+=.85*(1-k);}});
+  (c.plugs||[]).forEach((pair,i)=>{const k=smooth(i?(t-.78)/.22:t/.22);for(const p of pair){p.mesh.visible=i?t>=.78:true;p.mesh.position.copy(p.home);p.mesh.position.y+=insertionTravel*(1-k);}});
   requestRender();
  }
  function assemblyDiagnostics(){
   const c=connections.get(assemblyPose.id);if(!c)return null;
-  const geometry=c.wire.geometry,radial=geometry.parameters.radialSegments,segments=geometry.parameters.tubularSegments,fraction=smooth((assemblyPose.progress-.22)/.56),ring=Math.ceil(fraction*segments),attr=geometry.getAttribute('position'),tip=new THREE.Vector3();
-  if(ring>0){for(let j=0;j<radial;j++){const offset=ring*(radial+1)+j;tip.x+=attr.getX(offset);tip.y+=attr.getY(offset);tip.z+=attr.getZ(offset);}tip.divideScalar(radial);}else tip.copy(c.a);
-  const ends=traceGeometry.getAttribute('instanceEnd'),index=traceGeometry.instanceCount-1,traceTip=index>=0?new THREE.Vector3(ends.getX(index),ends.getY(index),ends.getZ(index)):c.a;
-  return {fraction,wireTip:tip.toArray(),traceTip:traceTip.toArray(),tipError:tip.distanceTo(traceTip),visibleSegments:ring,segments,traceSegments:traceGeometry.instanceCount};
+  const geometry=c.wire.geometry,radial=geometry.parameters.radialSegments,segments=geometry.parameters.tubularSegments,fraction=jacketProgress(c,assemblyPose.progress),ring=Math.ceil(fraction*segments),attr=geometry.getAttribute('position'),tip=new THREE.Vector3();
+  const start=c.curve.getPointAt(0);
+  if(ring>0){for(let j=0;j<radial;j++){const offset=ring*(radial+1)+j;tip.x+=attr.getX(offset);tip.y+=attr.getY(offset);tip.z+=attr.getZ(offset);}tip.divideScalar(radial);}else tip.copy(start);
+  const ends=traceGeometry.getAttribute('instanceEnd'),index=traceGeometry.instanceCount-1,traceTip=index>=0?new THREE.Vector3(ends.getX(index),ends.getY(index),ends.getZ(index)):start;
+  const destination=c.approach<1&&assemblyPose.progress>=.78?c.plugs[1][0].mesh.position:null;
+  const plugTipError=destination?Math.hypot(tip.x-destination.x,tip.y-destination.y-jacketPort,tip.z-destination.z):null;
+  return {fraction,wireTip:tip.toArray(),traceTip:traceTip.toArray(),tipError:tip.distanceTo(traceTip),plugTipError,visibleSegments:ring,segments,traceSegments:traceGeometry.instanceCount};
  }
  function setPlacement(value){
   if(placementPose?.id&&placementPose.id!==value?.id){const old=componentGroups.get(placementPose.id);if(old)old.group.position.copy(old.home);}

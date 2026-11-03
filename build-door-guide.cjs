@@ -1,6 +1,6 @@
 const fs=require('fs');let s=fs.readFileSync('protoboard-ah/ne555.js','utf8');
 const range=(start,end,body)=>{const a=s.indexOf(start),b=s.indexOf(end,a+start.length);if(a<0||b<0)throw Error(start+' / '+end);s=s.slice(0,a)+body+'\n'+s.slice(b)};
-s=s.replaceAll('protoboard:ne555:v1','protoboard:puerta:compact:v3').replaceAll('./visor-ne555-3d.js','./visor-puerta-3d.js?v=componentes-v1').replaceAll('protoboard-ne555','protoboard-puerta').replaceAll('circuito NE555','control de puerta').replaceAll('montaje NE555','control de puerta');
+s=s.replaceAll('protoboard:ne555:v1','protoboard:puerta:compact:v3').replaceAll('./visor-ne555-3d.js','./visor-puerta-3d.js?v=jumpers-v2').replaceAll('protoboard-ne555','protoboard-puerta').replaceAll('circuito NE555','control de puerta').replaceAll('montaje NE555','control de puerta');
 s=s.replace('const LAST=',`let wireClarity=true,isolateWires=false;try{wireClarity=localStorage.getItem('protoboard:puerta:clarity:v1')!=='false';}catch{}\nconst LAST=`);
 range('function hole(h)','function drawWires()',`function hole(h){return h[0]+':'+(h[1].length>1?'riel '+h[1]+', ':h[1])+h[2];}
 function effective(it){return it;}
