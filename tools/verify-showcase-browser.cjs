@@ -72,6 +72,22 @@ async function main(){
   viewerResults.push({key,heldBundle:true,referenceImage:true,readyFade:true,progressUnchanged:true,cachedLoad:true,cancelTest:key==='555'});
  }
  assert.equal(await evaluate('step'),2,'The cathode guide resumes the saved stage');
+ assert(await evaluate("document.body.classList.contains('cc-workbench') && document.querySelector('.sidebar').hidden && document.querySelectorAll('.cc-bench-rail button').length === model.stages.length"));
+ assert.equal(await evaluate("document.querySelector('.cc-bench-rail button[aria-current=step]').dataset.step"),'2');
+ await evaluate("document.querySelector('.cc-bench-rail button[data-step=\"0\"]').click(); document.querySelector('#completed').click()");
+ assert(await evaluate("document.querySelector('.cc-bench-rail button[data-step=\"0\"]').classList.contains('done') && completed.has(0)"));
+ const completedBefore=await evaluate('JSON.stringify([...completed])');
+ await evaluate("document.querySelector('.cc-bench-rail button[data-step=\"1\"]').click()");
+ assert.equal(await evaluate('step'),1);
+ assert.equal(await evaluate('JSON.stringify([...completed])'),completedBefore);
+ await evaluate("document.querySelector('[aria-controls=ccBenchGuide]').click(); document.querySelector('[data-guide-tab=materials]').click()");
+ assert(await evaluate("!document.querySelector('#ccBenchGuide').hidden && !document.querySelector('#ccGuideMaterials').hidden && document.querySelectorAll('#ccGuideMaterials li').length > 0 && document.querySelector('#ccGuideStep').hidden"));
+ await evaluate("document.querySelector('[data-guide-tab=help]').click()");
+ assert(await evaluate("!document.querySelector('#ccGuideHelp').hidden && document.querySelector('#ccGuideHelp a').hash === '#ayuda'"));
+ await evaluate("document.querySelector('.cc-bench-close').click(); document.querySelector('.cc-bench-rail button[data-step=\"2\"]').click()");
+ assert(await evaluate("document.querySelector('#ccBenchGuide').hidden && document.querySelector('.cc-bench-overview #stageTitle').textContent.includes('DIP')"));
+ await evaluate("document.querySelector('.assembly-stage-head').scrollIntoView({block:'start',behavior:'instant'})");
+ await shot('showcase-cathode-desktop');
  await evaluate("motionEnabled=false;synchronizeMotion();setRenderer('2d');setMode('cable');selectCable(model.items.find(it=>it.kind==='wire'&&it.stage===2).id,{scroll:false})");
  const selectedCable=await evaluate('selected');
  const markedBefore=await evaluate('JSON.stringify([...marked])');
@@ -90,11 +106,20 @@ async function main(){
   await send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:true});
   await send('Page.reload');
   await waitFor("Boolean(window.doorCableWorkbench)&&Boolean(selected)");
+  await waitFor("document.body.classList.contains('cc-workbench')");
+  assert(await evaluate("document.querySelector('.cc-bench-rail button[data-step=\"0\"]').classList.contains('done')"));
   assert(await evaluate("framing==='cable'&&!loupeEnabled"));
   await evaluate("doorWorkspace.setPreference('theme','night');document.querySelector('.assembly-stage-head').scrollIntoView({block:'start',behavior:'instant'})");
   assert(await evaluate("document.documentElement.scrollWidth<=innerWidth+1"));
   assert(await evaluate("document.querySelector('.mapbox').getBoundingClientRect().height>=380&&document.querySelector('#cableNext').getBoundingClientRect().height>=44"));
+  assert(await evaluate("document.querySelector('.cc-bench-rail button').getBoundingClientRect().height >= 44 && document.querySelector('.cc-bench-overview .scene-switch').getBoundingClientRect().width > 0"));
+  await evaluate("document.querySelector('[aria-controls=ccBenchGuide]').click()");
+  assert(await evaluate("document.querySelector('#ccBenchGuide').getBoundingClientRect().top >= document.querySelector('.mapbox').getBoundingClientRect().bottom"));
+  await evaluate("document.querySelector('.cc-bench-close').click(); document.querySelector('.assembly-stage-head').scrollIntoView({block:'start',behavior:'instant'})");
   await shot('showcase-cathode-'+width);
+  await evaluate("document.querySelector('.cc-bench-rail button[data-step=\"9\"]').click()");
+  await waitFor("document.querySelector('.cc-bench-rail .stage-list').scrollLeft > 0 && document.querySelector('.cc-bench-rail [aria-current=step]').dataset.step === '9'");
+  await evaluate("document.querySelector('.cc-bench-rail button[data-step=\"2\"]').click()");
  }
  await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
  await send('Emulation.setEmulatedMedia',{features:[{name:'hover',value:'none'},{name:'prefers-reduced-motion',value:'no-preference'}]});
