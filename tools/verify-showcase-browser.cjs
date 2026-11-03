@@ -49,13 +49,15 @@ async function main(){
  for(let i=0;i<3;i++){
   await evaluate("document.querySelectorAll('.showcase-preview-play')["+i+"].scrollIntoView({block:'center',behavior:'instant'});document.querySelectorAll('.showcase-preview-play')["+i+"].click();");
   await waitFor("protoboardsShowcase.getState().previews["+i+"].running");
-  const first=await evaluate("protoboardsShowcase.getState().previews["+i+"].index");await delay(1350);
-  assert.notEqual(await evaluate("protoboardsShowcase.getState().previews["+i+"].index"),first,'Preview advances');
+  const first=await evaluate("protoboardsShowcase.getState().previews["+i+"].index");
+  await waitFor("protoboardsShowcase.getState().previews["+i+"].running && protoboardsShowcase.getState().previews["+i+"].index!=="+first);
   assert(await evaluate("document.querySelectorAll('[data-circuit-card]')["+i+"].querySelector('.showcase-frame.is-current').naturalWidth===960"));
   previews.push(await evaluate("protoboardsShowcase.getState().previews["+i+"]"));await evaluate('protoboardsShowcase.stopPreviews()');
  }
  await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
- await delay(200);await evaluate("document.querySelectorAll('.showcase-preview-play')[1].scrollIntoView({block:'center',behavior:'instant'});document.querySelectorAll('.showcase-preview-play')[1].click()");await waitFor("protoboardsShowcase.getState().previews[1].index===0");
+ await waitFor("document.documentElement.dataset.workspaceMotion === 'reduced'");
+ await evaluate("document.querySelectorAll('.showcase-preview-play')[1].scrollIntoView({block:'center',behavior:'instant'}); new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))");
+ await evaluate("document.querySelectorAll('.showcase-preview-play')[1].click()");await waitFor("protoboardsShowcase.getState().previews[1].index===0");
  await delay(1400);assert.equal(await evaluate('protoboardsShowcase.getState().previews[1].index'),0);assert.equal(await evaluate('protoboardsShowcase.getState().previews[1].running'),false);
  await evaluate("document.querySelectorAll('.showcase-preview-play')[1].click()");await waitFor("protoboardsShowcase.getState().previews[1].index===1");
  await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'no-preference'}]});
@@ -94,6 +96,7 @@ async function main(){
   viewerResults.push({key,heldBundle:true,referenceImage:true,readyFade:true,progressUnchanged:true,cachedLoad:true,cancelTest:key==='555'});
  }
  assert.equal(await evaluate('step'),2,'The cathode guide resumes the saved stage');
+ assert(await evaluate("document.querySelector('.cc-assembly [aria-current=page]').dataset.ccProfile === window.DOOR_VARIANT && !document.querySelector('.cc-reference').open && !document.querySelector('.assembly-option-cards')"));
  await evaluate("document.querySelector('.appearance-launch').click(); document.querySelector('[data-appearance-theme=paper]').click()");
  assert(await evaluate("doorWorkspace.getState().preferences.theme === 'paper' && document.querySelector('[data-theme-choice=paper]').getAttribute('aria-pressed') === 'true'"));
  await evaluate("document.querySelector('.site-appearance-close').click(); doorWorkspace.setPreference('theme','night')");
@@ -141,6 +144,7 @@ async function main(){
   assert(await evaluate("framing==='cable'&&!loupeEnabled"));
   await evaluate("doorWorkspace.setPreference('theme','night');document.querySelector('.assembly-stage-head').scrollIntoView({block:'start',behavior:'instant'})");
   assert.equal(await evaluate("getComputedStyle(document.querySelector('.hero')).backgroundColor"),'rgba(0, 0, 0, 0)');
+  assert(await evaluate("document.querySelector('.cc-assembly').getBoundingClientRect().height < 255 && !document.querySelector('.cc-reference').open"));
   assert(await evaluate("document.documentElement.scrollWidth<=innerWidth+1"));
   assert(await evaluate("document.querySelector('.mapbox').getBoundingClientRect().height>=380&&document.querySelector('#cableNext').getBoundingClientRect().height>=44"));
   assert(await evaluate("document.querySelector('.sidebar').inert && document.querySelector('.bench-toggle').textContent.includes('Ver pasos') && document.querySelector('.cc-bench-overview .scene-switch').getBoundingClientRect().width > 0"));
