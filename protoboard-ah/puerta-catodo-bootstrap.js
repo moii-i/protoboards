@@ -4,7 +4,7 @@
  const variant=previous?'dip-cc':filtered?'dip-cc-compacto-filtro':'dip-cc-compacto';
  window.DOOR_VARIANT=variant;const el=id=>document.getElementById(id);
  const load=(src,version='mesa-v1')=>new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='./'+src+'.js?v='+version;s.onload=resolve;s.onerror=()=>reject(Error('No se pudo cargar '+src));document.body.append(s);});
- const revision={'puerta-workspace':'apariencia-v1','puerta-cable-workbench':'ficha-v1','puerta-catodo-tools':'ficha-v1'};
+ const revision={'puerta-map':'componentes-v1','puerta-guide':'componentes-v1','puerta-workspace':'apariencia-v1','puerta-cable-workbench':'ficha-v1','puerta-catodo-tools':'ficha-v1'};
  for(const link of document.querySelectorAll('[data-cc-profile]')){
   if(link.dataset.ccProfile===variant)link.setAttribute('aria-current','page');
   else link.removeAttribute('aria-current');
