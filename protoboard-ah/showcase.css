@@ -12,7 +12,7 @@
 .showcase-preview-play:hover{background:#e9f2dc}
 .showcase-preview-play[aria-pressed=true]:hover{background:#164d37}
 .showcase-frame{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;opacity:0;transition:opacity .2s;background:#edf1ed}
-.showcase-playing .showcase-frame{opacity:1}
+.showcase-playing .showcase-frame.is-current{opacity:1}
 .showcase-preview-state{position:absolute;bottom:12px;right:13px;z-index:2;display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;background:#fffef6e8;color:#35553a;font-size:9px;font-weight:700;pointer-events:none;opacity:0;transition:opacity .2s}
 .showcase-playing .showcase-preview-state{opacity:1}
 .showcase-preview-state:before{content:'';width:5px;height:5px;border-radius:50%;background:#7e9e53}
