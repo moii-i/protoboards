@@ -73,6 +73,7 @@ async function main(){
  for(const [key,route] of [['letras','/'],['555','/555'],['puerta','/puerta?montaje=ls151'],['puerta-catodo','/puerta-catodo']]){
   await send('Page.navigate',{url:base+route});await waitFor("Boolean(window.protoboardsShowcase)&&Boolean(document.getElementById('threeViewport')?.dataset.showcaseInstalled)");
   assert(await evaluate("document.querySelector('.site-header .appearance-launch') && document.documentElement.dataset.workspaceTheme === 'night' && document.documentElement.dataset.workspaceText === 'large' && getComputedStyle(document.body).backgroundColor === 'rgb(17, 25, 22)'"),key);
+  assert.equal(await evaluate("getComputedStyle(document.querySelector('.hero')).backgroundColor"),'rgba(0, 0, 0, 0)',key+' dark hero blends into the page');
   await evaluate("document.querySelector('.brand-intro')?.remove();setRenderer('2d');document.querySelector('.map-stage').scrollIntoView({block:'center',behavior:'instant'});");
   const progress=await evaluate('JSON.stringify({marked:[...marked],completed:[...completed],step,selected})');
   pauses.length=0;await send('Fetch.enable',{patterns:[{urlPattern:'*visor-*-3d.js*',requestStage:'Request'}]});
@@ -139,6 +140,7 @@ async function main(){
   assert(await evaluate("document.querySelector('#stageList button[data-step=\"0\"]').classList.contains('done')"));
   assert(await evaluate("framing==='cable'&&!loupeEnabled"));
   await evaluate("doorWorkspace.setPreference('theme','night');document.querySelector('.assembly-stage-head').scrollIntoView({block:'start',behavior:'instant'})");
+  assert.equal(await evaluate("getComputedStyle(document.querySelector('.hero')).backgroundColor"),'rgba(0, 0, 0, 0)');
   assert(await evaluate("document.documentElement.scrollWidth<=innerWidth+1"));
   assert(await evaluate("document.querySelector('.mapbox').getBoundingClientRect().height>=380&&document.querySelector('#cableNext').getBoundingClientRect().height>=44"));
   assert(await evaluate("document.querySelector('.sidebar').inert && document.querySelector('.bench-toggle').textContent.includes('Ver pasos') && document.querySelector('.cc-bench-overview .scene-switch').getBoundingClientRect().width > 0"));

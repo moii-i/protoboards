@@ -45,10 +45,13 @@ body.design-enhanced .site-header .brand{color:#fffdf3}
 :root[data-workspace-theme] .design-enhanced :is(.workspace,.sidebar,.resource,.assembly-choice,.bench-toolbar,.connection-card,.scene-bar,.learning-mode,.design-tool-dock,.design-tool-panel,.map-context,.bottom-controls){
   background:var(--appearance-surface);color:var(--appearance-ink);border-color:var(--appearance-border);
 }
-:root[data-workspace-theme=night] .design-enhanced :is(.hero,.specs span,.mode-options button,.circuit-picker a,.view-buttons,.scene-switch,.step-parts span,.endpoint-box,.checkpoint,.connection-tip,.pin-grid span,.frequency span,.preview-circuit,.expected,.pin-notice,.diagnosis,.pin-config,.check-stage,.parts li,.progress,.design-nav-menu>div,.ledger-details th,.table-wrap,.three-tools){
+:root[data-workspace-theme=night] .design-enhanced :is(.specs span,.mode-options button,.circuit-picker a,.view-buttons,.scene-switch,.step-parts span,.endpoint-box,.checkpoint,.connection-tip,.pin-grid span,.frequency span,.preview-circuit,.expected,.pin-notice,.diagnosis,.pin-config,.check-stage,.parts li,.progress,.design-nav-menu>div,.ledger-details th,.table-wrap,.three-tools){
   background:var(--appearance-soft);color:var(--appearance-ink);border-color:var(--appearance-border);
 }
 :root[data-workspace-theme=night] .design-enhanced :is(.hero,.workspace,.sidebar,.resource,.design-tool-panel,.assembly-choice) :is(h1,h2,h3,p,small,strong,label,th,td){color:inherit}
+:root[data-workspace-theme=night] .design-enhanced .hero .eyebrow{color:var(--appearance-gold)}
+:root[data-workspace-theme=night] .design-enhanced .hero .eyebrow::before{background:currentColor}
+:root[data-workspace-theme=night] .design-enhanced .hero>div>p{color:var(--appearance-muted)}
 :root[data-workspace-theme=night] .design-enhanced :is(.design-breadcrumb,.design-breadcrumb a,.side-foot,.stage-tag,.scene-heading small,.mode-heading span,.step-marked,.legend-note,.canvas-caption,.simulation-note,.design-footer,.design-footer a,.footer,.footer a){color:var(--appearance-muted)}
 :root[data-workspace-theme=night] .design-enhanced :is(.workspace,.sidebar,.resource,.design-tool-panel,.bench-toolbar,.scene-switch,.circuit-picker) :is(button,select,input[type=search],input[type=text]){
   background:var(--appearance-surface);color:var(--appearance-ink);border-color:var(--appearance-border);
