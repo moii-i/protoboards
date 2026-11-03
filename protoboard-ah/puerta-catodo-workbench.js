@@ -2,48 +2,18 @@
   const stage = document.querySelector('.map-stage');
   const header = stage.querySelector('.assembly-stage-head');
   const actions = header.querySelector('.assembly-stage-actions');
-  const steps = document.getElementById('stageList');
   const stepInfo = document.querySelector('.stage-header');
   const mobile = matchMedia('(max-width: 900px)');
 
   const overview = document.createElement('div');
   overview.className = 'cc-bench-overview';
-  overview.innerHTML = '<div class="cc-bench-current"></div><div class="cc-bench-status"><span class="cc-bench-count"></span></div>';
-  const current = overview.querySelector('.cc-bench-current');
+  const current = document.createElement('div');
+  current.className = 'cc-bench-current';
   current.append(document.getElementById('miniStage'), document.getElementById('stageTitle'));
-  const count = overview.querySelector('.cc-bench-count');
-  count.append(document.getElementById('completedCount'), ' bloques');
-  overview.querySelector('.cc-bench-status').append(document.querySelector('.scene-switch'));
-
-  const rail = document.createElement('nav');
-  rail.className = 'cc-bench-rail';
-  rail.setAttribute('aria-label', 'Bloques del montaje');
-  rail.append(steps);
-  header.prepend(overview, rail);
-  document.querySelector('.sidebar').hidden = true;
+  overview.append(current, document.querySelector('.scene-switch'));
+  header.prepend(overview);
   actions.querySelector('span').remove();
   actions.prepend(stepInfo.querySelector('.stage-nav'));
-
-  for (const button of steps.querySelectorAll('button')) {
-    const label = button.lastElementChild.textContent;
-    button.title = label;
-    button.querySelector('.number').setAttribute('aria-hidden', 'true');
-  }
-  function labelSteps() {
-    for (const button of steps.querySelectorAll('button')) {
-      const done = button.classList.contains('done');
-      const state = button.classList.contains('active') ? (done ? 'Actual, completado' : 'Actual') : (done ? 'Completado' : 'Pendiente');
-      button.setAttribute('aria-label', `${Number(button.dataset.step) + 1}. ${button.title}. ${state}`);
-    }
-    const active = steps.querySelector('button.active');
-    if (!active || steps.scrollWidth <= steps.clientWidth) return;
-    const viewport = steps.getBoundingClientRect();
-    const box = active.getBoundingClientRect();
-    if (box.left < viewport.left) steps.scrollLeft += box.left - viewport.left;
-    else if (box.right > viewport.right) steps.scrollLeft += box.right - viewport.right;
-  }
-  new MutationObserver(labelSteps).observe(steps, {subtree: true, attributes: true, attributeFilter: ['class']});
-  labelSteps();
 
   const guide = document.createElement('section');
   guide.id = 'ccBenchGuide';
