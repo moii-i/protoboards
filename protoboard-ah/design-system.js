@@ -6,11 +6,22 @@ const getJSON=(key,fallback={})=>{try{return JSON.parse(localStorage.getItem(key
 const setJSON=(key,value)=>{try{localStorage.setItem(key,JSON.stringify(value));}catch{}};
 const path=location.pathname.replace(/\.html$/,'');
 const isCatalog=path==='/circuitos',kind=(path==='/puerta'||path==='/puerta-catodo')?'puerta':path==='/555'?'555':'letras';
-const variants=['ls151-9r','ls151-6k8','dip-cc'];
-let doorVariant=path==='/puerta-catodo'?'dip-cc':new URLSearchParams(location.search).get('montaje');
-if(!variants.includes(doorVariant))doorVariant='ls151-9r';
-const lastDoor=getJSON('protoboards:last-door:v1','ls151-9r');
-const doorHref=lastDoor==='dip-cc'?'/puerta-catodo':'/puerta?montaje='+(variants.includes(lastDoor)?lastDoor:'ls151-9r');
+const defaultDoor='dip-cc-compacto';
+const doorProfiles=new Map([
+ [defaultDoor,{url:'/puerta-catodo',suffix:'routing:v2:proteus-11r-v1'}],
+ ['dip-cc-compacto-filtro',{url:'/puerta-catodo?desacoplo=si',suffix:'routing:v2:proteus-11r-v1'}],
+ ['dip-cc',{url:'/puerta-catodo?montaje=anterior',suffix:'routing:v2'}],
+ ['ls151-9r',{url:'/puerta?montaje=ls151-9r',suffix:'placement:v3'}],
+ ['ls151-6k8',{url:'/puerta?montaje=ls151-6k8',suffix:'placement:v3'}]
+]);
+const doorProfile=variant=>doorProfiles.get(variant)||doorProfiles.get(defaultDoor);
+const doorStorage=variant=>'protoboard:puerta:'+variant+':'+doorProfile(variant).suffix;
+const query=new URLSearchParams(location.search);
+let doorVariant=query.get('montaje');
+if(path==='/puerta-catodo'){
+ doorVariant=doorVariant==='anterior'?'dip-cc':query.get('desacoplo')==='si'?'dip-cc-compacto-filtro':defaultDoor;
+}else if(!doorProfiles.has(doorVariant)){doorVariant='ls151-9r';}
+const doorHref=doorProfile(getJSON('protoboards:last-door:v2',defaultDoor)).url;
 document.body.classList.add('design-enhanced');
 document.querySelector('.brand')?.setAttribute('href','/circuitos');
 const nav=document.querySelector('.site-header .nav');
@@ -29,7 +40,7 @@ if(!isCatalog){
  const start=document.querySelector('.hero-start');if(start)start.innerHTML='Empezar / continuar '+icon('arrow');
  const footer=document.createElement('footer');footer.className='design-footer';footer.innerHTML='<div><strong>Protoboards</strong> · by moi &amp; chat</div><span><a href="/circuitos">Todos los circuitos</a><a href="#montaje">Volver al montaje ↑</a></span><div>Aprende conectando, a tu ritmo.</div>';main?.append(footer);
  setJSON('protoboards:last-circuit:v1',{kind,variant:doorVariant});
- if(kind==='puerta')setJSON('protoboards:last-door:v1',doorVariant);
+ if(kind==='puerta')setJSON('protoboards:last-door:v2',doorVariant);
 }
 function setToolOpen(details,open,focus=false){
  if(window.protoboardsWorkbench){window.protoboardsWorkbench.setToolOpen(details,open,focus);return;}
@@ -84,19 +95,19 @@ if(!isCatalog){if(!initTools()){let tries=0;const timer=setInterval(()=>{if(init
 }
 function updateCatalog(){
  for(const card of document.querySelectorAll('[data-circuit-card]')){
-  const k=card.dataset.circuitCard;const variant=variants.includes(lastDoor)?lastDoor:'ls151';
-  const storage=k==='letras'?'practica21:estudio:v3':k==='555'?'protoboard:ne555:v1':'protoboard:puerta:'+variant+(variant.startsWith('ls151')?':placement:v3':':routing:v2');
-  const state=getJSON(storage),count=k==='letras'?14:k==='555'?7:variant.startsWith('ls151')?10:10;
+  const k=card.dataset.circuitCard;
+  const storage=k==='letras'?'practica21:estudio:v3':k==='555'?'protoboard:ne555:v1':doorStorage(defaultDoor);
+  const state=getJSON(storage),count=k==='letras'?14:k==='555'?7:10;
   const completed=new Set((Array.isArray(state.completed)?state.completed:[]).filter(n=>Number.isInteger(n)&&n>=0&&n<count));const started=completed.size>0||(state.marked?.length>0)||state.step>0;
   card.querySelector('[data-catalog-progress]').textContent=started?completed.size+' de '+count+' bloques completados':'Tu próxima conexión empieza aquí';
   card.querySelector('[data-catalog-percent]').textContent=Math.round(completed.size/count*100)+'%';
   card.querySelector('.circuit-card-progress-track i').style.width=Math.round(completed.size/count*100)+'%';
-  const href=(k==='puerta'?doorHref:k==='555'?'/555':'/')+'#montaje';
+  const href=(k==='puerta'?doorProfile(defaultDoor).url:k==='555'?'/555':'/')+'#montaje';
   for(const a of card.querySelectorAll('[data-circuit-link]'))a.href=href;
   card.querySelector('[data-catalog-action]').innerHTML=(started?'Continuar montaje':'Empezar montaje')+icon('arrow');
  }
  const recent=getJSON('protoboards:last-circuit:v1',null);if(recent&&['letras','555','puerta'].includes(recent.kind)){
-  const card=document.querySelector('[data-circuit-card="'+recent.kind+'"]'),cta=document.getElementById('catalogContinue');if(card&&cta){cta.href=card.querySelector('[data-circuit-link]').href;cta.innerHTML='Volver a mi montaje '+icon('arrow');}
+  const card=document.querySelector('[data-circuit-card="'+recent.kind+'"]'),cta=document.getElementById('catalogContinue');if(card&&cta){cta.href=recent.kind==='puerta'?doorProfile(getJSON('protoboards:last-door:v2',defaultDoor)).url+'#montaje':card.querySelector('[data-circuit-link]').href;cta.innerHTML='Volver a mi montaje '+icon('arrow');}
  }
 }
 if(isCatalog){updateCatalog();addEventListener('storage',updateCatalog);addEventListener('pageshow',updateCatalog);}

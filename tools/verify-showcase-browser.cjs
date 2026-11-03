@@ -20,6 +20,12 @@ async function main(){
  await send('Page.navigate',{url:base+'/circuitos'});await waitFor('Boolean(window.protoboardsShowcase)');
  await waitFor("[...document.querySelectorAll('.circuit-card-preview>img:first-child')].every(i=>i.complete&&i.naturalWidth>0)");
  assert.equal(await evaluate("document.querySelectorAll('.showcase-preview-play').length"),3);
+ const doorCard='[data-circuit-card="puerta"]';
+ const doorAction=doorCard+' [data-catalog-action]';
+ assert.equal(await evaluate(`document.querySelector(${JSON.stringify(doorAction)}).getAttribute('href')`),'/puerta-catodo#montaje');
+ assert(await evaluate(`!document.querySelector('.catalog-alternatives').open`));
+ await evaluate(`localStorage.setItem('protoboard:puerta:dip-cc-compacto:routing:v2:proteus-11r-v1',JSON.stringify({completed:[0],step:2}));dispatchEvent(new Event('storage'))`);
+ assert.match(await evaluate(`document.querySelector(${JSON.stringify(doorAction)}).textContent`),/Continuar montaje/);
  const previews=[];
  for(let i=0;i<3;i++){
   await evaluate("document.querySelectorAll('.showcase-preview-play')["+i+"].scrollIntoView({block:'center',behavior:'instant'});document.querySelectorAll('.showcase-preview-play')["+i+"].click();");
@@ -44,7 +50,7 @@ async function main(){
  assert.equal(await evaluate("sessionStorage.getItem('protoboards:transition:v1')"),null);
  const transition=await evaluate('protoboardsShowcase.getState().transition');await shot('showcase-arrival-555');
  const viewerResults=[];
- for(const [key,route] of [['letras','/'],['555','/555'],['puerta','/puerta?montaje=ls151']]){
+ for(const [key,route] of [['letras','/'],['555','/555'],['puerta','/puerta?montaje=ls151'],['puerta-catodo','/puerta-catodo']]){
   await send('Page.navigate',{url:base+route});await waitFor("Boolean(window.protoboardsShowcase)&&Boolean(document.getElementById('threeViewport')?.dataset.showcaseInstalled)");
   await evaluate("document.querySelector('.brand-intro')?.remove();setRenderer('2d');document.querySelector('.map-stage').scrollIntoView({block:'center',behavior:'instant'});");
   const progress=await evaluate('JSON.stringify({marked:[...marked],completed:[...completed],step,selected})');
@@ -64,6 +70,31 @@ async function main(){
   const loads=await evaluate('protoboardsShowcase.getState().viewerLoads');
   await evaluate("setRenderer('2d');");await evaluate("setRenderer('3d');");assert.equal(await evaluate('protoboardsShowcase.getState().viewerLoads'),loads,'Cached 3D skips cover');
   viewerResults.push({key,heldBundle:true,referenceImage:true,readyFade:true,progressUnchanged:true,cachedLoad:true,cancelTest:key==='555'});
+ }
+ assert.equal(await evaluate('step'),2,'The cathode guide resumes the saved stage');
+ await evaluate("motionEnabled=false;synchronizeMotion();setRenderer('2d');setMode('cable');selectCable(model.items.find(it=>it.kind==='wire'&&it.stage===2).id,{scroll:false})");
+ const selectedCable=await evaluate('selected');
+ const markedBefore=await evaluate('JSON.stringify([...marked])');
+ assert(await evaluate("document.querySelector('#map').classList.contains('cable-focus')&&document.querySelectorAll('#focus-marks circle').length===4&&!document.querySelector('#focus-marks text')"));
+ assert(await evaluate("[...document.querySelectorAll('.cable-locations strong')].every(n=>n.textContent.length>0)"));
+ assert(await evaluate("document.querySelector('.cable-locations').getBoundingClientRect().bottom<=document.querySelector('.mapbox').getBoundingClientRect().top+1"));
+ await evaluate("setRenderer('3d')");
+ assert.equal(await evaluate('selected'),selectedCable);
+ assert.deepEqual(await evaluate('board3d.diagnostics().selection.endpointRings'),[true,true]);
+ await evaluate("setRenderer('2d');document.querySelector('#cableNext').click()");
+ assert.notEqual(await evaluate('selected'),selectedCable);
+ assert.equal(await evaluate('JSON.stringify([...marked])'),markedBefore);
+ await evaluate("document.querySelector('#cableMark').click()");
+ assert.equal(await evaluate('marked.size'),JSON.parse(markedBefore).length+1);
+ for(const [width,height] of [[320,740],[390,844]]){
+  await send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:true});
+  await send('Page.reload');
+  await waitFor("Boolean(window.doorCableWorkbench)&&Boolean(selected)");
+  assert(await evaluate("framing==='cable'&&!loupeEnabled"));
+  await evaluate("doorWorkspace.setPreference('theme','night');document.querySelector('.assembly-stage-head').scrollIntoView({block:'start',behavior:'instant'})");
+  assert(await evaluate("document.documentElement.scrollWidth<=innerWidth+1"));
+  assert(await evaluate("document.querySelector('.mapbox').getBoundingClientRect().height>=380&&document.querySelector('#cableNext').getBoundingClientRect().height>=44"));
+  await shot('showcase-cathode-'+width);
  }
  await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
  await send('Emulation.setEmulatedMedia',{features:[{name:'hover',value:'none'},{name:'prefers-reduced-motion',value:'no-preference'}]});

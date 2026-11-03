@@ -16,6 +16,14 @@
  const island=document.createElement('section');island.className='cable-island';island.hidden=true;island.setAttribute('aria-label','Navegación flotante cable por cable');
  island.innerHTML='<button type="button" id="cableDrag" aria-label="Mover isla: arrastra o usa las flechas" title="Mover isla: arrastra o usa las flechas">⠿</button><button type="button" id="cablePrev" aria-label="Conexión anterior">←</button><span id="cableCounter" role="status" aria-live="polite"></span><button type="button" id="cableNext" aria-label="Siguiente conexión">→</button><button type="button" id="cableMark" aria-label="Marcar realizada y seguir">✓ <span>Marcar y seguir</span></button><button type="button" id="cableFold" aria-label="Plegar isla" aria-expanded="true">−</button><button type="button" id="cableMore" aria-label="Herramientas del cable" aria-expanded="false" aria-controls="cableTools">···</button>';
  box.append(island);
+ let endpoints;
+ if(model.dipCathode){
+  endpoints=document.createElement('div');endpoints.className='cable-locations';endpoints.hidden=true;
+  endpoints.setAttribute('role','group');endpoints.setAttribute('aria-label','Extremos de la conexión');
+  endpoints.innerHTML='<button type="button"><small>Origen</small><strong></strong></button><button type="button"><small>Destino</small><strong></strong></button>';
+  actions.after(endpoints);
+  [...endpoints.children].forEach((button,i)=>button.onclick=()=>locate(i?'b':'a'));
+ }
  const stepMode=document.createElement('button');stepMode.id='cableStepMode';stepMode.type='button';stepMode.textContent='Por pasos';stepMode.hidden=true;stepMode.onclick=()=>setMode('step');actions.append(stepMode);
  const renderers=document.querySelector('.island-renderers'),close=byId('closeExpanded'),renderHome=document.createComment('renderer-home'),closeHome=document.createComment('close-home');
  renderers.before(renderHome);close.before(closeHome);
@@ -45,7 +53,16 @@
  byId('cableSpeed').onchange=e=>{const original=document.querySelector('.studio-speed [data-studio-speed]');original.value=e.target.value;original.dispatchEvent(new Event('change'));syncTools();};
  function syncTools(){const it=model.items.find(i=>i.id===selected),state=doorStudio.getState(),a=state.animation,wire=it?.kind==='wire';byId('cableToolName').textContent=it?it.label:'Selecciona un cable del recorrido.';byId('cableScrub').disabled=!wire;const t=a?.id===selected?a.progress:1;byId('cableScrub').value=String(Math.round(t*100));byId('cablePhase').textContent=!wire?'La tira compartida no necesita un jumper.':t<.22?'1/3 · Inserción del primer extremo':t<.78?'2/3 · Tendido del jumper':t<1?'3/3 · Inserción del segundo extremo':'Recorrido completo · revisa antes de marcar';byId('cableReplay').disabled=!wire||!canAnimate();byId('cablePause').disabled=!a||a.progress>=1||!canAnimate();byId('cablePause').textContent=a?.playing?'Pausar':'Continuar';byId('cableSpeed').value=String(state.prefs.speed);}
  function sync(){const active=mode==='cable';stage.classList.toggle('is-cable',active);island.hidden=!active;stepMode.hidden=!active;if(active){if(renderers.parentNode!==actions)actions.append(renderers,close);}else{renderHome.after(renderers);closeHome.after(close);tools.hidden=true;byId('cableMore').setAttribute('aria-expanded','false');}
-  const xs=navigationItems(),index=xs.findIndex(i=>i.id===selected),it=xs[index];byId('cableCounter').textContent=index>=0?(index+1)+' / '+xs.length:'Paso '+(step+1);byId('cablePrev').disabled=byId('islandPrev').disabled;byId('cableNext').disabled=byId('islandNext').disabled;byId('cableMark').disabled=!it;byId('cableMark').setAttribute('aria-label',it&&marked.has(it.id)?'Ya realizada: seguir':'Marcar realizada y seguir');island.classList.toggle('is-folded',prefs.folded);byId('cableFold').setAttribute('aria-expanded',String(!prefs.folded));byId('cableFold').setAttribute('aria-label',prefs.folded?'Desplegar isla':'Plegar isla');byId('cableFold').textContent=prefs.folded?'+':'−';syncTools();restorePosition();}
+  const xs=navigationItems(),index=xs.findIndex(i=>i.id===selected),it=xs[index];
+  if(endpoints){
+   endpoints.hidden=!active||it?.kind!=='wire';
+   if(!endpoints.hidden)[it.a,it.b].forEach((h,i)=>{
+    const button=endpoints.children[i],coord=hole(h);
+    button.lastElementChild.textContent=coord;
+    button.setAttribute('aria-label',(i?'Localizar destino, ':'Localizar origen, ')+coord);
+   });
+  }
+  byId('cableCounter').textContent=index>=0?(index+1)+' / '+xs.length:'Paso '+(step+1);byId('cablePrev').disabled=byId('islandPrev').disabled;byId('cableNext').disabled=byId('islandNext').disabled;byId('cableMark').disabled=!it;byId('cableMark').setAttribute('aria-label',it&&marked.has(it.id)?'Ya realizada: seguir':'Marcar realizada y seguir');island.classList.toggle('is-folded',prefs.folded);byId('cableFold').setAttribute('aria-expanded',String(!prefs.folded));byId('cableFold').setAttribute('aria-label',prefs.folded?'Desplegar isla':'Plegar isla');byId('cableFold').textContent=prefs.folded?'+':'−';syncTools();restorePosition();}
  const baseSync=syncAssemblyIsland;syncAssemblyIsland=function(...args){const r=baseSync(...args);sync();return r;};
  for(const name of ['selectCable','selectStep','setMode']){const original=window[name];window[name]=function(...args){const r=original(...args);sync();return r;};}
  const bodyObserver=new MutationObserver(sync);bodyObserver.observe(document.body,{attributes:true,attributeFilter:['class']});

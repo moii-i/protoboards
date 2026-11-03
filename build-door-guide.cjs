@@ -1,6 +1,6 @@
 const fs=require('fs');let s=fs.readFileSync('protoboard-ah/ne555.js','utf8');
 const range=(start,end,body)=>{const a=s.indexOf(start),b=s.indexOf(end,a+start.length);if(a<0||b<0)throw Error(start+' / '+end);s=s.slice(0,a)+body+'\n'+s.slice(b)};
-s=s.replaceAll('protoboard:ne555:v1','protoboard:puerta:compact:v3').replaceAll('./visor-ne555-3d.js','./visor-puerta-3d.js?v=proteus-contactos-v2').replaceAll('protoboard-ne555','protoboard-puerta').replaceAll('circuito NE555','control de puerta').replaceAll('montaje NE555','control de puerta');
+s=s.replaceAll('protoboard:ne555:v1','protoboard:puerta:compact:v3').replaceAll('./visor-ne555-3d.js','./visor-puerta-3d.js?v=mesa-v1').replaceAll('protoboard-ne555','protoboard-puerta').replaceAll('circuito NE555','control de puerta').replaceAll('montaje NE555','control de puerta');
 s=s.replace('const LAST=',`let wireClarity=true,isolateWires=false;try{wireClarity=localStorage.getItem('protoboard:puerta:clarity:v1')!=='false';}catch{}\nconst LAST=`);
 range('function hole(h)','function drawWires()',`function hole(h){return h[0]+':'+(h[1].length>1?'riel '+h[1]+', ':h[1])+h[2];}
 function effective(it){return it;}
@@ -77,10 +77,18 @@ syncAssemblyIsland();
 `;
 s=s.replace('resistencia de 10 kΩ baja esa señal a 0','resistencia del valor indicado baja esa señal a 0');
 // Keep the board in view while stepping through cables. A close-up is explicit.
-s=s.replace('const LAST=',`let framing='all';try{framing=localStorage.getItem('protoboard:puerta:framing:v1')||'all';}catch{}if(!['all','board','cable'].includes(framing))framing='all';\nconst LAST=`);
+s=s.replace('const LAST=',`const compactDoorViewport=model.dipCathode&&matchMedia('(max-width:650px) and (orientation:portrait)').matches;
+const initialFraming=compactDoorViewport?'cable':'all';
+let framing=initialFraming;try{framing=localStorage.getItem('protoboard:puerta:framing:v1')||initialFraming;}catch{}if(!['all','board','cable'].includes(framing))framing='all';\nconst LAST=`);
 const markerStart=s.indexOf(' marks.innerHTML=it?'),markerEnd=s.indexOf('sync3d();',markerStart);
 if(markerStart<0||markerEnd<0)throw Error('Selection markers not found');
-s=s.slice(0,markerStart)+` marks.innerHTML=it?[it.a,it.b].map((h,i)=>{const [x,y]=point(h);return '<circle cx="'+x+'" cy="'+y+'" r="10" fill="none" stroke="'+(i?'#415fc4':'#0d7665')+'" stroke-width="2.5" vector-effect="non-scaling-stroke"/>';}).join(''):'';`+s.slice(markerEnd);
+s=s.slice(0,markerStart)+` const focusWire=model.dipCathode&&mode==='cable'&&it?.kind==='wire';
+ $('#map').classList.toggle('cable-focus',focusWire);
+ marks.innerHTML=it?[it.a,it.b].map((h,i)=>{
+  const [x,y]=point(h),color=i?'#415fc4':'#0d7665';
+  const ring='<circle cx="'+x+'" cy="'+y+'" r="10" fill="none" vector-effect="non-scaling-stroke"';
+  return (focusWire?ring+' stroke="#fffdf4" stroke-width="4.5"/>':'')+ring+' stroke="'+color+'" stroke-width="2.5"/>';
+ }).join(''):'';`+s.slice(markerEnd);
 s=s.replace('function cameraBox(){','function detailCameraBox(){');
 s=s.replace('function setCamera(custom)',`function cameraBox(){const it=model.items.find(it=>it.id===selected);if(framing==='cable')return detailCameraBox();if(framing==='board'&&it&&it.a[0]===it.b[0]&&model.viewBoxes[it.a[0]])return model.viewBoxes[it.a[0]];return [...model.bounds];}\nfunction setCamera(custom)`);
 s=s.replace("view='focus';showDetail();setCamera();$('.mapbox').scrollIntoView", "view='focus';showDetail();setCamera(detailCameraBox());$('.mapbox').scrollIntoView");
@@ -89,7 +97,7 @@ s=s.replace('Acercamiento automático. Anterior y Siguiente continúan entre pas
 s=s.replace('El mapa sigue cada conexión; tu avance solo se marca cuando tú lo indicas.','El resaltado sigue cada conexión; tu avance solo se marca cuando tú lo indicas.');
 s=s.replace('function motionHint(){','function motionHint(){syncLoupe();syncFraming();');
 s+=`\nfunction syncFraming(){$$('[data-framing]').forEach(el=>el.value=framing);}\n$$('[data-framing]').forEach(el=>el.onchange=()=>{framing=el.value;try{localStorage.setItem('protoboard:puerta:framing:v1',framing);}catch{}syncFraming();if(selected)view='focus';setCamera();});\nsyncFraming();\n`;
-s=s.replace("let framing='all';", "let loupeEnabled=true,loupeSide='route';try{loupeEnabled=localStorage.getItem('protoboard:puerta:loupe:v1')!=='false';}catch{}\nlet framing='all';");
+s=s.replace("const initialFraming=", "let loupeEnabled=!compactDoorViewport,loupeSide='route';try{const stored=localStorage.getItem('protoboard:puerta:loupe:v1');if(stored!==null)loupeEnabled=stored!=='false';}catch{}\nconst initialFraming=");
 s+=`\nfunction syncLoupe(){
  const it=model.items.find(x=>x.id===selected),show=Boolean(loupeEnabled&&it&&rendererMode==='2d'&&framing!=='cable');
  $('#detailLoupe').hidden=!show;$('.mapbox').classList.toggle('has-loupe',show);$('#loupeEnabled').checked=loupeEnabled;
@@ -108,7 +116,7 @@ s=s.replace('let b=[x-75,y-95,x+75,y+60];',"if(it?.externalMotor){const e=it.ext
 s=s.replace("stateKey='protoboard:puerta:'+window.DOOR_VARIANT+':routing:v2'", "stateKey='protoboard:puerta:'+window.DOOR_VARIANT+(window.DOOR_VARIANT.startsWith('ls151')?':placement:v3':':routing:v2')");
 s=s.replace("'Placa '+view", "(view==='motor'?'Motorreductor TT externo':'Placa '+view)");
 s=s.replace('onPin:pinDetail,','onPin:(u,p)=>window.doorStudio&&model.chips.some(c=>c.id===u)?window.doorStudio.inspect(u,p):pinDetail(u,p),onChip:u=>window.doorStudio?.inspect(u),onHole:h=>window.doorStudio?.showStrip(h),');
-s=s.replace('clarity:wireClarity,isolate:isolateWires,pot:code','clarity:wireClarity,isolate:isolateWires,studio:window.doorStudio?.snapshot(),pot:code');
+s=s.replace('clarity:wireClarity,isolate:isolateWires,pot:code',"clarity:wireClarity,cableFocus:model.dipCathode&&mode==='cable',isolate:isolateWires,studio:window.doorStudio?.snapshot(),pot:code");
 
 s=s.replace("function fitPoints(xs,padding=70){if(!xs.length)return [...model.bounds];const ps=xs.flatMap(it=>it.kind==='wire'&&it.route?it.route:[point(it.a),point(it.b)])","function fitPoints(xs,padding=70){if(!xs.length)return [...model.bounds];const ps=xs.flatMap(it=>it.externalControl?[[it.externalControl.bounds[0],it.externalControl.bounds[1]],[it.externalControl.bounds[2],it.externalControl.bounds[3]],point(it.a),point(it.b)]:it.kind==='wire'&&it.route?it.route:[point(it.a),point(it.b)])");
 s=s.replace("function boxFor(h,it){const [x,y]=point(h);","function boxFor(h,it){const [x,y]=point(h);if(it?.externalControl){const e=it.externalControl.bounds;return [Math.min(x-65,e[0]-25),Math.min(y-65,e[1]-25),Math.max(x+65,e[2]+25),Math.max(y+65,e[3]+25)];}");

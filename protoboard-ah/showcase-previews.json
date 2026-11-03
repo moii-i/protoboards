@@ -95,5 +95,61 @@
       }
     },
     "bytes": 139937
+  },
+  {
+    "key": "puerta-catodo",
+    "name": "cerrada",
+    "file": "preview-puerta-catodo-cerrada.png",
+    "state": {
+      "message": "OF",
+      "leds": {
+        "LG": false,
+        "LY": false,
+        "LR": false
+      }
+    },
+    "bytes": 130593
+  },
+  {
+    "key": "puerta-catodo",
+    "name": "movimiento",
+    "file": "preview-puerta-catodo-movimiento.png",
+    "state": {
+      "message": "rU",
+      "leds": {
+        "LG": false,
+        "LY": true,
+        "LR": false
+      }
+    },
+    "bytes": 130585
+  },
+  {
+    "key": "puerta-catodo",
+    "name": "pausa",
+    "file": "preview-puerta-catodo-pausa.png",
+    "state": {
+      "message": "SP",
+      "leds": {
+        "LG": false,
+        "LY": false,
+        "LR": true
+      }
+    },
+    "bytes": 130613
+  },
+  {
+    "key": "puerta-catodo",
+    "name": "abierta",
+    "file": "preview-puerta-catodo-abierta.png",
+    "state": {
+      "message": "OP",
+      "leds": {
+        "LG": true,
+        "LY": false,
+        "LR": false
+      }
+    },
+    "bytes": 130546
   }
 ]

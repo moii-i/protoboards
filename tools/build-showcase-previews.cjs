@@ -14,19 +14,28 @@ async function main(){
  await send('Page.enable');await send('Runtime.enable');await send('Network.enable');await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
  const results=[];
 
- const onlyDoor=process.argv.includes('--door');
- const captures=onlyDoor?JSON.parse(fs.readFileSync('protoboard-ah/showcase-previews.json','utf8')).filter(c=>c.key!=='puerta'):[];
- for(const [key,route] of [['letras','/'],['555','/555'],['puerta','/puerta?montaje=ls151']].filter(([key])=>!onlyDoor||key==='puerta')){
+ const cathodeOnly=process.argv.includes('--cathode');
+ const onlyDoor=process.argv.includes('--door')||cathodeOnly;
+ const captures=onlyDoor?JSON.parse(fs.readFileSync('protoboard-ah/showcase-previews.json','utf8')).filter(c=>c.key!==(cathodeOnly?'puerta-catodo':'puerta')):[];
+ for(const [key,route] of [['letras','/'],['555','/555'],['puerta','/puerta?montaje=ls151'],['puerta-catodo','/puerta-catodo']].filter(([key])=>!onlyDoor||key===(cathodeOnly?'puerta-catodo':'puerta'))){
   await send('Page.navigate',{url:base+route});await waitFor('Boolean(window.protoboardsDesign)&&Boolean(window.protoboardsShowcase)');
+  if(key==='puerta-catodo')await waitFor('Boolean(window.doorWorkspace)');
   await evaluate("document.querySelector('.brand-intro')?.remove();selectStep(model.stages.length-1,false,{guided:false});document.querySelector('#cumulative').checked=true;visibility();view='all';setRenderer('3d');setCamera();");
   await waitFor("Boolean(board3d)&&rendererMode==='3d'");await send('Emulation.setDeviceMetricsOverride',{width:960,height:600,deviceScaleFactor:1,mobile:false});
-  await evaluate("(()=>{const s=document.createElement('style');s.textContent='.mapbox{position:fixed!important;inset:0!important;width:960px!important;height:600px!important;z-index:99999!important;border:0!important;border-radius:0!important}.canvas-caption,.studio-inspector,.map-loupe,.learning-placement-card,.lesson-signal-card,.showcase-viewer-cover{display:none!important}';document.head.append(s);document.body.classList.add('motion-off');document.body.style.overflow='hidden';document.documentElement.style.overflow='hidden';view='all';setCamera();})()");await delay(1300);
+  await evaluate("(()=>{const s=document.createElement('style');s.textContent='body .mapbox,body .clean-workspace .mapbox{position:fixed!important;inset:0!important;width:960px!important;height:600px!important;z-index:99999!important;border:0!important;border-radius:0!important}.canvas-caption,.studio-inspector,.map-loupe,.learning-placement-card,.lesson-signal-card,.showcase-viewer-cover{display:none!important}';document.head.append(s);document.body.classList.add('motion-off');document.body.style.overflow='hidden';document.documentElement.style.overflow='hidden';view='all';setCamera();})()");await delay(1300);
   const states=key==='letras'?[['a',0],['b',1],['h',7]]:key==='555'?[['uno',{D1:true,D2:false}],['dos',{D1:false,D2:true}]]:[['cerrada',{abrir:false,cerrar:false,stop:false,fca:false,fcc:true,position:0}],['movimiento',{abrir:true,cerrar:false,stop:false,fca:false,fcc:false,position:.4}],['pausa',{abrir:true,cerrar:false,stop:true,fca:false,fcc:false,position:.4}],['abierta',{abrir:false,cerrar:false,stop:false,fca:true,fcc:false,position:1}]];
   for(const [name,value] of states){
    if(key==='letras')await evaluate('code='+value+';updateDemo();sync3d();');
    else if(key==='555')await evaluate('currentLEDs='+JSON.stringify(value)+';sync3d();board3d.setLEDs(currentLEDs);');
    else await evaluate('power=true;demoStarted=performance.now();Object.assign(door,'+JSON.stringify(value)+');updateDemo();if(demoFrame)cancelAnimationFrame(demoFrame);demoFrame=0;');
-   await delay(100);const filename='preview-'+key+'-'+name+'.png';await shot('', 'protoboard-ah/'+filename);if(key==='puerta'&&name==='cerrada')fs.copyFileSync('protoboard-ah/'+filename,'protoboard-ah/preview-puerta.png');
+   await delay(100);const filename='preview-'+key+'-'+name+'.png';
+   if(key==='puerta-catodo'){
+    const image=await evaluate("board3d.capture()");
+    const bytes=Buffer.from(image.split(',')[1],'base64');
+    assert.equal(bytes.readUInt32BE(16),960);assert.equal(bytes.readUInt32BE(20),600);
+    fs.writeFileSync('protoboard-ah/'+filename,bytes);
+   }else await shot('', 'protoboard-ah/'+filename);
+   if(key.startsWith('puerta')&&name==='cerrada')fs.copyFileSync('protoboard-ah/'+filename,'protoboard-ah/preview-'+key+'.png');
    const state=await evaluate(key==='letras'?'model.letters[code]':key==='555'?'currentLEDs':'({message:doorMessage,leds:indicators().leds})');
    captures.push({key,name,file:filename,state,bytes:fs.statSync('protoboard-ah/'+filename).size});
   }

@@ -322,7 +322,7 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     traceLayers[2].material.color.copy(connection.material.color);traceConnection=connection.it.id;traceBuilds++;
   }
   const markers=[0,1].map(i=>{
-    const ring=mesh(new THREE.TorusGeometry(.35,.075,8,24),new THREE.MeshBasicMaterial({color:i?0x415fc4:0x0d7665,depthTest:false}),new THREE.Vector3());ring.rotation.x=-Math.PI/2;ring.renderOrder=15;
+    const ring=mesh(new THREE.TorusGeometry(.35,.075,8,24),new THREE.MeshBasicMaterial({color:i?0x415fc4:0x0d7665,depthTest:false,depthWrite:false}),new THREE.Vector3());ring.rotation.x=-Math.PI/2;ring.renderOrder=15;
     ring.visible=false;return {ring};
   });
   const traveler=mesh(new THREE.SphereGeometry(.17,12,8),new THREE.MeshBasicMaterial({color:0xffdc86,depthTest:false,depthWrite:false}),new THREE.Vector3());traveler.renderOrder=32;traveler.visible=false;
@@ -351,7 +351,13 @@ export function createViewer({container, model, point, hole, onConnection, onPin
   function layoutSelectionMarkers(){
     const c=connections.get(selectedId);if(!c?.group.visible)return;
     const {width,height}=container.getBoundingClientRect();if(!width||!height)return;
-    camera.updateMatrixWorld();
+    if(!snapshot?.cableFocus||c.it.kind!=='wire'||routeTween)return;
+    // Keep the rings readable in the full assembly and small at pin-level zoom.
+    const worldPerPixel=2*Math.tan(camera.fov*Math.PI/360)/height;
+    for(const {ring} of markers){
+      const depth=ring.position.clone().sub(camera.position).dot(camera.getWorldDirection(new THREE.Vector3()));
+      ring.scale.setScalar(THREE.MathUtils.clamp(depth*worldPerPixel*5/.35,1,2.6));
+    }
   }
   function frame(now){
     raf=0;if(!active||document.hidden)return;
@@ -388,13 +394,14 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     const studio=next.studio,inspecting=Boolean(studio?.chip),inspectIds=new Set(studio?.related||[]),signalIds=new Set(studio?.signals?.active?studio.signals.ids:[]);
     const selected=connections.get(next.selected),clarityFocus=wireClarity&&Boolean(selected),selectedPart=selected?.it.partId;
     const references=new Set([selectedPart,...[selected?.it.fromRef,selected?.it.toRef].filter(Boolean).map(ref=>ref.split('.')[0])].filter(Boolean));
+    const focusWire=next.cableFocus&&clarityFocus&&selected?.it.kind==='wire';
     const selectedPins=[selected?.it.fromRef,selected?.it.toRef].filter(ref=>/^U\d+\.\d+$/.test(ref||''));
     for(const [id,c] of connections){
       const current=!['wire','link'].includes(c.it.kind)||next.step===model.stages.length-1||c.it.stage===next.step;
       c.group.visible=(current||(next.previous&&c.it.stage<next.step)||(inspecting&&inspectIds.has(id)))&&!(isolateWires&&selected?.it.kind==='wire'&&c.it.kind==='wire'&&id!==next.selected);
       const relatedPart=references.has(c.it.partId),relatedSignal=c.it.kind==='wire'&&selected?.it.kind==='wire'&&selected.it.signal&&c.it.signal===selected.it.signal;
       const relatedPartWire=c.it.kind==='wire'&&selectedPart&&[c.it.fromRef,c.it.toRef].some(ref=>ref?.startsWith(selectedPart+'.'));
-      const emphasis=studio?.signals?.active&&c.it.kind==='wire'?(signalIds.has(id)?1:.16):inspecting?(inspectIds.has(id)?1:c.it.kind==='wire'?.1:.8):id===next.selected?1:clarityFocus?(c.it.kind==='wire'?(relatedSignal||relatedPartWire?.32:.16):relatedPart?1:.92):next.selected?.4:current?1:.75;
+      const emphasis=focusWire&&!inspecting&&!studio?.signals?.active?(c.it.kind==='wire'&&id!==next.selected?(relatedSignal?.32:.22):1):studio?.signals?.active&&c.it.kind==='wire'?(signalIds.has(id)?1:.16):inspecting?(inspectIds.has(id)?1:c.it.kind==='wire'?.1:.8):id===next.selected?1:clarityFocus?(c.it.kind==='wire'?(relatedSignal||relatedPartWire?.32:.16):relatedPart?1:.92):next.selected?.4:current?1:.75;
       c.group.traverse(obj=>{
         if(obj.userData.viewerLabel)obj.visible=!clarityFocus||id===next.selected||relatedPart;
         if(obj.isMesh)for(const mat of [].concat(obj.material)){const base=obj.userData.baseOpacity??1;mat.transparent=emphasis<1||base<1||Boolean(obj.userData.softShadow);mat.opacity=emphasis*base;mat.depthWrite=emphasis>.6&&base===1&&!obj.userData.softShadow;}
@@ -407,7 +414,7 @@ export function createViewer({container, model, point, hole, onConnection, onPin
       const ref=selectedPins[i],pin=pinMeshes.find(mesh=>mesh.userData.u+'.'+mesh.userData.p===ref);
       ring.visible=Boolean(clarityFocus&&pin);if(pin)ring.position.copy(hpos(pin.userData.h,.23));
     });
-    markers.forEach(({ring},i)=>{const c=connections.get(next.selected);ring.visible=Boolean(c?.group.visible);if(c)ring.position.copy(i?c.b:c.a).add(new THREE.Vector3(0,.14,0));});
+    markers.forEach(({ring},i)=>{const c=connections.get(next.selected);ring.visible=Boolean(c?.group.visible);ring.scale.setScalar(1);if(c)ring.position.copy(i?c.b:c.a).add(new THREE.Vector3(0,.14,0));});
     if(potSlot)potSlot.rotation.y=(next.pot/100-.5)*Math.PI;
     updateStudio(studio);
     componentHologram.sync(next.selected||studio?.chip||'',next.selected||studio?.chip);

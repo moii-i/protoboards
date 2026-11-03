@@ -3,7 +3,7 @@
  const q=new URLSearchParams(location.search),previous=q.get('montaje')==='anterior',filtered=!previous&&q.get('desacoplo')==='si';
  const variant=previous?'dip-cc':filtered?'dip-cc-compacto-filtro':'dip-cc-compacto';
  window.DOOR_VARIANT=variant;const el=id=>document.getElementById(id);
- const load=src=>new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='./'+src+'.js?v=alimentacion-v1';s.onload=resolve;s.onerror=()=>reject(Error('No se pudo cargar '+src));document.body.append(s);});
+ const load=src=>new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='./'+src+'.js?v=mesa-v1';s.onload=resolve;s.onerror=()=>reject(Error('No se pudo cargar '+src));document.body.append(s);});
  el('assemblyVariant').innerHTML='<option value="'+variant+'">5011AS · dos DIP4 · '+(previous?'referencia 16':'11')+' resistencias</option>';
  el('assemblyChoiceTitle').textContent=previous?'Referencia anterior de cátodo común.':'Tu montaje de Proteus, trasladado a la protoboard.';
  el('heroAssembly').textContent=previous?'Referencia: seis integrados y dieciséis resistencias. Conserva su avance y sus conexiones originales.':'Cinco integrados: LS151, LS02, un LS04, NE555 y L293D. Dos DIP4, dos displays 5011AS y un motor TT amarillo.';
