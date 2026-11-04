@@ -36,7 +36,7 @@ if(nav){
 if(!isCatalog){
  const main=document.querySelector('main.wrap'),picker=document.querySelector('.circuit-picker');
  const breadcrumb=document.createElement('nav');breadcrumb.className='design-breadcrumb';breadcrumb.setAttribute('aria-label','Ruta de navegación');breadcrumb.innerHTML='<a href="/circuitos">Tus circuitos</a>'+icon('arrow')+'<span aria-current="page"></span>';breadcrumb.lastElementChild.textContent={puerta:'Control de puerta',555:'Temporizador NE555',letras:'Letras A–H'}[kind];main?.prepend(breadcrumb);
- if(picker)picker.innerHTML='<span>Montajes</span>'+[['letras','/','chip','Letras A–H','5 V'],['555','/555','clock','NE555','9 V'],['puerta',doorHref,'door','Puerta automática','5 V']].map(([k,href,i,label,voltage])=>'<a href="'+href+'"'+(k===kind?' aria-current="page"':'')+'>'+icon(i)+label+'<small>'+voltage+'</small></a>').join('');
+ if(picker)picker.innerHTML='<span>Montajes</span>'+[['contador','/contador','chip','Contador 0-9','5 V'],['letras','/','chip','Letras A–H','5 V'],['555','/555','clock','NE555','9 V'],['puerta',doorHref,'door','Puerta automática','5 V']].map(([k,href,i,label,voltage])=>'<a href="'+href+'"'+(k===kind?' aria-current="page"':'')+'>'+icon(i)+label+'<small>'+voltage+'</small></a>').join('');
  const start=document.querySelector('.hero-start');if(start)start.innerHTML='Empezar / continuar '+icon('arrow');
  const footer=document.createElement('footer');footer.className='design-footer';footer.innerHTML='<div><strong>Protoboards</strong> · by moi &amp; chat</div><span><a href="/circuitos">Todos los circuitos</a><a href="#montaje">Volver al montaje ↑</a></span><div>Aprende conectando, a tu ritmo.</div>';main?.append(footer);
  setJSON('protoboards:last-circuit:v1',{kind,variant:doorVariant});
@@ -96,17 +96,20 @@ if(!isCatalog){if(!initTools()){let tries=0;const timer=setInterval(()=>{if(init
 function updateCatalog(){
  for(const card of document.querySelectorAll('[data-circuit-card]')){
   const k=card.dataset.circuitCard;
-  const storage=k==='letras'?'practica21:estudio:v3':k==='555'?'protoboard:ne555:v1':doorStorage(defaultDoor);
-  const state=getJSON(storage),count=k==='letras'?14:k==='555'?7:10;
+  const counter=k==='contador';
+  const counterStorage='protoboard:contador:v1'+(getJSON('protoboard:contador:v1:perfil')==='10'?':10uf':'');
+  const storage=counter?counterStorage:k==='letras'?'practica21:estudio:v3':k==='555'?'protoboard:ne555:v1':doorStorage(defaultDoor);
+  const state=getJSON(storage),count=counter?5:k==='letras'?14:k==='555'?7:10;
   const completed=new Set((Array.isArray(state.completed)?state.completed:[]).filter(n=>Number.isInteger(n)&&n>=0&&n<count));const started=completed.size>0||(state.marked?.length>0)||state.step>0;
   card.querySelector('[data-catalog-progress]').textContent=started?completed.size+' de '+count+' bloques completados':'Tu próxima conexión empieza aquí';
-  card.querySelector('[data-catalog-percent]').textContent=Math.round(completed.size/count*100)+'%';
-  card.querySelector('.circuit-card-progress-track i').style.width=Math.round(completed.size/count*100)+'%';
-  const href=(k==='puerta'?doorProfile(defaultDoor).url:k==='555'?'/555':'/')+'#montaje';
+  const progress=counter?(state.total?Math.min(100,Math.round((state.marked?.length||0)/state.total*100)):0):Math.round(completed.size/count*100);
+  card.querySelector('[data-catalog-percent]').textContent=progress+'%';
+  card.querySelector('.circuit-card-progress-track i').style.width=progress+'%';
+  const href=(counter?'/contador':k==='puerta'?doorProfile(defaultDoor).url:k==='555'?'/555':'/')+'#montaje';
   for(const a of card.querySelectorAll('[data-circuit-link]'))a.href=href;
   card.querySelector('[data-catalog-action]').innerHTML=(started?'Continuar montaje':'Empezar montaje')+icon('arrow');
  }
- const recent=getJSON('protoboards:last-circuit:v1',null);if(recent&&['letras','555','puerta'].includes(recent.kind)){
+ const recent=getJSON('protoboards:last-circuit:v1',null);if(recent&&['letras','555','puerta','contador'].includes(recent.kind)){
   const card=document.querySelector('[data-circuit-card="'+recent.kind+'"]'),cta=document.getElementById('catalogContinue');if(card&&cta){cta.href=recent.kind==='puerta'?doorProfile(getJSON('protoboards:last-door:v2',defaultDoor)).url+'#montaje':card.querySelector('[data-circuit-link]').href;cta.innerHTML='Volver a mi montaje '+icon('arrow');}
  }
 }

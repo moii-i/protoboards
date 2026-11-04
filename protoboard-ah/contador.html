@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#143d32">
+  <meta name="description" content="Monta el contador de 0 a 9 con NE555, flip-flops JK y display 5011AS en una protoboard. Guía 2D y 3D basada en Proteus.">
+  <title>Contador 0–9 · PROTOBOARDS</title>
+  <link rel="stylesheet" href="./protoboard-shared.css">
+  <link rel="stylesheet" href="./appearance.css?v=apariencia-v1">
+  <link rel="stylesheet" href="./contador.css?v=1">
+  <script src="./puerta-appearance-init.js?v=apariencia-v1"></script>
+  <script src="./appearance-panel.js?v=apariencia-v1" defer></script>
+  <script type="module" src="./contador.mjs?v=1"></script>
+</head>
+<body class="counter-page">
+  <header class="site-header">
+    <div class="wrap header-row">
+      <a class="brand" href="/circuitos" aria-label="Protoboards, catálogo"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="11" fill="#176348"/><path d="M13 12h14v16H13zM8 15h5M8 20h5M8 25h5M27 15h5M27 20h5M27 25h5" fill="none" stroke="#f3f8ed" stroke-width="2"/><circle cx="17" cy="16" r="1.4" fill="#f3f8ed"/></svg><span>Protoboards<small>by moi &amp; chat</small></span></a>
+      <nav class="nav" aria-label="Contenido"><a href="/circuitos">Circuitos</a><a href="#montaje">Montaje</a><a href="#materiales">Materiales</a></nav>
+    </div>
+  </header>
+  <main class="wrap counter-main">
+    <div class="counter-crumb"><a href="/circuitos">Tus circuitos</a><span aria-hidden="true">→</span>Contador 0–9</div>
+    <section class="counter-hero" aria-labelledby="counterTitle">
+      <div><p class="counter-kicker">Práctica principal · Lógica secuencial</p><h1 id="counterTitle">Contador de 0 a 9</h1><p>Sigue el reloj del NE555 a través de cuatro flip-flops JK. Mira cómo el 5011AS muestra cada número y cómo la NAND devuelve el conteo a cero.</p>
+      <div class="counter-actions"><a class="counter-primary" href="#montaje">Empezar montaje <span aria-hidden="true">↓</span></a><a href="#materiales">Revisar materiales</a></div></div>
+      <div class="hero-glyph" aria-hidden="true"><span>BCD 8421</span><span class="hero-number">09</span><span>NE555 · 74LS73A · 5011AS</span></div>
+    </section>
+    <section id="montaje" class="counter-work" aria-labelledby="workTitle">
+      <div class="counter-section-head"><div><p class="counter-kicker">01 / Ensamblaje</p><h2 id="workTitle">Tu mesa de trabajo</h2></div><span class="counter-badge">1 protoboard · 5 V</span></div>
+      <div class="counter-layout">
+        <aside class="counter-side" aria-label="Ruta del montaje"><div class="counter-progress"><span>Tu avance</span><strong id="progressLabel">0 %</strong><progress id="progressMeter" value="0" max="100" aria-label="Avance del montaje"></progress></div><ol id="steps" class="counter-steps"></ol></aside>
+        <div class="counter-studio">
+          <div class="counter-stage-head"><div><p id="stageIndex" class="counter-kicker"></p><h3 id="stageTitle">Coloca las piezas</h3><p id="stageHint"></p></div><div class="counter-step-actions"><button id="previous" type="button" aria-label="Paso anterior">←</button><button id="next" type="button" aria-label="Siguiente paso">→</button></div></div>
+          <div class="counter-toolbar"><div class="counter-segmented" role="group" aria-label="Visor"><button id="mode2d" aria-pressed="true">2D</button><button id="mode3d" aria-pressed="false">3D</button></div><div><button id="focus" type="button">Enfocar</button><button id="fit" type="button">Placa completa</button><button id="zoom" type="button" aria-label="Acercar visor">＋</button><button id="expand" type="button" aria-label="Ampliar visor" aria-pressed="false">⤢</button></div></div>
+          <div class="counter-viewport" id="viewport"><svg id="board2d" role="img" aria-label="Plano vectorial del contador" xmlns="http://www.w3.org/2000/svg"></svg><div id="board3d" hidden></div><span id="viewerStatus" role="status" hidden></span></div>
+          <p id="threeHelp" class="counter-view-help">En 2D usa la rueda para acercar y arrastra para mover. En 3D arrastra para girar. Selecciona una pieza para identificarla.</p>
+          <div class="counter-wirebar"><div><span class="counter-kicker" id="selectionKind">Pieza seleccionada</span><strong id="selectedLabel"></strong><p id="selectedDetail"></p></div><div class="counter-wire-actions"><button type="button" id="playPlacement">Ver montaje</button><button type="button" id="markItem">Marcar hecho</button></div></div>
+          <details class="counter-list" id="listPanel" open><summary><span id="listHeading">Piezas de este paso</span><span id="listCount"></span></summary><ul id="assemblyList"></ul></details>
+          <section class="counter-demo" id="demo" hidden aria-labelledby="demoTitle"><div><p class="counter-kicker">Prueba funcional</p><h3 id="demoTitle">Del 9 al 0</h3><p id="demoState">Pulso detenido</p><div class="counter-demo-controls"><button id="run">Iniciar reloj</button><button id="pulse">Un pulso</button><button id="reset">Volver a 0</button></div></div><div class="counter-demo-output"><output id="digit" aria-label="Número actual">0</output><div id="bits" class="counter-bits" aria-label="Bits de salida"></div></div></section>
+        </div>
+      </div>
+    </section>
+    <section id="materiales" class="counter-material" aria-labelledby="materialTitle">
+      <div class="counter-section-head"><div><p class="counter-kicker">02 / Antes de comprar</p><h2 id="materialTitle">Materiales y existencias</h2></div><span class="counter-badge">DIP · 5 V</span></div>
+      <div class="counter-profile"><div><strong>Capacitor del reloj · C1</strong><p>4.7 µF reproduce la referencia. Si tu electrolítico dice <b>10 µF</b>, puedes usarlo con el positivo en TIEMPO y el negativo en GND. El conteo conserva su secuencia y avanza más despacio.</p></div><div class="counter-segmented" role="group" aria-label="Capacitor C1"><button id="profile47" aria-pressed="true">4.7 µF</button><button id="profile10" aria-pressed="false">10 µF</button></div></div>
+      <div class="counter-stock">
+        <article><p class="counter-kicker">Comprar</p><h3>Lo que falta en tu inventario</h3><ul><li><b>2 × 74LS73A</b> en DIP-14 para los cuatro flip-flops JK</li><li><b>1 × 74LS48</b> en DIP-16 para tu display de cátodo común</li><li><b>1 × 100 kΩ</b> para el reloj, si no tienes una a mano</li></ul></article>
+        <article><p class="counter-kicker">Ya tienes</p><h3>Recupera de tus prácticas</h3><ul><li><b>1 × 5011AS</b> de cátodo común</li><li><b>1 × NE555</b> y <b>1 × 74LS00</b></li><li><b>4 × 1 kΩ</b> para los LED, de las que ya habías confirmado</li><li><b>2 × 10 kΩ</b>, valor que tienes. Separa dos, una para R1 y otra para R6.</li></ul></article>
+        <article><p class="counter-kicker">Confirma</p><h3>Antes de pedirlos</h3><ul><li><b>C1</b> electrolítico. Compra 4.7 µF si quieres el ritmo de referencia o confirma que el que tienes es de 10 µF.</li><li><b>C2</b> cerámico de 100 nF, marcado habitualmente <b>104</b></li><li><b>4 LED</b>, una protoboard de 830 puntos, jumpers y una fuente regulada de <b>5 V</b></li></ul></article>
+      </div>
+    </section>
+    <details class="counter-reference"><summary>Referencia de Proteus y alcance de la prueba</summary><p>En la grabación de Proteus, el contador reinicia después de 9 y los LED indican los pesos 8, 4, 2 y 1. El cableado reproduce el esquema compartido con NE555, 74LS73, NAND, 74LS48 y 5011AS. La disposición de la placa aprovecha tiras compartidas y puentes de riel. La prueba web muestra lógica y ritmo estimado. En la placa física quedan por comprobar el arranque, el borrado y el brillo real.</p><p>Si tu protoboard divide los rieles en sitios distintos al dibujo, comprueba su continuidad y une cada tramo al mismo potencial. En la guía, los dos rieles rojos son +5 V y los dos azules son GND.</p></details>
+  </main>
+  <footer class="wrap counter-footer">Protoboards by moi &amp; chat <a href="/circuitos">Ver las demás prácticas →</a></footer>
+</body>
+</html>

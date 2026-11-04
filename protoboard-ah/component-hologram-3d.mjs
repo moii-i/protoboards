@@ -9,12 +9,12 @@ export function createComponentHologram({THREE,scene,container,camera,canvas,req
  const stem=new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,1.2,6),material.clone());stem.position.y=.6;stem.material.opacity=.35;halo.add(stem);
  const anchor=new THREE.Vector3(),projected=new THREE.Vector3(),partScreen=new THREE.Vector3();
  function visible(group){while(group){if(!group.visible)return false;group=group.parent;}return true;}
- function register(target){if(!['led','res','switch'].includes(target.type))return;targets.set(target.id,target);if(target.connectionId)aliases.set(target.connectionId,target.id);}
+ function register(target){if(!['led','res','switch','chip'].includes(target.type))return;targets.set(target.id,target);if(target.connectionId)aliases.set(target.connectionId,target.id);}
  function resolve(id){return targets.get(aliases.get(id)||id)||null;}
  function dismiss(){current=null;card.hidden=true;halo.visible=false;canvas.setAttribute('aria-describedby','threeHelp');requestRender();}
  function select(id,{toggle=false}={}){
   const target=resolve(id);if(!target||(toggle&&current?.id===target.id)){dismiss();return;}
-  if(current?.id!==target.id){current=target;kind.textContent={led:'INDICADOR',res:'RESISTENCIA',switch:'CONTROL'}[target.type];name.textContent=target.title;detail.textContent=typeof target.detail==='function'?target.detail():target.detail||'';detail.hidden=!detail.textContent;card.dataset.component=target.id;card.dataset.kind=target.type;}
+  if(current?.id!==target.id){current=target;kind.textContent={led:'INDICADOR',res:'RESISTENCIA',switch:'CONTROL',chip:'INTEGRADO'}[target.type];name.textContent=target.title;detail.textContent=typeof target.detail==='function'?target.detail():target.detail||'';detail.hidden=!detail.textContent;card.dataset.component=target.id;card.dataset.kind=target.type;}
   canvas.setAttribute('aria-describedby','threeHelp '+card.id);layout();requestRender();
  }
  function sync(token,id){if(token===selectionToken)return;selectionToken=token;select(id);}

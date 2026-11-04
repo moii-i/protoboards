@@ -12,6 +12,7 @@ import {pitch,resistor,display as displaySpec,jumper,componentGrain,resistorBand
 // Positions come from the same hole coordinates as the SVG, at one unit per pitch.
 // Cable bends are illustrative; their two endpoints define the electrical connection.
 export function createViewer({container, model, point, hole, onConnection, onPin, onSwitch, onFailure, onChip=()=>{}, onHole=()=>{}}) {
+  const counter=model.presentation==='contador';
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#edf1ed');
   const camera = new THREE.PerspectiveCamera(40, 1, .1, 1600);
@@ -55,6 +56,7 @@ export function createViewer({container, model, point, hole, onConnection, onPin
   const metal = new THREE.MeshStandardMaterial({color:0xb6c0c1, roughness:.35, metalness:.7});
   const grain=componentGrain();
   const textured=(color,roughness,bumpScale=.025)=>new THREE.MeshStandardMaterial({color,roughness,bumpMap:grain,bumpScale});
+  const moldedEpoxy=textured('#202126',.64,.018);
   const resistorBody=resistorBodyGeometry(),resistorShell=textured(resistor.shell,.57);
   const bandMaterials=resistor.palette.map(color=>textured(color,.47));
   const goldBand=new THREE.MeshStandardMaterial({color:resistor.gold,roughness:.4,metalness:.35,bumpMap:grain,bumpScale:.018});
@@ -168,16 +170,38 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     const p=mesh(new THREE.PlaneGeometry(width,depth),new THREE.MeshBasicMaterial({map:t}),position);
     p.rotation.x=-Math.PI/2;p.userData.viewerLabel=true;p.userData.labelText=text;return p;
   }
+  function moldedDIP(length,center){
+    const x=length/2,z=1.23,r=.12;
+    const shape=new THREE.Shape();
+    shape.moveTo(-x+r,-z);shape.lineTo(x-r,-z);shape.quadraticCurveTo(x,-z,x,-z+r);
+    shape.lineTo(x,z-r);shape.quadraticCurveTo(x,z,x-r,z);shape.lineTo(-x+r,z);
+    shape.quadraticCurveTo(-x,z,-x,z-r);shape.lineTo(-x,.36);
+    shape.bezierCurveTo(-x+.49,.36,-x+.49,-.36,-x,-.36);
+    shape.lineTo(-x,-z+r);shape.quadraticCurveTo(-x,-z,-x+r,-z);
+    const geometry=new THREE.ExtrudeGeometry(shape,{depth:1.06,bevelEnabled:true,bevelSize:.05,bevelThickness:.06,bevelSegments:2,curveSegments:12});
+    geometry.rotateX(-Math.PI/2);
+    return mesh(geometry,moldedEpoxy.clone(),center.clone().setY(.27));
+  }
+  function packageMark(chip,center,length){
+    const mark=texture((ctx,w,h)=>{
+      ctx.fillStyle='#c7c8c5';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='600 56px monospace';
+      ctx.fillText(chip.label,w/2,h*.37,w*.96);
+      ctx.fillStyle='#999c9c';ctx.font='30px monospace';ctx.fillText(chip.id,w/2,h*.71);
+    },768,224);
+    const label=mesh(new THREE.PlaneGeometry(length-.65,1.75),new THREE.MeshBasicMaterial({map:mark,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1}),center.clone().setY(1.394));
+    label.rotation.x=-Math.PI/2;
+  }
   const shadowTexture=texture((ctx,w,h)=>{const g=ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);g.addColorStop(0,'#1b322344');g.addColorStop(.5,'#1b32231b');g.addColorStop(1,'#1b322300');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);},128,128);
   function contactShadow(pos,width,depth,parent=scene){const shadow=mesh(new THREE.PlaneGeometry(width,depth),new THREE.MeshBasicMaterial({map:shadowTexture,transparent:true,depthWrite:false}),pos.clone().setY(.045),parent);shadow.rotation.x=-Math.PI/2;shadow.userData.softShadow=true;return shadow;}
   const glowTexture=texture((ctx,w,h)=>{const g=ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);g.addColorStop(0,'#ffca9566');g.addColorStop(.3,'#ff6b4638');g.addColorStop(1,'#ff6b4600');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);},128,128);
   for(const [name,b] of Object.entries(model.boards)) {
     const width=(b.columns-1)*30+70, x=60+b.xOffset, z=145+b.yOffset;
-    roundedBox(width/30,1.25,605/30,toWorld([x+width/2,z+302.5],-.625),plastic,scene,.2);
-    box((width-45)/30,.06,65/30,toWorld([x+20+(width-45)/2,455.5+b.yOffset],.035),new THREE.MeshStandardMaterial({color:0xd0d8d2,roughness:1}));
+    roundedBox(width/30,1.25,605/30,toWorld([x+width/2,z+302.5],-.625),counter?textured('#f2eee5',.79,.015):plastic,scene,.2);
+    if(counter)roundedBox((width-65)/30,.12,55/30,toWorld([x+width/2,455.5+b.yOffset],.01),textured('#b9b9af',.91,.012),scene,.06);
+    else box((width-45)/30,.06,65/30,toWorld([x+20+(width-45)/2,455.5+b.yOffset],.035),new THREE.MeshStandardMaterial({color:0xd0d8d2,roughness:1}));
     const print=texture((ctx,w,h)=>{
       ctx.scale(w/width,h/605);ctx.fillStyle='#faf9ef';ctx.fillRect(0,0,width,605);
-      ctx.font='bold 14px Arial';ctx.fillStyle='#475b52';ctx.fillText('PLACA '+name+' · '+b.columns+' COLUMNAS',12,23);
+      ctx.font='bold 14px Arial';ctx.fillStyle='#475b52';ctx.fillText(counter?'830 PUNTOS · PASO 2,54 mm':'PLACA '+name+' · '+b.columns+' COLUMNAS',12,23);
       ctx.font='13px Arial';ctx.textAlign='center';
       for(let c=1;c<=b.columns;c++)if(c===1||c%5===0||c===b.columns)ctx.fillText(c,35+(c-1)*30,116);
       ctx.textAlign='left';for(const row of 'abcdefghij')ctx.fillText(row,10,point([name,row,1])[1]-z+5);
@@ -188,18 +212,21 @@ export function createViewer({container, model, point, hole, onConnection, onPin
         ctx.lineTo(width-20,y-13);ctx.stroke();
       }
     },2048,640);
-    const sheet=mesh(new THREE.PlaneGeometry(width/30,605/30),new THREE.MeshBasicMaterial({map:print}),toWorld([x+width/2,z+302.5],.008));sheet.rotation.x=-Math.PI/2;
+    const sheetMaterial=counter?new THREE.MeshStandardMaterial({map:print,roughness:.88,bumpMap:grain,bumpScale:.01}):new THREE.MeshBasicMaterial({map:print});
+    const sheet=mesh(new THREE.PlaneGeometry(width/30,605/30),sheetMaterial,toWorld([x+width/2,z+302.5],.008));sheet.rotation.x=-Math.PI/2;
     // One draw call for all recessed contacts on each plate.
     const holes=[];for(const row of [...'abcdefghij','+T','-T','-B','+B'])for(let c=1;c<=b.columns;c++){
-      if(row.length>1&&b.railBreak&&c===b.railBreak+1)continue;holes.push([name,row,c]);
+      if(row.length>1&&(b.railColumns?!b.railColumns.includes(c):b.railBreak&&c===b.railBreak+1))continue;holes.push([name,row,c]);
     }
-    for(const [size,y,color] of [[.38,.018,0xb8c0b9],[.255,.03,0x48514e]]){
-      const inst=new THREE.InstancedMesh(new THREE.BoxGeometry(size,.012,size),new THREE.MeshStandardMaterial({color,roughness:1}),holes.length);
-      holes.forEach((h,i)=>{dummy.position.copy(hpos(h,y));dummy.updateMatrix();inst.setMatrixAt(i,dummy.matrix);});scene.add(inst);inst.userData={holes};pickables.push(inst);
+    const layers=counter?[[.48,.017,0xcdc9bd,.03],[.36,.039,0x797b72,.022],[.235,.052,0x353938,.01],[.10,.063,0x9a9b91,.005]]:[[.38,.018,0xb8c0b9,0],[.255,.03,0x48514e,0]];
+    for(const [size,y,color,radius] of layers){
+      const geometry=radius?new RoundedBoxGeometry(size,.024,size,1,radius):new THREE.BoxGeometry(size,.012,size);
+      const inst=new THREE.InstancedMesh(geometry,new THREE.MeshStandardMaterial({color,roughness:.87}),holes.length);
+      holes.forEach((h,i)=>{dummy.position.copy(hpos(h,y));dummy.updateMatrix();inst.setMatrixAt(i,dummy.matrix);});scene.add(inst);inst.userData={holes};if(!counter||size===.48)pickables.push(inst);
     }
   }
   // External supply terminals share the same coordinates as the 2D map.
-  for(const [label,a,b] of [['LÓGICA · 5 V REGULADOS','+5','G5'],['MOTOR · 6 V','+6','G6']]){
+  for(const [label,a,b] of counter?[]:[['LÓGICA · 5 V REGULADOS','+5','G5'],['MOTOR · 6 V','+6','G6']]){
     const pa=hpos(['FUENTE',a,0]),pb=hpos(['FUENTE',b,0]),center=pa.clone().lerp(pb,.5);
     topLabel(label,center.clone().setY(.2).add(new THREE.Vector3(0,0,-.9)),9,1.4,{background:'#e0e8e2',color:'#345349',size:34});
     for(const [p,color] of [[pa,0xc4414b],[pb,0x35433b]])mesh(new THREE.CylinderGeometry(.23,.23,.35,14),new THREE.MeshStandardMaterial({color}),p.clone().setY(.2));
@@ -208,22 +235,24 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     const before=new Set(scene.children);
     const n=chip.pins,half=n/2,start=chip.start,first=hpos([chip.board,'e',start]),last=hpos([chip.board,'f',start+half-1]);
     const center=first.clone().lerp(last,.5).setY(.8),length=half+.2;
-    const chipBody=roundedBox(length,1.25,2.45,center,chip.dipSwitch?new THREE.MeshStandardMaterial({color:0xad2e37,roughness:.55}):dark.clone(),scene,.13);chipBody.userData={chip:chip.id};pickables.push(chipBody);
+    const chipBody=counter?moldedDIP(length,center):roundedBox(length,1.25,2.45,center,chip.dipSwitch?new THREE.MeshStandardMaterial({color:0xad2e37,roughness:.55}):dark.clone(),scene,.13);chipBody.userData={chip:chip.id};pickables.push(chipBody);
     const outlineBox=new THREE.BoxGeometry(length+.08,1.32,2.52);const outlineEdges=new THREE.EdgesGeometry(outlineBox);outlineBox.dispose();const outline=new THREE.LineSegments(outlineEdges,new THREE.LineBasicMaterial({color:0xd9ac42,depthTest:false}));outline.position.copy(center);outline.renderOrder=18;outline.visible=false;scene.add(outline);chipBodies.set(chip.id,{body:chipBody,outline});
     contactShadow(center,length+.5,2.8);
-    const notch=mesh(new THREE.CircleGeometry(.27,28,Math.PI/2,Math.PI),new THREE.MeshStandardMaterial({color:0x12191b,roughness:.9}),center.clone().add(new THREE.Vector3(-length/2+.04,.637,0)));notch.rotation.x=-Math.PI/2;
+    if(!counter){const notch=mesh(new THREE.CircleGeometry(.27,28,Math.PI/2,Math.PI),new THREE.MeshStandardMaterial({color:0x12191b,roughness:.9}),center.clone().add(new THREE.Vector3(-length/2+.04,.637,0)));notch.rotation.x=-Math.PI/2;}
     if(chip.dipSwitch){
       for(let p=1;p<=4;p++){const bit=chip.functions?.[p],pos=center.clone().add(new THREE.Vector3(p-2.5,.77,.36));box(.65,.04,1.45,pos.clone().setY(center.y+.645).setZ(center.z),new THREE.MeshStandardMaterial({color:0x611d25}));const slider=box(.51,.16,.62,pos,new THREE.MeshStandardMaterial({color:bit?0xf6eee3:0x9e8d85}));if(bit){slider.userData={bit,switchId:bit,dipSlider:true,dipPosition:p,homeZ:center.z,componentHint:chip.id};pickables.push(slider);switches.push(slider);}topLabel(String(p),center.clone().add(new THREE.Vector3(p-2.5,.66,-.95)),.45,.35,{background:'#ad2e37',color:'#fff5ed',size:60});}
-    }else topLabel(chip.label+'\n'+chip.id,center.clone().add(new THREE.Vector3(.12,.637,0)),Math.max(2,length-.9),1.75,{size:38});
-    const dot=mesh(new THREE.CircleGeometry(.09,16),new THREE.MeshBasicMaterial({color:0x87918c}),center.clone().add(new THREE.Vector3(-length/2+.4,.638,.5)));dot.rotation.x=-Math.PI/2;
+    }else if(counter)packageMark(chip,center,length);
+    else topLabel(chip.label+'\n'+chip.id,center.clone().add(new THREE.Vector3(.12,.637,0)),Math.max(2,length-.9),1.75,{size:38});
+    const dot=mesh(new THREE.CircleGeometry(counter?.15:.09,16),new THREE.MeshBasicMaterial({color:counter?0x77787a:0x87918c}),center.clone().add(new THREE.Vector3(-length/2+.4,counter?.594:.638,.63)));dot.rotation.x=-Math.PI/2;
     for(let p=1;p<=n;p++){
       const upper=p>half,h=[chip.board,upper?'e':'f',start+(upper?n-p:p-1)],pos=hpos(h,.13),inner=pos.clone();inner.z=center.z+(upper?-1.18:1.18);inner.y=.5;
       const curve=new THREE.CatmullRomCurve3([pos,pos.clone().add(new THREE.Vector3(0,.4,0)),inner]);
-      const leg=mesh(new THREE.TubeGeometry(curve,16,.07,4,false),metal,new THREE.Vector3());leg.userData={u:chip.id,p,h};pickables.push(leg);pinMeshes.push(leg);
+      const leg=mesh(new THREE.TubeGeometry(curve,16,counter?.116:.07,4,false),metal,new THREE.Vector3());leg.userData={u:chip.id,p,h};pickables.push(leg);pinMeshes.push(leg);
       const shoulder=box(.22,.12,.32,inner.clone().setY(.54),metal);shoulder.userData={u:chip.id,p,h};pickables.push(shoulder);
       pinLabels.set(chip.id+'.'+p,topLabel(String(p),pos.clone().add(new THREE.Vector3(0,.025,upper?-.4:.4)),.55,.45,{color:'#35433e',background:'#faf9ef',size:95}));
     }
     collectComponent(chip.id,before,Array.from({length:n},(_,i)=>{const p=i+1;return [chip.board,p>half?'e':'f',start+(p>half?n-p:p-1)];}));
+    if(counter)componentHologram.register({id:chip.id,type:'chip',title:chip.id+' · '+chip.label,detail:chip.name,anchor:center.clone().setY(1.57),hitPoint:center.clone(),group:componentGroups.get(chip.id).group});
     if(chip.dipSwitch)componentHologram.register({id:chip.id,type:'switch',title:chip.id+' · DIP de 4 posiciones',detail:()=>Object.entries(chip.functions).map(([p,bit])=>p+' '+({ABRIR:'Abrir',CERRAR:'Cerrar',STOP:model.stopClosedRun?'RUN':'STOP',FCA:'Final abierta',FCC:'Final cerrada'}[bit])+' '+(contactStates[chip.id]?.[p]?'ON':'OFF')).join(' · '),anchor:center.clone().setY(1.85),hitPoint:center.clone(),group:componentGroups.get(chip.id).group});
   }
   // SIP resistor networks are passive packages, not extra logic ICs.
@@ -293,24 +322,31 @@ export function createViewer({container, model, point, hole, onConnection, onPin
       }
     }
     if(isRes){
-      // A 6 mm axial resistor stands above the first hole. Its other lead folds
-      // back into the adjacent column, rather than shrinking the body to 2 mm.
-      const bodyCenter=a.clone().setY(1.65);
+      const flat=counter&&len>=2.8;
+      const bodyCenter=flat?mid.clone().setY(.68):a.clone().setY(1.65);
       const [first,second,multiplier]=resistorBandDigits(it.value);
       const bands=[resistorShell,bandMaterials[first],bandMaterials[second],multiplier===-1?goldBand:bandMaterials[multiplier]||bandMaterials[2],goldBand];
       const body=mesh(resistorBody,bands.map(material=>material.clone()),bodyCenter,group);body.userData={id:it.id};pickables.push(body);
       const radius=resistor.leadDiameter/pitch/2;
-      const firstLead=lead([a,a.clone().setY(.47)],group,radius),returnLead=lead([a.clone().setY(2.86),a.clone().setY(3.14),b.clone().setY(3.14),b.clone().setY(2.7),b],group,radius);
+      let firstPath=[a,a.clone().setY(.47)],returnPath=[a.clone().setY(2.86),a.clone().setY(3.14),b.clone().setY(3.14),b.clone().setY(2.7),b];
+      if(flat){
+        const along=b.clone().sub(a).normalize(),halfLength=resistor.profile.at(-1)[0]/pitch;
+        body.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),along);
+        firstPath=[a,a.clone().setY(.5),bodyCenter.clone().addScaledVector(along,-halfLength)];
+        returnPath=[bodyCenter.clone().addScaledVector(along,halfLength),b.clone().setY(.5),b];
+      }
+      const firstLead=lead(firstPath,group,radius),returnLead=lead(returnPath,group,radius);
       firstLead.userData=returnLead.userData={id:it.id};pickables.push(firstLead,returnLead);
-      componentHologram.register({id:it.partId||it.id,connectionId:it.id,type:'res',title:(it.partId||it.id)+' · Resistencia',detail:it.value,anchor:bodyCenter.clone().setY(2.95),hitPoint:bodyCenter.clone(),group});
+      componentHologram.register({id:it.partId||it.id,connectionId:it.id,type:'res',title:(it.partId||it.id)+' · Resistencia',detail:it.value,anchor:bodyCenter.clone().setY(flat?1.25:2.95),hitPoint:bodyCenter.clone(),group});
     }
-    if(it.kind==='cap'&&!/^(10|100)\s*(µ|μ|u)/i.test(it.value)){const center=mid.clone().setY(.95);const body=mesh(new THREE.SphereGeometry(.43,20,14),new THREE.MeshStandardMaterial({color:0xc88c41,roughness:.72}),center,group);body.scale.set(1,1,.38);body.userData={id:it.id};pickables.push(body);for(const [i,h] of [a,b].entries())lead([h,h.clone().setY(.32),center.clone().add(new THREE.Vector3(i?.2:-.2,-.2,0))],group);const label=topLabel(it.value,center.clone().add(new THREE.Vector3(0,.5,0)),1.8,.5,{background:'#c88c41',color:'#30271c',size:43});group.add(label);}
-    if(it.kind==='cap'&&/^(10|100)\s*(µ|μ|u)/i.test(it.value)){
+    const electrolytic=it.kind==='cap'&&(it.polarized||/^(10|100)\s*(µ|μ|u)/i.test(it.value));
+    if(it.kind==='cap'&&!electrolytic){const center=mid.clone().setY(.95);const body=mesh(new THREE.SphereGeometry(.43,20,14),new THREE.MeshStandardMaterial({color:0xc88c41,roughness:.72}),center,group);body.scale.set(1,1,.38);body.userData={id:it.id};pickables.push(body);for(const [i,h] of [a,b].entries())lead([h,h.clone().setY(.32),center.clone().add(new THREE.Vector3(i?.2:-.2,-.2,0))],group);if(!counter){const label=topLabel(it.value,center.clone().add(new THREE.Vector3(0,.5,0)),1.8,.5,{background:'#c88c41',color:'#30271c',size:43});group.add(label);}}
+    if(electrolytic){
       const center=mid.clone().setY(1.45),sleeve=texture((ctx,w,h)=>{ctx.fillStyle='#24485a';ctx.fillRect(0,0,w,h);ctx.fillStyle='#d2ddd5';ctx.fillRect(w*.21,0,w*.16,h);ctx.fillStyle='#24485a';ctx.font='bold 30px Arial';ctx.textAlign='center';for(let y=30;y<h;y+=50)ctx.fillText('−',w*.29,y);ctx.fillStyle='#dde6e3';ctx.font='600 32px Arial';ctx.fillText(it.value,w*.67,h*.38);ctx.font='26px Arial';ctx.fillText('16 V',w*.67,h*.65);},512,256);
       const body=mesh(new THREE.CylinderGeometry(.64,.64,1.8,40),[new THREE.MeshStandardMaterial({map:sleeve,roughness:.4}),metal.clone(),dark.clone()],center,group);body.userData={id:it.id};pickables.push(body);body.rotation.y=Math.PI/2-Math.PI*2*.29;
       for(const [i,h] of [a,b].entries())lead([h,h.clone().setY(.4),center.clone().setY(.55).add(new THREE.Vector3(i?.28:-.28,0,0))],group);
       const top=center.clone().setY(2.359);box(.76,.008,.022,top,dark.clone(),group).rotation.y=Math.PI/4;box(.76,.008,.022,top,dark.clone(),group).rotation.y=-Math.PI/4;contactShadow(center,2.1,1.8,group);
-      const label=topLabel(it.id+' · '+it.value,center.clone().setY(.055).add(new THREE.Vector3(0,0,1.02)),2.4,.45,{background:'#faf9ef',color:'#345349',size:43});group.add(label);
+      if(!counter){const label=topLabel(it.id+' · '+it.value,center.clone().setY(.055).add(new THREE.Vector3(0,0,1.02)),2.4,.45,{background:'#faf9ef',color:'#345349',size:43});group.add(label);}
     }
     if(it.kind==='pot'){
       const center=mid.clone().setY(1.02),body=roundedBox(2.65,1.35,1.6,center,new THREE.MeshStandardMaterial({color:0x176994,roughness:.36}),group,.11);body.userData={id:it.id};pickables.push(body);box(2.44,.08,1.42,center.clone().setY(.39),new THREE.MeshStandardMaterial({color:0x10415e}),group);
@@ -323,14 +359,15 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     }
     if(it.kind==='led'){
       const center=mid.clone().setY(1.22),mat=new THREE.MeshPhysicalMaterial({color:0xc24332,emissive:0x000000,roughness:.18,metalness:0,clearcoat:1,clearcoatRoughness:.1,transparent:true,opacity:.88,depthWrite:false});
-      const base=mesh(new THREE.CylinderGeometry(.52,.52,.8,32),mat,center,group),lens=mesh(new THREE.SphereGeometry(.52,32,20,0,Math.PI*2,0,Math.PI/2),mat,center.clone().setY(1.62),group),flange=mesh(new THREE.CylinderGeometry(.6,.6,.14,32),mat,center.clone().setY(.77),group);
+      const radius=counter?.92:.52;
+      const base=mesh(new THREE.CylinderGeometry(radius,radius,.8,32),mat,center,group),lens=mesh(new THREE.SphereGeometry(radius,32,20,0,Math.PI*2,0,Math.PI/2),mat,center.clone().setY(1.62),group),flange=mesh(new THREE.CylinderGeometry(radius+.08,radius+.08,.14,32),mat,center.clone().setY(.77),group);
       for(const obj of [base,lens,flange]){obj.userData={id:it.id,baseOpacity:.88};pickables.push(obj);}mat.userData.baseColor=it.color||({LY:'#eab83f',LG:'#2cab66',LR:'#d34436'})[it.value]||'#d34436';mat.color.set(mat.userData.baseColor);ledLenses.set(it.value,mat);
       for(const [i,h] of [a,b].entries()){const inner=center.clone().setY(1.27).add(new THREE.Vector3(i?.18:-.18,0,0));lead([h,h.clone().setY(.48),inner.clone().setY(.72),inner],group);}box(.18,.19,.18,center.clone().setY(1.33).add(new THREE.Vector3(.18,0,0)),metal.clone(),group);
       const cup=mesh(new THREE.SphereGeometry(.18,16,10,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({color:0xc4ccce,metalness:.8,roughness:.2,side:THREE.DoubleSide}),center.clone().add(new THREE.Vector3(.18,.23,0)),group);cup.rotation.x=Math.PI;
       mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([center.clone().add(new THREE.Vector3(-.18,.1,0)),center.clone().add(new THREE.Vector3(-.05,.43,0)),center.clone().add(new THREE.Vector3(.18,.28,0))]),12,.012,5,false),metal,new THREE.Vector3(),group);
-      box(.04,.11,.42,center.clone().add(new THREE.Vector3(.56,-.45,0)),new THREE.MeshStandardMaterial({color:0x984236,roughness:.3}),group);
+      box(.04,.11,.42,center.clone().add(new THREE.Vector3(counter?Math.sign(b.x-a.x)*(radius+.035):.56,-.45,0)),new THREE.MeshStandardMaterial({color:counter?0x532462:0x984236,roughness:.55}),group);
       const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTexture,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));glow.position.copy(center).setY(1.47);glow.scale.set(2.6,2.6,1);glow.visible=false;group.add(glow);ledGlows.set(it.value,glow);contactShadow(center,1.7,1.7,group);
-      componentHologram.register({id:it.partId||it.id,connectionId:it.id,type:'led',title:({LR:'LED rojo',LY:'LED amarillo',LG:'LED verde'})[it.value]||'LED',detail:({LR:'STOP · parpadeo',LY:'Puerta en movimiento',LG:'Puerta completamente abierta'})[it.value]||it.value,anchor:center.clone().setY(2.25),hitPoint:center.clone(),group});
+      componentHologram.register({id:it.partId||it.id,connectionId:it.id,type:'led',title:counter?'LED · peso '+it.bit:({LR:'LED rojo',LY:'LED amarillo',LG:'LED verde'})[it.value]||'LED',detail:counter?'Cátodo hacia LED'+it.bit+'_N':({LR:'STOP · parpadeo',LY:'Puerta en movimiento',LG:'Puerta completamente abierta'})[it.value]||it.value,anchor:center.clone().setY(counter?2.65:2.25),hitPoint:center.clone(),group});
     }
     if(it.kind==='motor'&&!it.externalMotor){
       const center=mid.clone().setY(1.2),housing=new THREE.MeshStandardMaterial({color:0xa1adb2,metalness:.78,roughness:.28}),body=mesh(new THREE.CylinderGeometry(.9,.9,2.4,32),housing,center,group);body.rotation.z=Math.PI/2;

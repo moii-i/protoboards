@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="./design-system.css">
   <link rel="stylesheet" href="./showcase.css?v=catalogo-v1">
   <link rel="stylesheet" href="./catalog-home.css?v=apariencia-v1">
-  <script src="./design-system.js?v=mesa-v1" defer></script>
+  <script src="./design-system.js?v=contador-v1" defer></script>
   <script src="./showcase.js?v=apariencia-v1"></script>
   <link rel="stylesheet" href="./appearance.css?v=apariencia-v1">
   <script src="./puerta-appearance-init.js?v=apariencia-v1"></script>
@@ -36,33 +36,24 @@
   <main class="wrap design-catalog">
     <div class="catalog-index">
       <p class="catalog-kicker">Laboratorio digital</p>
-      <span>03 prácticas · Guías 2D y 3D</span>
+      <span>04 prácticas · Guías 2D y 3D</span>
     </div>
-    <article class="circuit-card catalog-featured" data-circuit-card="puerta" data-preview="puerta-catodo" aria-labelledby="featuredTitle">
-      <a class="circuit-card-preview" href="/puerta-catodo#montaje" data-circuit-link tabindex="-1" aria-hidden="true">
-        <img src="./preview-puerta-catodo.png" alt="" width="960" height="600" fetchpriority="high" decoding="async">
+    <article class="circuit-card catalog-featured" data-circuit-card="contador" aria-labelledby="featuredTitle">
+      <a class="circuit-card-preview" href="/contador#montaje" data-circuit-link tabindex="-1" aria-hidden="true">
+        <img src="./preview-contador.webp" alt="" width="960" height="600" fetchpriority="high" decoding="async">
         <span class="catalog-preview-id"><i></i> Vista del montaje 3D</span>
-        <span class="circuit-preview-label">5011AS · DIP4</span>
+        <span class="circuit-preview-label">1 protoboard · 5 V</span>
       </a>
       <div class="circuit-card-body">
-        <p class="catalog-kicker">Práctica destacada</p>
-        <h1 id="featuredTitle">Control de puerta</h1>
-        <p class="circuit-card-description">Monta un control con dos DIP4 y un motor TT. Sigue el cableado y observa cómo los displays 5011AS indican el estado de la puerta.</p>
-        <div class="circuit-card-tags"><span>5 integrados</span><span>11 resistencias</span><span>2 protoboards</span></div>
+        <p class="catalog-kicker">Práctica principal</p>
+        <h1 id="featuredTitle">Contador de 0 a 9</h1>
+        <p class="circuit-card-description">Monta cuatro flip-flops JK con reloj NE555. Observa el conteo en el 5011AS y sigue los cuatro bits hasta el borrado en diez.</p>
+        <div class="circuit-card-tags"><span>NE555</span><span>74LS73A</span><span>5011AS</span></div>
         <div class="circuit-card-progress">
           <div class="circuit-card-progress-label"><span data-catalog-progress>Tu próxima conexión empieza aquí</span><span data-catalog-percent>0%</span></div>
           <div class="circuit-card-progress-track" aria-hidden="true"><i></i></div>
-          <a class="circuit-card-action" href="/puerta-catodo#montaje" data-circuit-link data-catalog-action>Empezar montaje <span aria-hidden="true">→</span></a>
+          <a class="circuit-card-action" href="/contador#montaje" data-circuit-link data-catalog-action>Empezar montaje <span aria-hidden="true">→</span></a>
         </div>
-        <details class="catalog-alternatives">
-          <summary>Otros montajes de puerta</summary>
-          <ul>
-            <li><a href="/puerta-catodo?desacoplo=si#montaje">5011AS con desacoplo</a></li>
-            <li><a href="/puerta-catodo?montaje=anterior#montaje">Referencia de cátodo · 16 resistencias</a></li>
-            <li><a href="/puerta?montaje=ls151-9r#montaje">Ánodo común · 9 resistencias</a></li>
-            <li><a href="/puerta?montaje=ls151-6k8#montaje">Ánodo común · opción 6.8 kΩ</a></li>
-          </ul>
-        </details>
       </div>
     </article>
     <section class="catalog-practices" aria-labelledby="catalogTitle" id="circuitos">
@@ -71,6 +62,33 @@
         <a class="catalog-resume" id="catalogContinue" href="#tu-ritmo">Cómo funciona <span aria-hidden="true">→</span></a>
       </div>
       <div class="circuit-grid">
+        <article class="circuit-card" data-circuit-card="puerta" data-preview="puerta-catodo" aria-labelledby="doorTitle">
+          <a class="circuit-card-preview" href="/puerta-catodo#montaje" data-circuit-link tabindex="-1" aria-hidden="true">
+            <img src="./preview-puerta-catodo.png" alt="" width="960" height="600" decoding="async">
+            <span class="catalog-preview-id"><i></i> 01 / Control digital</span>
+            <span class="circuit-preview-label">5011AS · DIP4</span>
+          </a>
+          <div class="circuit-card-body">
+            <h3 id="doorTitle">Control de puerta</h3>
+            <p class="circuit-card-description">Monta un control con dos DIP4 y un motor TT. Sigue el cableado y observa cómo los displays 5011AS indican el estado de la puerta.</p>
+            <div class="circuit-card-tags"><span>5 integrados</span><span>11 resistencias</span><span>2 protoboards</span></div>
+            <div class="circuit-card-progress">
+              <div class="circuit-card-progress-label"><span data-catalog-progress>Tu próxima conexión empieza aquí</span><span data-catalog-percent>0%</span></div>
+              <div class="circuit-card-progress-track" aria-hidden="true"><i></i></div>
+              <a class="circuit-card-action" href="/puerta-catodo#montaje" data-circuit-link data-catalog-action>Empezar montaje <span aria-hidden="true">→</span></a>
+            </div>
+            <details class="catalog-alternatives">
+              <summary>Otros montajes de puerta</summary>
+              <ul>
+                <li><a href="/puerta-catodo?desacoplo=si#montaje">5011AS con desacoplo</a></li>
+                <li><a href="/puerta-catodo?montaje=anterior#montaje">Referencia de cátodo · 16 resistencias</a></li>
+                <li><a href="/puerta?montaje=ls151-9r#montaje">Ánodo común · 9 resistencias</a></li>
+                <li><a href="/puerta?montaje=ls151-6k8#montaje">Ánodo común · opción 6.8 kΩ</a></li>
+              </ul>
+            </details>
+          </div>
+        </article>
+
         <article class="circuit-card" data-circuit-card="555" aria-labelledby="timerTitle">
           <a class="circuit-card-preview" href="/555#montaje" data-circuit-link tabindex="-1" aria-hidden="true">
             <img src="./preview-555.png" alt="" width="960" height="600" decoding="async">
