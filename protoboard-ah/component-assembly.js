@@ -26,7 +26,7 @@ function prepare(m){
  m.componentAssemblyVersion='components-first-v1';
  m.wiringStages=m.stages.map(s=>[...s]);
  for(const it of m.items)if(!wire(it)){it.wiringStage=it.stage;it.stage=0;}
- m.stages[0]=['0. Coloca todos los componentes','Con las fuentes desconectadas, coloca integrados, resistencias, capacitores, LED, potenciómetro, displays y mandos según los materiales de este circuito. Respeta valores, muescas y polaridades. Los mandos y el motor externos quedan fuera de la protoboard. En este paso no añadas jumpers; después conectarás los bloques con las piezas ya colocadas.'];
+ if(!m.singleSupply)m.stages[0]=['0. Coloca todos los componentes','Con las fuentes desconectadas, coloca integrados, resistencias, capacitores, LED, potenciómetro, displays y mandos según los materiales de este circuito. Respeta valores, muescas y polaridades. Los mandos y el motor externos quedan fuera de la protoboard. En este paso no añadas jumpers; después conectarás los bloques con las piezas ya colocadas.'];
  for(let i=1;i<m.stages.length-1;i++)m.stages[i]=[m.stages[i][0].replace(/^(\d+\. )/,'$1Cableado · '),'Las piezas ya están colocadas. Conecta únicamente los cables de este bloque y comprueba sus nodos. '+m.stages[i][1].replace(/Coloca /g,'Comprueba la colocación de ')];
  if(m.checkpoints)m.checkpoints[0]='Todos los componentes colocados, con valores y polaridad revisados. Sin jumpers ni fuentes conectadas.';
  addExternalWires(m);return m;

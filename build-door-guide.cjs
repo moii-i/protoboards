@@ -137,4 +137,24 @@ s=s.replace('let checkIndex=0;', "if(model.timingOption)checks.slow[0]=[6,'Red R
 s=s.replace("':routing:v2');let saved={};", "':routing:v2')+(model.progressRevision?':'+model.progressRevision:'');let saved={};");
 s=s.replace('window.doorGuide={model,getState:', 'window.doorGuide={model,toggleInput:toggleDoorInput,getPhysicalContacts:()=>proteusCircuit?window.DoorProteusCircuit.contactsFromInputs(door,model):null,getState:');
 s=s.replace('pot:code,leds:step===LAST?', 'pot:code,contacts:v.contacts,leds:step===LAST?');
+// Allow the counter to reuse the guide with its own wiring and demo.
+s=s
+.replace("stateKey='protoboard:puerta:'","stateKey=model.progressKey||'protoboard:puerta:'")
+.replace('marked:[...marked]}));','marked:[...marked],total:model.progressTotal}));')
+.replace('!motionQuery.matches&&!document.hidden;','!motionQuery.matches&&!document.hidden&&(!model.progressKey||window.protoboardsAppearance?.getState().effects==="full");')
+.replace('const titles=model.stages','const reviewStage=model.reviewStage??LAST-1;\nconst titles=model.stages')
+.replaceAll('step===LAST-1','step===reviewStage').replace('[0,LAST-1,LAST]','[0,reviewStage,LAST]')
+.replace("h[1]==='+B'&&h[0]==='A'","!model.singleSupply&&h[1]==='+B'&&h[0]==='A'")
+.replace("view==='all'?'Ambas placas'","view==='all'?(model.singleSupply?'Placa completa':'Ambas placas')")
+.replace('function indicators(){if(proteusCircuit)','function indicators(){if(model.demo)return model.demo.indicators();if(proteusCircuit)')
+.replace('function paintLEDs(){const now=',"function paintLEDs(){if(model.demo){const v=indicators();model.demo.paint(v,step===LAST);board3d?.setIndicators(step===LAST?v:{leds:{},segments:{},switches:{}});return;}const now=")
+.replace('function updateDemo(){',"function updateDemo(){if(model.demo){paintLEDs();sync3d();save();return;}")
+.replace("function togglePower(){power=!power;","function togglePower(){if(model.demo){if(step!==LAST)selectStep(LAST);model.demo.toggle();return;}power=!power;")
+.replace("step=Math.max(0,Math.min(LAST,n));if(step!==LAST&&power)", "step=Math.max(0,Math.min(LAST,n));if(step!==LAST)model.demo?.stop();if(step!==LAST&&power)")
+.replace("if(document.hidden){if(demoFrame)","if(document.hidden){model.demo?.stop();if(demoFrame)")
+.replace('function showCheck(){const xs=checks[','function showCheck(){const xs=(model.diagnostics||checks)[')
+.replace('selectStep(checks[$','selectStep((model.diagnostics||checks)[$')
+.replaceAll("'Visor ampliado del control de puerta'","'Visor ampliado de '+(model.viewerName||'Control de puerta')")
+.replaceAll("'Visor del control de puerta'","'Visor de '+(model.viewerName||'Control de puerta')").replaceAll("model.dipCathode&&mode==='cable'","(model.dipCathode||model.singleSupply)&&mode==='cable'").replace("model.dipCathode&&matchMedia","(model.dipCathode||model.singleSupply)&&matchMedia").replaceAll("download='protoboard-puerta-","download='protoboard-'+(model.slug||'puerta')+'-");
+
 fs.writeFileSync('protoboard-ah/puerta-guide.js',s);console.log('Shared controller: unobstructed endpoint rings, full-board cable navigation and floating controls.');

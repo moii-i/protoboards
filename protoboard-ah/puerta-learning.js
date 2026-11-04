@@ -136,7 +136,7 @@ function blockChecks(n){
  ['Revisé que ningún jumper una directamente +5 V y GND.','Comprobé valores, polaridades y orientación de los integrados.','Revisé todos los bloques antes de conectar las fuentes.'],
  ['Probé puerta cerrada: OF y orden de cierre sin movimiento.','Probé apertura y cierre: amarillo durante movimiento y parada en ambos finales.','Probé puerta abierta: OP, verde y orden de apertura sin movimiento.','Probé STOP: motor detenido, SP y rojo intermitente.','Liberé STOP manteniendo el mando: reanuda en la misma dirección.']
  ];
- return (groups[n]||groups[8]).map((text,i)=>({id:n+':'+i,text,title,related:model.items.find(it=>it.stage===n)?.id}));
+ return (model.reviewChecks?.[n]||groups[n]||groups[8]).map((text,i)=>({id:n+':'+i,text,title,related:model.items.find(it=>it.stage===n)?.id}));
 }
 function saveReviews(){try{localStorage.setItem(reviewKey,JSON.stringify(reviews));}catch{}}
 function renderReview(){

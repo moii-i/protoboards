@@ -5,7 +5,7 @@ const icon=name=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const getJSON=(key,fallback={})=>{try{return JSON.parse(localStorage.getItem(key)||'null')||fallback;}catch{return fallback;}};
 const setJSON=(key,value)=>{try{localStorage.setItem(key,JSON.stringify(value));}catch{}};
 const path=location.pathname.replace(/\.html$/,'');
-const isCatalog=path==='/circuitos',kind=(path==='/puerta'||path==='/puerta-catodo')?'puerta':path==='/555'?'555':'letras';
+const isCatalog=path==='/circuitos',kind=(path==='/puerta'||path==='/puerta-catodo')?'puerta':path==='/555'?'555':path==='/contador'?'contador':'letras';
 const defaultDoor='dip-cc-compacto';
 const doorProfiles=new Map([
  [defaultDoor,{url:'/puerta-catodo',suffix:'routing:v2:proteus-11r-v1'}],
@@ -58,7 +58,7 @@ document.addEventListener('pointerdown',e=>{if(!e.target.closest('.design-tool-d
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('.design-tool-group[open]')){closeTools(true);e.preventDefault();}});
 function initTools(){
  const scene=document.querySelector('.scene-bar'),board=document.querySelector('.board-toolbar');
- if(!scene||!board)return false;if(kind==='puerta'&&!window.doorLesson)return false;if(document.querySelector('.design-tool-dock'))return true;
+ if(!scene||!board)return false;if((kind==='puerta'||kind==='contador')&&!window.doorLesson)return false;if(document.querySelector('.design-tool-dock'))return true;
  const dock=document.createElement('div');dock.className='design-tool-dock';dock.setAttribute('aria-label','Herramientas del visor');
  const label=document.createElement('span');label.className='design-dock-label';label.textContent='Herramientas';dock.append(label);
  const view=toolGroup(dock,'view','Vista','Encuadre y visibilidad');
@@ -102,7 +102,7 @@ function updateCatalog(){
   const state=getJSON(storage),count=counter?5:k==='letras'?14:k==='555'?7:10;
   const completed=new Set((Array.isArray(state.completed)?state.completed:[]).filter(n=>Number.isInteger(n)&&n>=0&&n<count));const started=completed.size>0||(state.marked?.length>0)||state.step>0;
   card.querySelector('[data-catalog-progress]').textContent=started?completed.size+' de '+count+' bloques completados':'Tu próxima conexión empieza aquí';
-  const progress=counter?(state.total?Math.min(100,Math.round((state.marked?.length||0)/state.total*100)):0):Math.round(completed.size/count*100);
+  const progress=counter?(state.total?Math.min(100,Math.round(((state.marked?.length||0)+(state.assemblyConfirmed?.length||0))/state.total*100)):0):Math.round(completed.size/count*100);
   card.querySelector('[data-catalog-percent]').textContent=progress+'%';
   card.querySelector('.circuit-card-progress-track i').style.width=progress+'%';
   const href=(counter?'/contador':k==='puerta'?doorProfile(defaultDoor).url:k==='555'?'/555':'/')+'#montaje';

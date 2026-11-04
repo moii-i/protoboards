@@ -1,4 +1,4 @@
-import {point,dipHole,railColumns} from './contador-modelo.mjs';
+import {point,railColumns} from './contador-modelo.mjs';
 
 const gradients=`<defs>
   <linearGradient id="boardPlastic" x2="0" y2="1"><stop stop-color="#fffdf5"/><stop offset="1" stop-color="#eeeade"/></linearGradient>
@@ -32,26 +32,15 @@ function baseboard(){
   return svg;
 }
 
-function chip(c){
-  const [x]=point(dipHole(c,1)),left=x-12,width=(c.pins/2-1)*30+24,right=left+width;
-  let svg=`<g class="counter-part" data-part="${c.id}" tabindex="0" role="button" aria-label="${c.id} ${c.label}"><title>${c.label} · ${c.name}</title>`;
-  for(let p=1;p<=c.pins;p++){
-    const [px,py]=point(dipHole(c,p)),edge=p>c.pins/2?423:488;
-    svg+=`<path d="M${px} ${py}V${edge}" stroke="#495450" stroke-width="10" stroke-linecap="round"/><path d="M${px} ${py}V${edge}" stroke="url(#metalLead)" stroke-width="7" stroke-linecap="round"/>`;
-  }
-  svg+=`<path d="M${left+7} 421H${right-7}Q${right} 421 ${right} 428V483Q${right} 490 ${right-7} 490H${left+7}Q${left} 490 ${left} 483V466A11 11 0 0 0 ${left} 445V428Q${left} 421 ${left+7} 421Z" fill="url(#chipMold)" stroke="#151919" stroke-width="2"/>`;
-  svg+=`<circle cx="${left+16}" cy="478" r="3.2" fill="#949692"/>${text(c.label,left+width/2,451,'chip-print')}${text(c.id,left+width/2,473,'chip-subprint')}</g>`;
-  return svg;
+const segmentShapes={a:'-36,-77 36,-77 44,-70 36,-64 -36,-64 -44,-70',b:'37,-61 45,-68 52,-61 52,-12 45,-5 37,-12',c:'37,12 45,5 52,12 52,61 45,68 37,61',d:'-36,64 36,64 44,70 36,77 -36,77 -44,70',e:'-52,12 -45,5 -37,12 -37,61 -45,68 -52,61',f:'-52,-61 -45,-68 -37,-61 -37,-12 -45,-5 -52,-12',g:'-36,-6 36,-6 44,0 36,6 -36,6 -44,0'};
+export function display(d){
+  const [x]=point(d.pins[3]),y=(point(d.pins[3])[1]+point(d.pins[8])[1])/2;
+  return `<g class="counter-part" data-placement-id="${d.id}" transform="${at(x,y)}" tabindex="0" role="button" aria-label="${d.label} cátodo común"><rect x="-74" y="-109" width="148" height="223" rx="11" fill="#15171c" stroke="#555457" stroke-width="2"/><rect x="-67" y="-102" width="134" height="209" rx="7" fill="#2b272c"/>${Object.entries(segmentShapes).map(([id,poly])=>`<polygon class="counter-segment" data-display="DS1" data-segment="${id}" points="${poly}" transform="skewX(-7)"/>`).join('')}<circle cx="53" cy="71" r="7" fill="#7f7075"/>${text(d.label,0,95,'board-column')}</g>`;
 }
 
-const segmentShapes={a:'-36,-77 36,-77 44,-70 36,-64 -36,-64 -44,-70',b:'37,-61 45,-68 52,-61 52,-12 45,-5 37,-12',c:'37,12 45,5 52,12 52,61 45,68 37,61',d:'-36,64 36,64 44,70 36,77 -36,77 -44,70',e:'-52,12 -45,5 -37,12 -37,61 -45,68 -52,61',f:'-52,-61 -45,-68 -37,-61 -37,-12 -45,-5 -52,-12',g:'-36,-6 36,-6 44,0 36,6 -36,6 -44,0'};
-function display(d){
-  const [x]=point(d.pins[3]),y=(point(d.pins[3])[1]+point(d.pins[8])[1])/2;
-  return `<g class="counter-part" data-part="${d.id}" transform="${at(x,y)}" tabindex="0" role="button" aria-label="${d.label} cátodo común"><rect x="-74" y="-109" width="148" height="223" rx="11" fill="#15171c" stroke="#555457" stroke-width="2"/><rect x="-67" y="-102" width="134" height="209" rx="7" fill="#2b272c"/>${Object.entries(segmentShapes).map(([id,poly])=>`<polygon class="counter-seg" data-segment="${id}" points="${poly}" transform="skewX(-7)"/>`).join('')}<circle cx="53" cy="71" r="7" fill="#7f7075"/>${text(d.label,0,95,'chip-subprint')}</g>`;
-}
 
 const bands={'1 kΩ':['#71462e','#252125','#b72e30'],'10 kΩ':['#71462e','#252125','#d76726'],'100 kΩ':['#71462e','#252125','#d8b53c']};
-function passive(item){
+export function passive(item){
   const [a,b]=[point(item.a),point(item.b)],x=(a[0]+b[0])/2,y=(a[1]+b[1])/2;
   let shape;
   if(item.kind==='res'){
@@ -65,15 +54,7 @@ function passive(item){
     shape=`<path d="M${a.join(' ')}L${b.join(' ')}" stroke="url(#metalLead)" stroke-width="6"/>`;
     shape+=item.polarized?`<g transform="${at(x,y)}"><circle r="23" fill="url(#electrolytic)"/><circle r="18" fill="#9caeb3"/><path d="M-9 0h18M0-9v18" stroke="#657c82" stroke-width="2"/>${text('+',-30,5,'board-print')}${text('−',25,5,'board-print')}</g>`:`<ellipse cx="${x}" cy="${y}" rx="20" ry="16" fill="#bc7a47" stroke="#795338" stroke-width="2"/>${text('104',x,y+4,'led-number')}`;
   }
-  return `<g class="counter-part" data-part="${item.partId}" tabindex="0" role="button" aria-label="${item.label}"><title>${item.label}</title>${shape}</g>`;
+  return shape;
 }
 
-function jumper(item){
-  const p=item.route.map((pos,i)=>(i?'L':'M')+pos.join(' ')).join(' ');
-  return `<g class="counter-jumper" data-wire="${item.id}" tabindex="0" role="button" aria-label="${item.label}"><title>${item.label}</title><path class="jumper-hit" d="${p}"/><path class="jumper-outline" d="${p}"/><path class="jumper-core" d="${p}" stroke="${item.color}"/><path class="jumper-shine" d="${p}"/></g>`;
-}
-
-export function drawBoard(svg,model){
-  svg.innerHTML=gradients+baseboard()+[...model.items.filter(i=>i.kind==='wire')].sort((a,b)=>a.routeHeight-b.routeHeight).map(jumper).join('')+model.chips.map(chip).join('')+model.displays.map(display).join('')+model.items.filter(i=>i.kind!=='wire').map(passive).join('')+'<g id="counterMarkers" pointer-events="none"></g>';
-  svg.setAttribute('viewBox',model.bounds.join(' '));
-}
+export const board=()=>gradients+baseboard();
