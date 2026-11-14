@@ -356,3 +356,4 @@ body.workbench-active .bench-layout{grid-template-columns:minmax(0,var(--bench-s
 body.workbench-active .bench-layout[data-collapsed=true]{grid-template-columns:minmax(0,0px) minmax(0,1fr);gap:0}
 @media(max-width:800px){body.workbench-active .bench-layout,body.workbench-active .bench-layout[data-collapsed=true]{grid-template-columns:minmax(0,1fr);gap:17px}}
 body.taller .bench-layout[data-collapsed=true]>.sidebar{padding-left:0;padding-right:0;border-width:0;opacity:0;visibility:hidden;box-shadow:none}
+body.design-enhanced .site-header .brand-replay{background:transparent;color:#ffffffb3;border:1px solid #ffffff26;border-radius:8px}body.design-enhanced .site-header .brand-replay:hover{background:#ffffff14;color:#fff}
