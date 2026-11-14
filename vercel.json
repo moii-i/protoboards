@@ -1,0 +1,16 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "echo \"Sin instalación: el sitio estático ya está en protoboard-ah\"",
+  "buildCommand": "echo \"Sin compilación: se publica protoboard-ah tal como está en el repo\"",
+  "outputDirectory": "protoboard-ah",
+  "cleanUrls": true,
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    }
+  ]
+}
