@@ -41,6 +41,11 @@ const bands={'1 kΩ':['#71462e','#252125','#b72e30'],'10 kΩ':['#71462e','#25212
 export function passive(item){
   const [a,b]=[point(item.a),point(item.b)],x=(a[0]+b[0])/2,y=(a[1]+b[1])/2;
   let shape;
+  if(item.kind==='pot'){
+    // Trimmer 3386 de 20 kΩ (marcado 203): patas 1, cursor y 3 en la misma fila.
+    const pins=[item.a,...(item.routedPins||[]).map(([h])=>h),item.b].map(point),cx=pins.reduce((s,p)=>s+p[0],0)/pins.length,y=pins[0][1];
+    return `<g class="counter-pot">${pins.map(([px,py])=>`<path d="M${px} ${py}V${py-14}" stroke="url(#metalLead)" stroke-width="6"/>`).join('')}<rect x="${cx-46}" y="${y-60}" width="92" height="48" rx="7" fill="#1f6f9c" stroke="#10415e" stroke-width="2"/><circle cx="${cx}" cy="${y-36}" r="17" fill="#c9a256" stroke="#7d6431" stroke-width="2"/><path class="counter-pot-slot" d="M${cx-11} ${y-36}h22" stroke="#3d3220" stroke-width="4" stroke-linecap="round"/>${text('203',cx+33,y-17,'led-number')}${text(item.partId+' · 20 kΩ',cx+54,y-40,'board-print')}</g>`;
+  }
   if(item.tactile){
     const legs=[item.a,item.b,...(item.extraPins||[]).map(([h])=>h)].map(point),cx=legs.reduce((s,p)=>s+p[0],0)/legs.length,cy=legs.reduce((s,p)=>s+p[1],0)/legs.length;
     return `<g class="counter-button" data-counter-button="${item.value}">${legs.map(([lx,ly])=>`<path d="M${lx} ${ly}L${cx+Math.sign(lx-cx)*30} ${cy+Math.sign(ly-cy)*30}" stroke="url(#metalLead)" stroke-width="6"/>`).join('')}<rect x="${cx-37}" y="${cy-37}" width="74" height="74" rx="7" fill="#202226" stroke="#0e0f11" stroke-width="2"/><rect x="${cx-33}" y="${cy-33}" width="66" height="66" rx="5" fill="#c3c8ca"/><circle cx="${cx}" cy="${cy}" r="23" fill="#2a2c30"/><circle class="counter-button-cap" cx="${cx}" cy="${cy}" r="18" fill="#c2362c"/>${text(item.value,cx,cy-46,'board-column')}</g>`;

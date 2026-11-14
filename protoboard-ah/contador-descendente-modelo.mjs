@@ -15,7 +15,7 @@ import {railColumns,bounds,point,hole,address,dipHole,part,packageBodies,partBod
 export {railColumns,bounds,point,address,dipHole};
 
 export const chips=[
-  {id:'U5',label:'NE555P',name:'Reloj astable',start:5,nets:['GND','TIEMPO','RELOJ','VCC','CONTROL','TIEMPO','DESCARGA','VCC']},
+  {id:'U5',label:'NE555P',name:'Reloj astable',start:5,nets:['GND','TIEMPO','RELOJ','VCC',null,'TIEMPO','DESCARGA','VCC']},
   {id:'U1',label:'SN74LS73A',name:'JK · bits A (invertido) y B',start:13,nets:['RELOJ','INICIO_N','VCC','VCC','A_N','INICIO_N','JB','B_N','B','VCC','GND','A_N','A','VCC']},
   {id:'U2',label:'SN74LS73A',name:'JK · bits C y D (invertido)',start:23,nets:['A_N','INICIO_N','B_N','VCC','A_N','INICIO_N','VCC','D','D_N','KD','GND','C','C_N','D']},
   {id:'U3',label:'SN74LS00N',name:'NAND · JB y KD',start:33,nets:['C_N','D_N','JB','B_N','C_N','BC','GND','KD','BC','BC',null,'GND','GND','VCC']},
@@ -23,13 +23,13 @@ export const chips=[
 ].map(c=>({...c,board:'A',pins:c.nets.length}));
 export const display={id:'DS1',label:'5011AS',name:'Display · cátodo común',pins:Object.fromEntries(Array.from({length:10},(_,i)=>[i+1,hole(i<5?'h':'d',55+(i<5?i:9-i))])),nets:['e','d','GND','c',null,'b','a','GND','f','g']};
 
-const color={VCC:'#b92c49',GND:'#246190',RELOJ:'#a75b15',INICIO_N:'#a03370',A:'#38824c',A_N:'#2f9a8a',B:'#006b87',B_N:'#3d8fc4',C:'#6354b3',C_N:'#8a5cc2',D:'#94631d',D_N:'#b58424',JB:'#7a3f7f',KD:'#5b6b1f',BC:'#6f7f39'};
+const color={VCC:'#b92c49',GND:'#246190',RELOJ:'#a75b15',TIEMPO:'#1c8757',INICIO_N:'#a03370',A:'#38824c',A_N:'#2f9a8a',B:'#006b87',B_N:'#3d8fc4',C:'#6354b3',C_N:'#8a5cc2',D:'#94631d',D_N:'#b58424',JB:'#7a3f7f',KD:'#5b6b1f',BC:'#6f7f39'};
 
 export const stages=[
-  ['Coloca las piezas','Muescas a la izquierda. Coloca los cinco integrados y el display; después el pulsador INICIO sobre el canal central, las resistencias y los capacitores.'],
+  ['Coloca las piezas','Muescas a la izquierda. Coloca los cinco integrados y el display; después RV1, las resistencias y los dos electrolíticos con su franja (−) hacia el riel azul.'],
   ['Alimentación de 5 V','Une ambos lados de cada riel y lleva +5 V y GND a los cinco integrados. 74LS73A: VCC en el pin 4 y GND en el 11.'],
-  ['Reloj con NE555','Es el mismo bloque del contador 0–9. El pin 3 entrega RELOJ al pin 1 de U1.'],
-  ['Inicialización en 9','INICIO_N une los cuatro CLEAR (pines 2 y 6 de U1 y U2). R8 la mantiene en alto, C3 la retiene en bajo al encender y el pulsador la lleva a GND.'],
+  ['Reloj con NE555 y RV1','R6 de +5 V a DESCARGA; R7 y RV1 en serie de DESCARGA a TIEMPO; C1 de TIEMPO a GND. Girar RV1 cambia la velocidad. El pin 5 queda libre y el pin 3 entrega RELOJ al pin 1 de U1.'],
+  ['Inicialización en 9','INICIO_N une los cuatro CLEAR (pines 2 y 6 de U1 y U2). Al encender, C3 la mantiene en bajo un momento y después R8 la sube a 5 V: el contador arranca en 9.'],
   ['Flip-flops JK y compuertas','A_N (pin 12 de U1) es el reloj de los otros tres flip-flops. Tres NAND del 74LS00 generan JB y KD. Las cuatro entradas sobrantes van a GND.'],
   ['Decodificador y display','Lleva A, B, C y D al 74LS48 y sus siete salidas al 5011AS. A y D salen de Q̄ porque esos flip-flops guardan el bit invertido.'],
   ['Prueba de 9 a 0','Pulsa INICIO: debe aparecer 9. Avanza diez pulsos: 9, 8, …, 1, 0 y de nuevo 9.'],
@@ -39,17 +39,17 @@ function buildPassives(){
   return [
     part('R1','res','10 kΩ',hole('j',46),hole('+B',46),'BLANCO_N','VCC'),
     part('R6','res','10 kΩ',hole('a',6),hole('+T',6),'DESCARGA','VCC'),
-    part('R7','res','100 kΩ',hole('b',6),hole('b',7),'DESCARGA','TIEMPO'),
-    part('C1','cap','4.7 µF',hole('d',7),hole('d',9),'TIEMPO','GND',{polarized:true}),
-    part('C2','cap','100 nF',hole('a',8),hole('b',9),'CONTROL','GND'),
-    part('SW1','switch','INICIO',hole('f',20),hole('f',22),'INICIO_N','GND',{tactile:true,extraPins:[[hole('e',20),'INICIO_N'],[hole('e',22),'GND']],label:'SW1 · pulsador INICIO'}),
-    part('R8','res','10 kΩ',hole('j',20),hole('+B',21),'INICIO_N','VCC'),
-    part('C3','cap','10 µF',hole('h',20),hole('h',22),'INICIO_N','GND',{polarized:true}),
+    part('R7','res','1 kΩ',hole('b',6),hole('b',9),'DESCARGA','RB'),
+    // RV1 como resistencia variable: pata 1 en RB, cursor en TIEMPO, pata 3 libre.
+    part('RV1','pot','20 kΩ',hole('a',9),hole('a',11),'RB',null,{routedPins:[[hole('a',10),'TIEMPO','RV1.2 (cursor)']],label:'RV1 · 20 kΩ · velocidad'}),
+    part('C1','cap','100 µF',hole('j',6),hole('-B',7),'TIEMPO','GND',{polarized:true}),
+    part('R8','res','10 kΩ',hole('j',14),hole('+B',15),'INICIO_N','VCC'),
+    part('C3','cap','10 µF',hole('i',14),hole('-B',13),'INICIO_N','GND',{polarized:true}),
   ];
 }
 
 const stageFor=(net,from,to)=>{
-  if(['RELOJ','TIEMPO','DESCARGA','CONTROL'].includes(net))return 2;
+  if(['RELOJ','TIEMPO','DESCARGA','RB'].includes(net))return 2;
   if(net==='INICIO_N')return 3;
   if(/^[a-g]$/.test(net)||net==='BLANCO_N'||from.ref.startsWith('U4.')||to.ref.startsWith('U4.'))return 5;
   return 4;
@@ -62,9 +62,10 @@ export function buildCounter(){
   const components=[
     ...chips.map(c=>({id:c.id,name:c.name,value:c.label,holes:c.nets.map((_,i)=>dipHole(c,i+1))})),
     {id:'DS1',name:display.name,value:display.label,holes:Object.values(display.pins)},
-    ...passives.map(p=>({id:p.partId,name:p.label,value:p.value,holes:[p.a,p.b,...(p.extraPins||[]).map(([h])=>h)]})),
+    ...passives.map(p=>({id:p.partId,name:p.label,value:p.value,holes:[p.a,p.b,...(p.extraPins||[]).map(([h])=>h),...(p.routedPins||[]).map(([h])=>h)]})),
   ];
-  return {bounds,stages,chips,displays:[display],items,components,terminals,feeds,colors:color,boards:{A:{columns:63,xOffset:0,yOffset:0,railBreak:31,railColumns}},presentation:'contador'};
+  const pot=passives.find(p=>p.kind==='pot');
+  return {potPins:[pot.a,pot.routedPins[0][0],pot.b],bounds,stages,chips,displays:[display],items,components,terminals,feeds,colors:color,boards:{A:{columns:63,xOffset:0,yOffset:0,railBreak:31,railColumns}},presentation:'contador'};
 }
 
 export const model=buildCounter();

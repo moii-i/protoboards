@@ -33,11 +33,6 @@ for(const wire of wires){
   assert.deepEqual(wire.route[0],point(wire.a));
   assert.deepEqual(wire.route.at(-1),point(wire.b));
 }
-// The tactile switch joins its own pair of legs (same side) across the channel.
-const sw=model.items.find(item=>item.partId==='SW1');
-join(strip(sw.a),strip(sw.extraPins[0][0]));
-join(strip(sw.b),strip(sw.extraPins[1][0]));
-
 const byNet=new Map(),byRoot=new Map();
 for(const {h,net,ref} of model.terminals){
   const key=root(strip(h));
@@ -50,7 +45,13 @@ for(const end of [3,33])for(const side of ['T','B'])for(const [polarity,net] of 
 }
 // Resistors and capacitors never bridge their own two nets.
 for(const p of model.items.filter(i=>['res','cap'].includes(i.kind)))assert.notEqual(root(strip(p.a)),root(strip(p.b)),`${p.partId} en cortocircuito`);
-assert.notEqual(root(strip(sw.a)),root(strip(sw.b)),'El pulsador queda puenteado');
+const rv=model.items.find(item=>item.partId==='RV1');
+assert.notEqual(root(strip(rv.a)),root(strip(rv.routedPins[0][0])),'RV1 queda puenteado');
+assert(!model.terminals.some(t=>t.h.join()===rv.b.join()),'La pata 3 de RV1 debe quedar libre');
+assert.deepEqual(model.potPins,[rv.a,rv.routedPins[0][0],rv.b]);
+// Ritmo del NE555 con R6, R7 + RV1 y C1: nunca RB = 0.
+const period=(rv,c)=>.693*(10e3+2*(1e3+rv))*c;
+assert(Math.abs(period(0,100e-6)-.8316)<.001&&Math.abs(period(20e3,100e-6)-3.6036)<.001);
 
 // Rebuild every pin's net from the physical strips, then run the logic on that netlist.
 const physical=chips.map(chip=>({...chip,nets:chip.nets.map((_,i)=>byRoot.get(root(strip(dipHole(chip,i+1))))??null)}));

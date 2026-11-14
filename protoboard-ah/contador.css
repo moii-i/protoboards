@@ -59,3 +59,6 @@
 .logic-schematic .sch-net text{font:700 12px ui-monospace,Consolas,monospace;fill:#1d5a40}
 .logic-proteus{margin-top:1rem}
 .logic-proteus summary{cursor:pointer;font-weight:800}
+.counter-pot{display:grid;gap:.35rem;margin:.9rem 0;font-weight:700}
+.counter-pot input{width:100%;accent-color:var(--appearance-accent,#176348)}
+.counter-page .viewer-pot-label output,.counter-pot output{font-weight:600;color:var(--appearance-muted,#4e6358);margin-left:.4rem}

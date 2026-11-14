@@ -25,10 +25,12 @@ Comparado con un síncrono completo (JB = Ā(C+D), KB = Ā, JC = ĀD, KC = ĀB̄
 
 ## Montaje
 
-Mismas columnas que el contador 0→9: U5 NE555 (5), U1 (13), U2 (23), U3 74LS00 (33), U4 74LS48 (43), DS1 5011AS (55). Se retiran los 4 LED y sus 4 resistencias. Se añaden SW1 (pulsador de 4 patas sobre el canal, columnas 20 y 22), R8 10 kΩ (j20 → +B) y C3 10 µF (h20 + / h22 −). U3 pines 12 y 13 a GND.
+Mismas columnas que el contador 0→9: U5 NE555 (5), U1 (13), U2 (23), U3 74LS00 (33), U4 74LS48 (43), DS1 5011AS (55). Sin LED: la práctica solo pide el display. Sin botón ni capacitor cerámico (pin 5 del NE555 libre), como el montaje físico del 0→9.
 
-C3: retiene INICIO_N en bajo al encender para arrancar en 9. Con 100 µF funciona igual con un arranque más lento. Sin C3 hay que pulsar INICIO tras encender.
+- Reloj: R6 10 kΩ (a6 → +T), R7 1 kΩ (b6 → b9), RV1 20 kΩ como resistencia variable (pata 1 a9, cursor a10 a TIEMPO, pata 3 a11 libre), C1 100 µF (j6 + → −B). T = 0.693·(R6 + 2·(R7 + RV1))·C1: de 0.83 s a 3.6 s por número; con C1 = 10 µF, de 0.08 s a 0.36 s. R7 evita RB = 0. RV1 cubre «respuesta ante diferentes frecuencias».
+- Inicio: R8 10 kΩ (j14 → +B) y C3 10 µF (i14 + → −B) en la tira del pin 2 de U1. Al encender, C3 descargado mantiene INICIO_N en bajo y los cuatro CLEAR dejan 1001. Para repetir: apagar, esperar a que C3 se descargue y encender, o tocar INICIO_N con un cable a GND.
+- U3 pines 12 y 13 a GND.
 
 ## Pendiente de validar
 
-Simulación en Proteus, arranque real con C3 según la rampa de la fuente, rebote del pulsador (CLEAR es asíncrono: el rebote solo repite el borrado) y brillo del display con las salidas del 74LS48.
+Simulación en Proteus, arranque real con C3 según la rampa de la fuente (si la fuente sube muy lento, el pulso puede no bastar), rango real de RV1 y brillo del display con las salidas del 74LS48.

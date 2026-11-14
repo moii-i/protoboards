@@ -33,7 +33,8 @@ function clipsBody([a,b],bodies){
 export const packageBodies=chips=>[...chips.map(c=>[point(hole('e',c.start))[0]-12,420,point(hole('f',c.start+c.pins/2-1))[0]+12,491]),[1700,358,1850,582]];
 // Bodies of components that stand above the board. Wires must not be drawn through them.
 export function partBodies(passives){
-  return passives.filter(part=>part.kind==='led'||part.kind==='cap'||part.tactile).map(part=>{
+  return passives.filter(part=>part.kind==='led'||part.kind==='cap'||part.kind==='pot'||part.tactile).map(part=>{
+    if(part.kind==='pot'){const [x0,y0]=point(part.a),[x1]=point(part.b);return [Math.min(x0,x1)-24,y0-56,Math.max(x0,x1)+24,y0+14];}
     if(part.tactile){
       const legs=[part.a,part.b,...(part.extraPins||[]).map(([h])=>h)].map(point),xs=legs.map(p=>p[0]),ys=legs.map(p=>p[1]);
       return [Math.min(...xs)-14,Math.min(...ys)-14,Math.max(...xs)+14,Math.max(...ys)+14];
@@ -69,6 +70,7 @@ export function routeBoard({chips,display,passives,bodies,colors,stageFor,extraH
     // Extra legs are joined inside the part (pulsador de 4 patas): they occupy a hole,
     // report their net, but never ask the router for another jumper.
     (p.extraPins||[]).forEach(([h,net],i)=>{attach(h,null);terminals.push({h,net,ref:`${p.partId}.${i+3}`,internal:true});});
+    (p.routedPins||[]).forEach(([h,net,ref],i)=>attach(h,net,ref||`${p.partId}.${i+3}`));
     items.push(p);
   }
   for(const [h,net,ref] of extraHoles)attach(h,net,ref);

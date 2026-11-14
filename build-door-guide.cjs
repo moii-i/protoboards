@@ -157,4 +157,4 @@ s=s
 .replaceAll("'Visor ampliado del control de puerta'","'Visor ampliado de '+(model.viewerName||'Control de puerta')")
 .replaceAll("'Visor del control de puerta'","'Visor de '+(model.viewerName||'Control de puerta')").replaceAll("model.dipCathode&&mode==='cable'","(model.dipCathode||model.singleSupply)&&mode==='cable'").replace("model.dipCathode&&matchMedia","(model.dipCathode||model.singleSupply)&&matchMedia").replaceAll("download='protoboard-puerta-","download='protoboard-'+(model.slug||'puerta')+'-");
 
-fs.writeFileSync('protoboard-ah/puerta-guide.js',s);console.log('Shared controller: unobstructed endpoint rings, full-board cable navigation and floating controls.');
+s=s.replace('pot:code,contacts','pot:model.demo?.pot?.()??code,contacts');fs.writeFileSync('protoboard-ah/puerta-guide.js',s);console.log('Shared controller: unobstructed endpoint rings, full-board cable navigation and floating controls.');
