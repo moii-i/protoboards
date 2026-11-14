@@ -4,6 +4,7 @@ import {buildExternalControl,updateExternalControl,revealExternalCable,externalC
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { Line2 } from 'three/addons/lines/Line2.js';
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
@@ -35,7 +36,11 @@ export function createViewer({container, model, point, hole, onConnection, onPin
   controls.maxPolarAngle = Math.PI / 2 - .05;
   controls.listenToKeyEvents(canvas);
   controls.zoomToCursor = true;
-  scene.add(new THREE.HemisphereLight(0xffffff, 0xb3bcb8, 2.4));
+  // Counter boards use an image-based studio environment so metal legs, epoxy and
+  // electrolytic sleeves get real reflections; lights are reduced to compensate.
+  const studio=counter?new THREE.PMREMGenerator(renderer):null;
+  if(studio){scene.environment=studio.fromScene(new RoomEnvironment(),.04).texture;scene.environmentIntensity=.28;studio.dispose();}
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xb3bcb8, counter?2.05:2.4));
   const light = new THREE.DirectionalLight(0xffffff, 3.2);
   light.position.set(-25, 65, 30);
   scene.add(light);
@@ -395,7 +400,20 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     }
 
     if(it.kind==='switch'&&it.externalControl){externalControlBodies.push(buildExternalControl({THREE,it,group,mesh,box,roundedBox,toWorld,hpos,point,topLabel,contactShadow,pickables,switches,metal,dark,componentLabels:false}));componentHologram.register({id:it.partId||it.id,connectionId:it.id,type:'switch',title:'Interruptor '+it.value,detail:it.externalControl.model.toUpperCase(),anchor:toWorld(it.externalControl.center,4.1),group});}
-    if(it.kind==='switch'&&!it.externalControl){
+    if(it.kind==='switch'&&it.tactile){
+      // Pulsador táctil de 6×6 mm sobre el canal central: base negra, tapa metálica y botón.
+      const legs=[a,b,...(it.extraPins||[]).map(([h])=>hpos(h))],center=legs.reduce((s,p)=>s.add(p),new THREE.Vector3()).multiplyScalar(1/legs.length);
+      const base=roundedBox(2.36,.62,2.36,center.clone().setY(.36),textured('#1d1f22',.62,.02),group,.07);base.userData={id:it.id};pickables.push(base);
+      const plate=roundedBox(2.42,.06,2.42,center.clone().setY(.7),new THREE.MeshStandardMaterial({color:0xc9ced0,roughness:.28,metalness:.85}),group,.02);
+      for(const sx of [-1,1])box(.08,.5,.5,center.clone().add(new THREE.Vector3(sx*1.22,.45,0)),metal,group);
+      const stem=mesh(new THREE.CylinderGeometry(.62,.66,.34,32),textured('#26282c',.5,.01),center.clone().setY(.88),group);
+      const cap=mesh(new THREE.CylinderGeometry(.58,.6,.42,32),new THREE.MeshPhysicalMaterial({color:0xc2362c,roughness:.38,clearcoat:.6,clearcoatRoughness:.3}),center.clone().setY(1.24),group);
+      cap.userData={switchId:it.value||it.id,tactile:true,homeY:cap.position.y,stem,stemY:stem.position.y,baseColor:'#c2362c'};pickables.push(cap);switches.push(cap);
+      for(const leg of legs){const toward=center.clone().sub(leg).setY(0).multiplyScalar(.18);lead([leg,leg.clone().setY(.3),leg.clone().add(toward).setY(.52)],group,.06);}
+      contactShadow(center,2.9,2.9,group);
+      componentHologram.register({id:it.partId||it.id,connectionId:it.id,type:'switch',title:'Pulsador '+(it.value||it.id),detail:'Lleva INICIO_N a GND · CLEAR de los cuatro JK',anchor:center.clone().setY(2.1),hitPoint:center.clone(),group});
+    }
+    if(it.kind==='switch'&&!it.externalControl&&!it.tactile){
       const center=(it.spdt?a.clone().lerp(hpos(it.third),.5):mid.clone()).setY(.65),body=roundedBox(it.spdt?2.8:1.8,.9,1.35,center,new THREE.MeshStandardMaterial({color:0x344943}),group,.12);
       const rocker=roundedBox(1.12,.28,.9,center.clone().add(new THREE.Vector3(0,.58,0)),new THREE.MeshStandardMaterial({color:0x245f95}),group,.08);rocker.userData={bit:it.value||it.id};pickables.push(rocker);switches.push(rocker);rocker.userData.switchId=it.value||it.id;
       [a,b,...(it.third?[hpos(it.third)]:[])].forEach(h=>lead([h,h.clone().setY(.5)],group));componentHologram.register({id:it.partId||it.id,connectionId:it.id,type:'switch',title:'Interruptor '+(it.value||it.id),detail:it.contact==='NC'?'Final de carrera':'Mando de puerta',anchor:center.clone().setY(1.9),group});
@@ -546,7 +564,7 @@ export function createViewer({container, model, point, hole, onConnection, onPin
   function setExternalCable(value){externalCablePose=value;let index=0;for(const body of externalControlBodies)for(const cable of body.cables){if(cable.nativeId){index++;continue;}const current=value&&body.id===value.id&&cable.terminal===value.terminal;cable.group.visible=snapshot?.step>=(body.wiringStage||2)&&(!value||index<=value.index);revealExternalCable(cable,current?value.progress:1);index++;}requestRender();}
   function setWireClarity(value){const enabled=Boolean(value);if(enabled===wireClarity)return;wireClarity=enabled;if(snapshot)update({...snapshot,clarity:enabled});else{container.dataset.wireClarity=String(enabled);requestRender();}}
   function setLEDs(leds){let changed=false;for(const [name,mat] of ledLenses){const lit=Boolean(leds[name]);if(mat.userData.lit!==lit){mat.userData.lit=lit;mat.color.set(mat.userData.baseColor);mat.emissive.set(lit?mat.userData.baseColor:'#000000');mat.emissiveIntensity=lit?.9:0;ledGlows.get(name).visible=lit;changed=true;}}if(changed)requestRender();}
-  function setIndicators(state={}){contactStates=state.contacts||Object.fromEntries((model.chips||[]).filter(c=>c.dipSwitch).map(c=>[c.id,Object.fromEntries(Object.entries(c.functions).map(([p,bit])=>[p,model.stopClosedRun&&bit==='STOP'?!state.switches?.[bit]:Boolean(state.switches?.[bit])]))]));setLEDs(state.leds||{});for(const [key,seg] of segments){const [d,s]=key.split('.'),lit=Boolean(state.segments?.[key]??state.segments?.[d]?.[s]);seg.material.color.set(lit?displaySpec.lit:displaySpec.lens);seg.material.emissive.set(lit?displaySpec.lit:'#000000');seg.material.emissiveIntensity=lit?1.35:0;}for(const rocker of switches){if(rocker.userData.dipSlider){const semantic=Boolean(state.switches?.[rocker.userData.switchId]),on=contactStates[rocker.userData.componentHint]?.[rocker.userData.dipPosition]??(model.stopClosedRun&&rocker.userData.switchId==='STOP'?!semantic:semantic);rocker.position.z=rocker.userData.homeZ+(on?-.36:.36);continue;}if(rocker.userData.externalControl){updateExternalControl(rocker,Boolean(state.switches?.[rocker.userData.switchId]));continue;}rocker.rotation.z=state.switches?.[rocker.userData.switchId]?-.18:.18;rocker.material.color.set(state.switches?.[rocker.userData.switchId]?'#da7044':(rocker.userData.baseColor||'#245f95'));}requestRender();}
+  function setIndicators(state={}){contactStates=state.contacts||Object.fromEntries((model.chips||[]).filter(c=>c.dipSwitch).map(c=>[c.id,Object.fromEntries(Object.entries(c.functions).map(([p,bit])=>[p,model.stopClosedRun&&bit==='STOP'?!state.switches?.[bit]:Boolean(state.switches?.[bit])]))]));setLEDs(state.leds||{});for(const [key,seg] of segments){const [d,s]=key.split('.'),lit=Boolean(state.segments?.[key]??state.segments?.[d]?.[s]);seg.material.color.set(lit?displaySpec.lit:displaySpec.lens);seg.material.emissive.set(lit?displaySpec.lit:'#000000');seg.material.emissiveIntensity=lit?1.35:0;}for(const rocker of switches){if(rocker.userData.tactile){const down=state.switches?.[rocker.userData.switchId]?.16:0;rocker.position.y=rocker.userData.homeY-down;rocker.userData.stem.position.y=rocker.userData.stemY-down;continue;}if(rocker.userData.dipSlider){const semantic=Boolean(state.switches?.[rocker.userData.switchId]),on=contactStates[rocker.userData.componentHint]?.[rocker.userData.dipPosition]??(model.stopClosedRun&&rocker.userData.switchId==='STOP'?!semantic:semantic);rocker.position.z=rocker.userData.homeZ+(on?-.36:.36);continue;}if(rocker.userData.externalControl){updateExternalControl(rocker,Boolean(state.switches?.[rocker.userData.switchId]));continue;}rocker.rotation.z=state.switches?.[rocker.userData.switchId]?-.18:.18;rocker.material.color.set(state.switches?.[rocker.userData.switchId]?'#da7044':(rocker.userData.baseColor||'#245f95'));}requestRender();}
   function replay(){const c=connections.get(selectedId);if(!c||!c.group.visible||!snapshot?.animate||!active)return;routeTween={curve:c.curve,started:performance.now(),duration:Math.min(6000,Math.max(2200,c.curve.getLength()*60))};traveler.visible=true;requestRender();}
 
  function updateStrip(studio){

@@ -139,7 +139,7 @@ for (const label of ['2 × 74LS73A', '1 × 74LS00', '1 × 74LS48', '1 × NE555',
 
 const load = name => new Promise((resolve, reject) => {
   const script = document.createElement('script');
-  script.src = './' + name + '.js?v=contador-orden-v3';
+  script.src = './' + name + '.js?v=descendente-v1';
   script.onload = resolve;
   script.onerror = () => reject(new Error('No se pudo cargar ' + name));
   document.body.append(script);

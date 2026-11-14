@@ -18,3 +18,44 @@
 .counter-page .counter-segment{fill:#676168}
 .counter-page .counter-segment.on{fill:#ff6052}
 .counter-page .mapbox .colored-wire{stroke-width:4.5}
+.counter-summary{display:flex;flex-wrap:wrap;gap:.35rem .9rem;color:var(--appearance-muted,#4e6358)}
+.counter-summary b{color:var(--appearance-ink,#21453a)}
+.counter-page .counter-button-cap{transition:fill .15s,r .15s}
+.counter-page .counter-button.pressed .counter-button-cap{fill:#ff8a73;r:15px}
+.counter-page .counter-button{cursor:pointer}
+/* Diseño lógico del contador 9 → 0 */
+.logic-design{margin:28px 0;padding:clamp(18px,3vw,30px);border:1px solid var(--appearance-border,#dae3d3);border-radius:17px;background:var(--appearance-surface,#fffefa);color:var(--appearance-ink,#21453a)}
+.logic-design h2{margin:.2rem 0 .6rem}
+.logic-design h3{margin:1.2rem 0 .5rem;font-size:1.05rem}
+.logic-lead{max-width:72ch}
+.logic-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:clamp(14px,2.4vw,28px)}
+.logic-grid article{min-width:0}
+.logic-table{width:100%;border-collapse:collapse;margin:.6rem 0 1rem;font-variant-numeric:tabular-nums;font-size:.93rem}
+.logic-table caption{caption-side:top;text-align:left;font-size:.85rem;color:var(--appearance-muted,#4e6358);padding-bottom:.4rem}
+.logic-table th,.logic-table td{padding:.38rem .55rem;border-bottom:1px solid var(--appearance-border,#dae3d3);text-align:center}
+.logic-table thead th{font-size:.8rem;text-transform:uppercase;letter-spacing:.03em;color:var(--appearance-muted,#4e6358)}
+.logic-table td{font-family:var(--appearance-mono,ui-monospace,SFMono-Regular,Consolas,monospace)}
+.logic-table.compact{max-width:340px}
+.logic-table tr.dc td{color:var(--appearance-muted,#4e6358)}
+.logic-table tr.current{background:color-mix(in srgb,var(--appearance-accent,#176348) 14%,transparent)}
+.logic-table tr.current th{color:var(--appearance-accent,#176348)}
+.logic-table.proteus th{text-align:left;white-space:nowrap}
+.logic-table.proteus td{text-align:left;font-size:.86rem;line-height:1.55}
+.logic-eq{list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.4rem}
+.logic-eq li{padding:.45rem .6rem;border:1px solid var(--appearance-border,#dae3d3);border-radius:9px;font-family:var(--appearance-mono,ui-monospace,Consolas,monospace);font-size:.92rem}
+.logic-note{padding:.6rem .8rem;border-left:3px solid var(--appearance-accent,#176348);background:color-mix(in srgb,var(--appearance-accent,#176348) 7%,transparent);border-radius:0 9px 9px 0}
+.logic-schematic-wrap{overflow-x:auto;border:1px solid var(--appearance-border,#dae3d3);border-radius:12px;background:#fbfcf8;padding:8px}
+.logic-schematic{display:block;min-width:980px;width:100%;height:auto}
+.logic-schematic text{font:600 13px Manrope,Arial,sans-serif;fill:#22392f}
+.logic-schematic .sch-title{font-size:15px;font-weight:800}
+.logic-schematic .sch-sub{font-size:12px;fill:#4b6257;font-weight:600}
+.logic-schematic .sch-num{font-size:11px;fill:#7a8b81}
+.logic-schematic .sch-box{fill:#fff;stroke:#2e4a3f;stroke-width:2}
+.logic-schematic .sch-wire{stroke:#2e4a3f;stroke-width:2;fill:none}
+.logic-schematic .sch-bubble{fill:#fff;stroke:#2e4a3f;stroke-width:2}
+.logic-schematic .sch-node{fill:#2e4a3f}
+.logic-schematic .sch-res{fill:#f2dcb7;stroke:#7c5b33;stroke-width:2}
+.logic-schematic .sch-net path{fill:#e7f2ec;stroke:#2f7a5a;stroke-width:1.5}
+.logic-schematic .sch-net text{font:700 12px ui-monospace,Consolas,monospace;fill:#1d5a40}
+.logic-proteus{margin-top:1rem}
+.logic-proteus summary{cursor:pointer;font-weight:800}

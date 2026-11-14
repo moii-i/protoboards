@@ -1,4 +1,4 @@
-import {point,railColumns} from './contador-modelo.mjs';
+import {point,railColumns} from './contador-ruteo.mjs';
 
 const gradients=`<defs>
   <linearGradient id="boardPlastic" x2="0" y2="1"><stop stop-color="#fffdf5"/><stop offset="1" stop-color="#eeeade"/></linearGradient>
@@ -41,6 +41,10 @@ const bands={'1 kΩ':['#71462e','#252125','#b72e30'],'10 kΩ':['#71462e','#25212
 export function passive(item){
   const [a,b]=[point(item.a),point(item.b)],x=(a[0]+b[0])/2,y=(a[1]+b[1])/2;
   let shape;
+  if(item.tactile){
+    const legs=[item.a,item.b,...(item.extraPins||[]).map(([h])=>h)].map(point),cx=legs.reduce((s,p)=>s+p[0],0)/legs.length,cy=legs.reduce((s,p)=>s+p[1],0)/legs.length;
+    return `<g class="counter-button" data-counter-button="${item.value}">${legs.map(([lx,ly])=>`<path d="M${lx} ${ly}L${cx+Math.sign(lx-cx)*30} ${cy+Math.sign(ly-cy)*30}" stroke="url(#metalLead)" stroke-width="6"/>`).join('')}<rect x="${cx-37}" y="${cy-37}" width="74" height="74" rx="7" fill="#202226" stroke="#0e0f11" stroke-width="2"/><rect x="${cx-33}" y="${cy-33}" width="66" height="66" rx="5" fill="#c3c8ca"/><circle cx="${cx}" cy="${cy}" r="23" fill="#2a2c30"/><circle class="counter-button-cap" cx="${cx}" cy="${cy}" r="18" fill="#c2362c"/>${text(item.value,cx,cy-46,'board-column')}</g>`;
+  }
   if(item.kind==='res'){
     const angle=Math.atan2(b[1]-a[1],b[0]-a[0])*180/Math.PI;
     const standing=Math.hypot(b[0]-a[0],b[1]-a[1])<72;

@@ -1,6 +1,6 @@
 const fs=require('fs');let s=fs.readFileSync('protoboard-ah/ne555.js','utf8');
 const range=(start,end,body)=>{const a=s.indexOf(start),b=s.indexOf(end,a+start.length);if(a<0||b<0)throw Error(start+' / '+end);s=s.slice(0,a)+body+'\n'+s.slice(b)};
-s=s.replaceAll('protoboard:ne555:v1','protoboard:puerta:compact:v3').replaceAll('./visor-ne555-3d.js','./visor-puerta-3d.js?v=jumpers-v2').replaceAll('protoboard-ne555','protoboard-puerta').replaceAll('circuito NE555','control de puerta').replaceAll('montaje NE555','control de puerta');
+s=s.replaceAll('protoboard:ne555:v1','protoboard:puerta:compact:v3').replaceAll('./visor-ne555-3d.js','./visor-puerta-3d.js?v=pulsador-v1').replaceAll('protoboard-ne555','protoboard-puerta').replaceAll('circuito NE555','control de puerta').replaceAll('montaje NE555','control de puerta');
 s=s.replace('const LAST=',`let wireClarity=true,isolateWires=false;try{wireClarity=localStorage.getItem('protoboard:puerta:clarity:v1')!=='false';}catch{}\nconst LAST=`);
 range('function hole(h)','function drawWires()',`function hole(h){return h[0]+':'+(h[1].length>1?'riel '+h[1]+', ':h[1])+h[2];}
 function effective(it){return it;}
@@ -36,7 +36,7 @@ s=s.replaceAll("names={wire:'cables',res:'resistencias',cap:'capacitor',pot:'pot
 s=s.replace("function hole(h){return h[0]+':'", "function hole(h){if(h[0]==='FUENTE')return ({'+5':'Fuente 5 V · positivo',G5:'Fuente 5 V · GND','+6':'Fuente 6 V · positivo',G6:'Fuente 6 V · GND'})[h[1]];return h[0]+':'");
 s=s.replace("function context(h){if(h[1].length>1)","function context(h){if(h[0]==='FUENTE')return 'Terminal externo de la fuente, desconectada durante el montaje.';if(h[1].length>1)");
 s=s.replace("'Batería '+(h[1]==='+'?'+9 V':'GND')","hole(h)").replaceAll('Mantén la batería desconectada','Mantén ambas fuentes desconectadas');
-s=s.replace('onSwitch:()=>{}',`onSwitch:bit=>{const name={ABRIR:'abrir',CERRAR:'cerrar',STOP:'stop',FCA:'fca',FCC:'fcc'}[bit];if(!name)return;if(step===LAST||model.dipCathode)toggleDoorInput(name);else selectCable('P_'+bit)}`);
+s=s.replace('onSwitch:()=>{}',`onSwitch:bit=>{if(model.demo?.press?.(bit))return;const name={ABRIR:'abrir',CERRAR:'cerrar',STOP:'stop',FCA:'fca',FCC:'fcc'}[bit];if(!name)return;if(step===LAST||model.dipCathode)toggleDoorInput(name);else selectCable('P_'+bit)}`);
 s=s.replace("stateKey='protoboard:puerta:compact:v3'", "stateKey='protoboard:puerta:'+window.DOOR_VARIANT+':routing:v2'");
 s=s.replace('function visibility(){stopFeedback();','function visibility(){stopFeedback();updateThreeSelection();$(\'#map\').classList.toggle(\'wire-clarity\',wireClarity);');
 s=s.replace('items:model.items,animate:canAnimate(),pot:code,leds:','items:model.items,animate:canAnimate(),clarity:wireClarity,isolate:isolateWires,pot:code,leds:');

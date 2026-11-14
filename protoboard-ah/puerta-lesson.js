@@ -2,9 +2,9 @@
 'use strict';if(!window.doorLearning||window.doorLesson)return;
 const byId=id=>document.getElementById(id),ns='http://www.w3.org/2000/svg',map=byId('map'),stage=map.closest('.map-stage');
 const counter=model.demo;
-let enabled=false,chosen=counter?'1':'M',lastStamp='',signalLayer=null;
+let enabled=false,chosen=counter?(counter.signalNames?.[0]||'1'):'M',lastStamp='',signalLayer=null;
 const wireGroups=new Map();for(const it of model.items.filter(x=>x.kind==='wire')){const key=it.signal||it.net;if(!wireGroups.has(key))wireGroups.set(key,[]);wireGroups.get(key).push(it);}
-const aliases=counter?Object.fromEntries(['1','2','4','8','BORRA_N'].map(net=>[net,net])):model.dipCathode?{M:'M',STOP:'S',PA:'PA',PC:'PC',ABRIR:'A_N',CERRAR:'C_N'}:model.assemblyVariant.startsWith('ls151')?{M:'M',STOP:'STOP',NY:'NY',PA:'PA',PC:'PC',ABRIR:'ABRIR',CERRAR:'CERRAR'}:{M:'M',STOP:'S',PA:'P_A',PC:'P_C',ABRIR:'A',CERRAR:'C'};
+const aliases=counter?Object.fromEntries((counter.signalNames||['1','2','4','8','BORRA_N']).map(net=>[net,net])):model.dipCathode?{M:'M',STOP:'S',PA:'PA',PC:'PC',ABRIR:'A_N',CERRAR:'C_N'}:model.assemblyVariant.startsWith('ls151')?{M:'M',STOP:'STOP',NY:'NY',PA:'PA',PC:'PC',ABRIR:'ABRIR',CERRAR:'CERRAR'}:{M:'M',STOP:'S',PA:'P_A',PC:'P_C',ABRIR:'A',CERRAR:'C'};
 for(const k of ['MA','MC'])if(wireGroups.has(k))aliases[k]=k;
 const labels={'1':'Bit de peso 1','2':'Bit de peso 2','4':'Bit de peso 4','8':'Bit de peso 8',BORRA_N:'Borrado activo en bajo',M:'Movimiento habilitado',STOP:'Prioridad de parada',NY:'Retorno del LED amarillo',PA:'Permiso para abrir',PC:'Permiso para cerrar',ABRIR:'Mando de apertura',CERRAR:'Mando de cierre',MA:'Movimiento de apertura',MC:'Movimiento de cierre'};
 const signalButton=document.createElement('button');signalButton.type='button';signalButton.id='lessonSignals';signalButton.textContent='Señales';signalButton.setAttribute('aria-pressed','false');
@@ -23,7 +23,7 @@ function signalSnapshot(){
  const raw=aliases[chosen],ids=(wireGroups.get(raw)||[]).map(it=>it.id);return {active:true,name:chosen,raw,value:values()[aliases[chosen]],ids};
 }
 function explain(name,v){
- if(counter)return name==='BORRA_N'?(v===0?'Borrado activo: el contador vuelve a cero.':'Borrado inactivo.'):'Bit de peso '+name+' en nivel '+v+'.';
+ if(counter?.explain)return counter.explain(name,v);if(counter)return name==='BORRA_N'?(v===0?'Borrado activo: el contador vuelve a cero.':'Borrado inactivo.'):'Bit de peso '+name+' en nivel '+v+'.';
  if(!power)return 'La prueba está apagada. Enciéndela para ver los estados lógicos.';
  if(step!==LAST)return 'Las señales se muestran durante la prueba del circuito completo.';
  if(name==='M'){if(v===1)return 'M=1: hay una sola orden válida y su final de carrera permite avanzar. El motor está habilitado.';if(door.stop)return 'STOP=1 fuerza M=0: el motor se detiene aunque el mando siga enclavado.';if(door.abrir&&door.cerrar)return 'Los dos mandos están activos: M=0 impide órdenes simultáneas de movimiento.';if(door.abrir&&door.fca||door.cerrar&&door.fcc)return 'El final de carrera del sentido solicitado está alcanzado: M=0 detiene el motor.';return 'Sin una orden válida, M=0 mantiene el motor detenido.';}

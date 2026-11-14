@@ -11,7 +11,7 @@
         "external-controls-svg.js",
         "puerta-map.js"
       ],
-      "sourceHash": "2f6174ee51f6b218808a634dce734646e46002fa132e1e960ca7f36da02b878c",
+      "sourceHash": "f7128893ffa578011fed2d1282c27a013a8b76122cd481cf8336d400ec7f8c20",
       "connections": 214,
       "componentCount": 52,
       "materials": [
@@ -92,8 +92,8 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "25b176ecc557c63a861fe929c253063ce97049fb80b1c484291474c120829a17",
-      "bytes": 834669,
+      "sha256": "f20eb6599b8e0cf2b47352ba870e29ecc03fef4ce24ff2574b4c9a9278267cf5",
+      "bytes": 813084,
       "pages": 14
     },
     "ls151-compacto": {
@@ -105,7 +105,7 @@
         "external-controls-svg.js",
         "puerta-map.js"
       ],
-      "sourceHash": "b73c965b7522692fd32596ac59fbeaac018ed585f456b6d4b111b5fd6e703dd3",
+      "sourceHash": "acee715b149b52627b54e6a4d130e613fe32f3076378a3fcdc6f5aba36a14c42",
       "connections": 210,
       "componentCount": 50,
       "materials": [
@@ -186,9 +186,9 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "2e81c77b148a15c71faaa6fb5211020f5fcf5f9aecef086c4222bedc6510e3e3",
-      "bytes": 822677,
-      "pages": 13
+      "sha256": "f41cafa4a70e0ae0f42a25a1f8fd2c7ce96524ada7bba62f7e09e85fe9965227",
+      "bytes": 804745,
+      "pages": 14
     },
     "ls151-ahorro": {
       "file": "montaje-ls151-ahorro.pdf",
@@ -199,7 +199,7 @@
         "external-controls-svg.js",
         "puerta-map.js"
       ],
-      "sourceHash": "77a8f6d050da334699886ede7f4e5e656d15bb9dc2a6daf8fc63364682a99b0b",
+      "sourceHash": "61b19c535996126c899857fb17a5dc9de9903f8a6692670055be1c21422e0569",
       "connections": 172,
       "componentCount": 50,
       "materials": [
@@ -280,8 +280,8 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "19ff31d1bc0cfdcd76e478552acfa57424c0e457a8e974ec4684ea7434490b18",
-      "bytes": 776480,
+      "sha256": "12a412b4685d5b3f2870443d71da7c8d58ddc297248e5509b0f423c896c39481",
+      "bytes": 756738,
       "pages": 16
     },
     "ls151-minimo": {
@@ -293,7 +293,7 @@
         "external-controls-svg.js",
         "puerta-map.js"
       ],
-      "sourceHash": "84423aa89e170163543f5e3574435253dfd19323ef12eb49ca4f45417719bf47",
+      "sourceHash": "a5b41cacd218f13501ff28e0fba4cbabac0600a1cd3f5c5c2cea009b393c2508",
       "connections": 133,
       "componentCount": 30,
       "materials": [
@@ -350,8 +350,8 @@
           "quantity": 1
         }
       ],
-      "sha256": "a97fdf1c068fcd8e50fe08a85807adff5d1e6ceb0927ffc330925a1db71b60c7",
-      "bytes": 515965,
+      "sha256": "012544f2bd216b5a039463e7857323155a932c3ccd7f1a2703a17afae363c06e",
+      "bytes": 494366,
       "pages": 12
     },
     "sinuln": {
@@ -362,7 +362,7 @@
         "component-assembly.js",
         "puerta-map.js"
       ],
-      "sourceHash": "d9f942d12d5b262b4539f569cf2dce5698d62daff5a30888962be4d062f72303",
+      "sourceHash": "eb4096141e0753115f22d48d601af45209fce6a2c6bba347b73a944c19c009fb",
       "connections": 198,
       "componentCount": 53,
       "materials": [
@@ -451,8 +451,8 @@
           "quantity": 1
         }
       ],
-      "sha256": "17f258678943de692f9d8e36604d9e239851c6f34e25e0702c07968580fab8a3",
-      "bytes": 798047,
+      "sha256": "1aaf0497409f9bd567b57140e5ec152587799ec54073ce307836a45ba259a26d",
+      "bytes": 777635,
       "pages": 13
     },
     "ls": {
@@ -463,7 +463,7 @@
         "component-assembly.js",
         "puerta-map.js"
       ],
-      "sourceHash": "e273dcafd08400a1464cc96967eb7694c7eaaac3b0262b5bd6350036aec535e3",
+      "sourceHash": "76a04e9d59fd056010ec800d1f1b8b5a67784cb77cc2f96624fb9f44e6966c1a",
       "connections": 192,
       "componentCount": 49,
       "materials": [
@@ -552,8 +552,8 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "9946fd7e8117e382a523aac36e569c69c79dcd10197239bd643cefce9fd4bf7c",
-      "bytes": 782307,
+      "sha256": "3f06e83409f8890045ec4f1355250e02732c0d581890e88855afc3fb64d3fe57",
+      "bytes": 760725,
       "pages": 13
     },
     "comunes": {
@@ -564,7 +564,7 @@
         "component-assembly.js",
         "puerta-map.js"
       ],
-      "sourceHash": "9d2d9d8fc535cb2209634511a16b2aef87938b1c3682d1e87a21e248b27df8c8",
+      "sourceHash": "54a667b8d1166d9a099c705a5c7790b96cf08f3e829e383ff5946d9b3386511e",
       "connections": 177,
       "componentCount": 45,
       "materials": [
@@ -645,8 +645,8 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "9015b9b70e1b6921f8daf4dea7cb4f0ca6f2862308900c85768a37217efe7156",
-      "bytes": 741772,
+      "sha256": "779cace87cbf18b1ddecbf7506720eea55cfa047f9785dd259efe7236abf37ee",
+      "bytes": 721580,
       "pages": 12
     },
     "redes": {
@@ -657,7 +657,7 @@
         "component-assembly.js",
         "puerta-map.js"
       ],
-      "sourceHash": "0b0ab0a1d7df656c126879aef25e26078270bc8a3e9abbd21b7b7fa3b5e83f39",
+      "sourceHash": "c156ab8f08369e050fbe6445aa48a6d1ec4681e3ce1b119c87be6feee9652226",
       "connections": 146,
       "componentCount": 31,
       "materials": [
@@ -738,8 +738,8 @@
           "quantity": "según la guía"
         }
       ],
-      "sha256": "21381f73afd2fdbe78c128c0a8a11a300aa327eb7eadc92eac18a1412b48ed69",
-      "bytes": 676930,
+      "sha256": "4e6eb2e83c2e0e0e8088a8a64899a832dc447c67c712f49a9c425aa14192d6a1",
+      "bytes": 654404,
       "pages": 11
     }
   }
