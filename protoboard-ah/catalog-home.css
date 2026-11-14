@@ -1,3 +1,4 @@
+@layer override,legacy;@layer legacy{
 .catalog-home{
   --catalog-page:var(--appearance-page);--catalog-surface:var(--appearance-surface);--catalog-soft:var(--appearance-soft);
   --catalog-ink:var(--appearance-ink);--catalog-muted:var(--appearance-muted);--catalog-border:var(--appearance-border);
@@ -156,4 +157,5 @@
 }
 @media(prefers-reduced-motion:reduce){
   .catalog-home .circuit-grid .circuit-card:hover{transform:none}
+}
 }

@@ -1,3 +1,4 @@
+@layer override,legacy;@layer legacy{
 /* Lightweight catalogue motion and a reference cover during first 3D load. */
 @view-transition{navigation:auto}
 .site-header{view-transition-name:protoboards-header}
@@ -37,3 +38,4 @@
 @media print{.showcase-preview-play,.showcase-frame,.showcase-preview-state,.showcase-viewer-cover{display:none!important}}
 
 .circuit-preview-label{z-index:2}.workspace:has(.showcase-viewer-cover:not([hidden])) .three-status{display:none}
+}

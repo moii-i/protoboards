@@ -1,3 +1,4 @@
+@layer override,legacy;@layer legacy{
 
 .learning-dialog{width:min(690px,calc(100vw - 28px));max-height:85svh;box-sizing:border-box;border:1px solid #b9cdbd;border-radius:18px;background:#fcfdf8;color:#203c30;padding:20px;box-shadow:0 20px 90px #173b3445;overscroll-behavior:contain}
 .learning-dialog::backdrop{background:#193d345e;backdrop-filter:blur(3px)}
@@ -23,3 +24,4 @@
 #learnInspectorPlace{font:inherit;font-size:11px;min-height:34px;width:100%;border:1px solid #c6d5c2;background:#eff4e7;color:#245b44;border-radius:8px;margin:0 0 12px;padding:7px}
 @media(max-width:720px){.learning-dialog{padding:14px;border-radius:13px;max-height:88svh}.learning-head h2{font-size:18px}.learning-tabs{gap:4px;margin-bottom:14px}.learning-tabs button{font-size:11px;padding:7px 4px}.learning-results{max-height:43svh}.learning-placement-card{max-width:240px;padding:9px 11px;font-size:10px;top:7px;left:7px}.learning-placement-card #learnPlacementNote{max-height:44px;overflow:auto}.learning-placement-card .learning-muted{font-size:9px}.learning-placement-actions button{font-size:9px;padding:4px 5px}.learning-card-head strong{font-size:11px}.studio-compact .island-top{gap:4px}.learning-island-open{min-width:27px;width:27px}.studio-compact #studioMore{font-size:9px;padding:4px 5px}.learning-review-actions button{flex:1}.check-stage{flex-wrap:wrap}}
 @media(prefers-reduced-motion:reduce){.learning-dialog *,.learning-placement-card *{animation:none!important;transition:none!important}}
+}

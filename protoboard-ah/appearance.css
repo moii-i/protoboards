@@ -155,52 +155,52 @@ body.design-enhanced .site-header .nav a{border-radius:var(--taller-radius-sm)}
 body.design-enhanced .site-header .nav a[aria-current],body.design-enhanced .site-header .nav a:hover{background:#ffffff14}
 
 /* ---- Cabecera compacta de la práctica ---- */
-body.taller .design-breadcrumb{margin:14px 0 6px;font-size:13px}
+body.taller .design-breadcrumb{margin:14px 0 6px;font-size:calc(13px * var(--appearance-scale))}
 body.taller .circuit-picker{gap:6px;padding:0;margin:0 0 10px;background:none;border:0;box-shadow:none;flex-wrap:wrap}
 body.taller .circuit-picker>span{display:none}
-body.taller .circuit-picker a{min-height:32px;padding:5px 11px;border-radius:999px;font-size:13px;background:var(--appearance-surface);border:1px solid var(--appearance-border);color:var(--appearance-ink);box-shadow:none}
+body.taller .circuit-picker a{min-height:32px;padding:5px 11px;border-radius:999px;font-size:calc(13px * var(--appearance-scale));background:var(--appearance-surface);border:1px solid var(--appearance-border);color:var(--appearance-ink);box-shadow:none}
 body.taller .circuit-picker a[aria-current]{background:var(--appearance-accent);color:var(--appearance-on-accent);border-color:var(--appearance-accent)}
 body.taller .circuit-picker a small{opacity:.75}
 body.taller .hero{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:10px 28px;padding:6px 0 14px;margin:0;background:none;border:0;box-shadow:none;min-height:0}
 body.taller .hero>div:first-child{padding:0}
-body.taller .hero h1{font-size:clamp(28px,3.3vw,40px);line-height:1.05;letter-spacing:-.035em;margin:6px 0 8px}
-body.taller .hero h1+p,body.taller .hero>div>p{max-width:76ch;margin:0;font-size:15px;color:var(--appearance-muted)}
-body.taller .hero .eyebrow{color:var(--appearance-accent);font-size:12px;letter-spacing:.12em}
+body.taller .hero h1{font-size:calc(clamp(28px,3.3vw,40px) * var(--appearance-scale));line-height:1.05;letter-spacing:-.035em;margin:6px 0 8px}
+body.taller .hero h1+p,body.taller .hero>div>p{max-width:76ch;margin:0;font-size:calc(15px * var(--appearance-scale));color:var(--appearance-muted)}
+body.taller .hero .eyebrow{color:var(--appearance-accent);font-size:calc(12px * var(--appearance-scale));letter-spacing:.12em}
 body.taller .hero-actions{display:none}
 body.taller .hero .specs{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;max-width:460px;padding:0;background:none;border:0}
-body.taller .hero .specs span{padding:5px 10px;border-radius:999px;font-size:12.5px;font-weight:700;background:var(--appearance-soft);color:var(--appearance-ink);border:1px solid var(--appearance-border)}
+body.taller .hero .specs span{padding:5px 10px;border-radius:999px;font-size:calc(12.5px * var(--appearance-scale));font-weight:700;background:var(--appearance-soft);color:var(--appearance-ink);border:1px solid var(--appearance-border)}
 body.taller .bench-toolbar{display:none}
 
 /* ---- Mesa de trabajo: pasos + visor ---- */
 body.taller .layout{gap:16px;margin-top:4px}
 body.taller .sidebar{top:76px;max-height:calc(100dvh - 92px);overflow:auto;border-radius:var(--taller-radius);background:var(--appearance-surface);border:1px solid var(--appearance-border);box-shadow:var(--taller-shadow);scrollbar-width:thin}
-body.taller .stage-list button{border-radius:10px;font-size:14px}
+body.taller .stage-list button{border-radius:10px;font-size:calc(14px * var(--appearance-scale))}
 body.taller .stage-list button.active{background:var(--appearance-soft);box-shadow:inset 3px 0 var(--appearance-accent)}
 body.taller .stage-list button.done .number,body.taller .stage-list button.done :is(span:first-child){color:var(--appearance-accent)}
 body.taller .workspace{display:flex;flex-direction:column;border-radius:var(--taller-radius);background:var(--appearance-surface);border:1px solid var(--appearance-border);box-shadow:var(--taller-shadow);overflow:visible}
 body.taller .workspace>*{min-width:0}
 
 /* La barra única */
-.taller-bar{position:sticky;top:68px;z-index:35;display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;padding:8px 10px;margin:0;background:color-mix(in srgb,var(--appearance-surface) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--appearance-border);border-radius:var(--taller-radius) var(--taller-radius) 0 0}
+.taller-bar{position:sticky;top:68px;z-index:35;display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;padding:8px 10px;margin:0;background:var(--appearance-surface);border-bottom:1px solid var(--appearance-border);border-radius:var(--taller-radius) var(--taller-radius) 0 0}
 .taller-bar .taller-modes{display:inline-flex;gap:2px;padding:3px;margin:0;border-radius:10px;background:var(--appearance-soft);border:1px solid var(--appearance-border);flex:none}
 .taller-bar .taller-modes button{min-height:32px;padding:4px 12px;border:0;border-radius:8px;background:transparent;color:var(--appearance-muted);box-shadow:none;text-align:center}
-.taller-bar .taller-modes button b{font-size:13px;font-weight:800}
+.taller-bar .taller-modes button b{font-size:calc(13px * var(--appearance-scale));font-weight:800}
 .taller-bar .taller-modes button small{display:none}
 .taller-bar .taller-modes button[aria-pressed=true]{background:var(--appearance-accent);color:var(--appearance-on-accent)}
-.taller-bar #startTour{min-height:32px;padding:4px 10px;font-size:13px;border-radius:8px}
+.taller-bar #startTour{min-height:32px;padding:4px 10px;font-size:calc(13px * var(--appearance-scale));border-radius:8px}
 .taller-bar .design-tool-dock{display:flex;align-items:center;gap:4px;padding:0;margin:0;background:none;border:0;box-shadow:none;min-height:0;flex:none}
 .taller-bar .design-dock-label,.taller-bar .design-dock-status{display:none}
-.taller-bar .design-tool-group>summary{min-height:32px;padding:4px 10px;border-radius:8px;font-size:13px;font-weight:750;border:1px solid transparent}
+.taller-bar .design-tool-group>summary{min-height:32px;padding:4px 10px;border-radius:8px;font-size:calc(13px * var(--appearance-scale));font-weight:750;border:1px solid transparent}
 .taller-bar .design-tool-group[open]>summary,.taller-bar .design-tool-group>summary:hover{background:var(--appearance-soft);border-color:var(--appearance-border)}
 .taller-bar .design-main-actions{display:flex;gap:4px;margin:0}
-.taller-bar .design-main-actions button{min-height:32px;padding:4px 10px;font-size:13px;border-radius:8px}
-.taller-bar .taller-context{display:flex;align-items:center;gap:8px;margin:0 0 0 auto;padding:0;background:none;border:0;font-size:12.5px;color:var(--appearance-muted);min-width:0}
-.taller-bar .taller-context strong{font-size:12.5px;color:var(--appearance-ink);white-space:nowrap}
+.taller-bar .design-main-actions button{min-height:32px;padding:4px 10px;font-size:calc(13px * var(--appearance-scale));border-radius:8px}
+.taller-bar .taller-context{display:flex;align-items:center;gap:8px;margin:0 0 0 auto;padding:0;background:none;border:0;font-size:calc(12.5px * var(--appearance-scale));color:var(--appearance-muted);min-width:0}
+.taller-bar .taller-context strong{font-size:calc(12.5px * var(--appearance-scale));color:var(--appearance-ink);white-space:nowrap}
 .taller-bar .taller-context span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:28ch}
 .taller-bar .bench-controls{display:flex;gap:6px;align-items:center;margin:0}
 .taller-bar .bench-widths{padding:2px;border-radius:9px}
-.taller-bar .bench-widths button{min-height:28px;padding:2px 9px;font-size:12px}
-.taller-bar .bench-toggle{min-height:32px;padding:4px 10px;font-size:12.5px;border-radius:8px}
+.taller-bar .bench-widths button{min-height:28px;padding:2px 9px;font-size:calc(12px * var(--appearance-scale))}
+.taller-bar .bench-toggle{min-height:32px;padding:4px 10px;font-size:calc(12.5px * var(--appearance-scale));border-radius:8px}
 body.taller :is(.learning-mode,.scene-bar,#wireClarityHint,.design-viewer-hint){position:absolute!important;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;margin:0;padding:0;border:0}
 
 /* Visor grande, primero */
@@ -213,18 +213,18 @@ body.taller .assembly-viewports{background:var(--appearance-canvas)}
 body.taller:not(.fullscreen) .map-stage:not(.cable-workbench)>.mapbox{height:clamp(420px,62dvh,720px)}
 body.taller .mapbox{background:var(--appearance-canvas)}
 body.taller :is(.assembly-stage-head,.stage-header){padding:12px 16px;border-bottom:1px solid var(--appearance-border);background:var(--appearance-surface)}
-body.taller :is(.assembly-stage-head,.stage-header) h2{font-size:clamp(20px,1.9vw,26px);letter-spacing:-.02em;line-height:1.15;margin:2px 0}
-body.taller :is(.assembly-stage-head,.stage-header) :is(.stage-tag,.eyebrow,.stage-kicker){color:var(--appearance-accent);letter-spacing:.11em;font-size:11.5px}
-body.taller .stage-header #stageText,body.taller .assembly-stage-head p{color:var(--appearance-muted);font-size:14px;max-width:80ch}
+body.taller :is(.assembly-stage-head,.stage-header) h2{font-size:calc(clamp(20px,1.9vw,26px) * var(--appearance-scale));letter-spacing:-.02em;line-height:1.15;margin:2px 0}
+body.taller :is(.assembly-stage-head,.stage-header) :is(.stage-tag,.eyebrow,.stage-kicker){color:var(--appearance-accent);letter-spacing:.11em;font-size:calc(11.5px * var(--appearance-scale))}
+body.taller .stage-header #stageText,body.taller .assembly-stage-head p{color:var(--appearance-muted);font-size:calc(14px * var(--appearance-scale));max-width:80ch}
 body.taller :is(.connection-card,.check-stage,.legend){border-color:var(--appearance-border)}
 body.taller .connection-card{border-top:1px solid var(--appearance-border)}
 body.taller .workspace>:last-child{border-radius:0 0 var(--taller-radius) var(--taller-radius)}
-body.taller .canvas-caption{font-size:12px}
+body.taller .canvas-caption{font-size:calc(12px * var(--appearance-scale))}
 
 /* Configuración y recursos debajo del montaje */
 body.taller .taller-config{margin:18px 0 0}
 body.taller :is(.resource,.assembly-choice,.logic-design,.design-tool-panel,.component-assembly-panel){border-radius:var(--taller-radius);border-color:var(--appearance-border);box-shadow:var(--taller-shadow)}
-body.taller .resource h2,body.taller .assembly-choice h2{font-size:22px;letter-spacing:-.02em}
+body.taller .resource h2,body.taller .assembly-choice h2{font-size:calc(22px * var(--appearance-scale));letter-spacing:-.02em}
 body.taller .resource-grid{gap:16px}
 
 /* Botones */
@@ -254,9 +254,8 @@ body.catalog-home.design-enhanced .circuit-card-action{background:var(--appearan
 
 /* ---- Móvil ---- */
 @media(max-width:900px){
-  .taller-bar{top:60px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;border-radius:0}
-  .taller-bar::-webkit-scrollbar{display:none}
-  .taller-bar .taller-context{display:none}
+  /* Sin overflow ni filtros: los paneles del dock son hojas fijas y no deben recortarse */
+  .taller-bar{position:static;flex-wrap:wrap;border-radius:0;gap:6px}
   .taller-bar>*{flex:none}
   body.taller .hero{grid-template-columns:1fr}
   body.taller .hero .specs{justify-content:flex-start}
@@ -286,7 +285,7 @@ body.taller .assembly-stage-head .cc-bench-overview{display:flex;align-items:cen
 body.taller .assembly-stage-head .cc-bench-current{min-width:0}
 body.taller .assembly-stage-head .cc-bench-current h2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 body.taller .assembly-stage-head .assembly-stage-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:6px;flex:0 1 auto;padding:0;border:0;background:none}
-body.taller .assembly-stage-head .assembly-stage-actions button{min-height:34px;padding:5px 11px;border-radius:8px;font-size:13px}
+body.taller .assembly-stage-head .assembly-stage-actions button{min-height:34px;padding:5px 11px;border-radius:8px;font-size:calc(13px * var(--appearance-scale))}
 body.taller .scene-switch{padding:3px;border-radius:10px;background:var(--appearance-soft);border:1px solid var(--appearance-border);gap:2px}
 body.taller .scene-switch button{min-height:30px;border:0;border-radius:8px;background:transparent;color:var(--appearance-muted);font-weight:800}
 body.taller .scene-switch button[aria-pressed=true]{background:var(--appearance-accent);color:var(--appearance-on-accent)}
@@ -300,8 +299,8 @@ body.taller.counter-page:not(.fullscreen) .assembly-viewports:has(.mapbox:not(.i
 body.taller:not(.fullscreen) .assembly-viewports:has(.mapbox.in-3d){height:clamp(460px,72dvh,860px)}
 
 /* Estado del encuadre bajo el título del paso; ocultar pasos como icono */
-body.taller .taller-context{display:flex;flex-wrap:wrap;gap:4px 8px;margin:2px 0 0;padding:0;background:none;border:0;font-size:12.5px;color:var(--appearance-muted)}
-body.taller .taller-context strong{font-size:12.5px;font-weight:700;color:var(--appearance-muted)}
+body.taller .taller-context{display:flex;flex-wrap:wrap;gap:4px 8px;margin:2px 0 0;padding:0;background:none;border:0;font-size:calc(12.5px * var(--appearance-scale));color:var(--appearance-muted)}
+body.taller .taller-context strong{font-size:calc(12.5px * var(--appearance-scale));font-weight:700;color:var(--appearance-muted)}
 body.taller .stage-header .taller-context{grid-column:1/-1}
 .taller-bar .bench-controls{margin-left:auto}
 .taller-bar .bench-toggle{width:36px;padding:0;justify-content:center}
@@ -319,7 +318,7 @@ body.taller .stage-header .taller-context{justify-content:flex-start}
   body.taller .hero .specs span{flex:none}
   body.taller .circuit-picker{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
   body.taller .circuit-picker a{flex:none}
-  body.taller .hero h1{font-size:30px}
+  body.taller .hero h1{font-size:calc(30px * var(--appearance-scale))}
   body.taller .assembly-stage-head .cc-bench-current h2{white-space:normal}
 }
 
@@ -336,3 +335,24 @@ body.taller .stage-header .stage-nav{align-items:center;flex-wrap:wrap;justify-c
 body.taller .stage-header .stage-nav .taller-scene-switch{margin-right:6px}
 
 body.taller.fullscreen .site-header{z-index:1}
+/* Enlace activo del encabezado */
+body.design-enhanced .site-header .nav a.design-catalog-link{background:var(--appearance-accent);color:var(--appearance-on-accent);border-color:var(--appearance-accent)}
+body.design-enhanced .site-header .nav a.design-catalog-link:hover{filter:brightness(1.08)}
+@media(max-width:700px){
+  body.taller .stage-header{grid-template-columns:1fr}
+  body.taller .stage-header #miniStage,body.taller .stage-header #stageTitle{grid-column:1;grid-row:auto}
+  body.taller .stage-header .stage-nav{grid-column:1;grid-row:auto;justify-content:flex-start}
+}
+/* Capa override: solo para ganar a reglas !important heredadas (capa legacy). */
+@layer override{
+  .taller-bar .taller-modes button{background:transparent!important;color:var(--appearance-muted)!important}
+  .taller-bar .taller-modes button[aria-pressed=true]{background:var(--appearance-accent)!important;color:var(--appearance-on-accent)!important}
+  body.taller .scene-switch button{background:transparent!important;color:var(--appearance-muted)!important;border-color:transparent!important}
+  body.taller .scene-switch button[aria-pressed=true]{background:var(--appearance-accent)!important;color:var(--appearance-on-accent)!important}
+  body.taller .circuit-picker a[aria-current]{background:var(--appearance-accent)!important;color:var(--appearance-on-accent)!important;border-color:var(--appearance-accent)!important}
+}
+/* index.html conserva un <style> en línea fuera de capas: se reafirma el ancho del panel de pasos */
+body.workbench-active .bench-layout{grid-template-columns:minmax(0,var(--bench-sidebar,225px)) minmax(0,1fr)}
+body.workbench-active .bench-layout[data-collapsed=true]{grid-template-columns:minmax(0,0px) minmax(0,1fr);gap:0}
+@media(max-width:800px){body.workbench-active .bench-layout,body.workbench-active .bench-layout[data-collapsed=true]{grid-template-columns:minmax(0,1fr);gap:17px}}
+body.taller .bench-layout[data-collapsed=true]>.sidebar{padding-left:0;padding-right:0;border-width:0;opacity:0;visibility:hidden;box-shadow:none}

@@ -1,3 +1,4 @@
+@layer override,legacy;@layer legacy{
 /* Interface surfaces only. Board geometry, component markings and wire colours
    belong to the electrical model and are never recoloured by these themes. */
 :root{--ws-page:#f6f5ef;--ws-surface:#fffefa;--ws-subtle:#f0f4eb;--ws-ink:#183b33;--ws-muted:#596c63;--ws-border:#d3dfcf;--ws-accent:#14664c;--ws-on-accent:#fff;--ws-focus:#a56b17;--ws-canvas:#edf1e9;--ws-font:1}
@@ -137,3 +138,4 @@
 .component-hologram strong,:root[data-workspace-theme] body .component-hologram strong{font-size:14px;line-height:1.4;color:#effcff}
 .component-hologram .hologram-detail{font-size:11px;line-height:1.5;color:#c6dde1}
 @media(max-width:650px){.component-hologram{padding:9px 11px;gap:3px}.component-hologram strong,:root[data-workspace-theme] body .component-hologram strong{font-size:13px}}
+}

@@ -1,3 +1,4 @@
+@layer override,legacy;@layer legacy{
 /* Protoboards — shared visual system. Circuit colours and geometry remain in the viewers. */
 @font-face{font-family:Manrope;src:url('./manrope.woff2') format('woff2');font-style:normal;font-weight:400 800;font-display:swap}
 :root{--paper:#f6f5ef;--surface:#fffefa;--ink:#183b33;--muted:#596c63;--line:#d9e1d6;--green:#14664c;--soft:#eaf2e6;--amber:#93601d;--radius:20px;--design-shadow:0 8px 30px #163e3509}
@@ -37,3 +38,4 @@ a,button,summary{ -webkit-tap-highlight-color:transparent}button,a,summary{touch
 
 .design-nav-menu{display:none;position:relative}.design-nav-menu>summary{list-style:none;color:#dce9d3;padding:8px;min-height:34px;cursor:pointer;border-radius:8px;line-height:1}.design-nav-menu>summary::-webkit-details-marker{display:none}.design-nav-menu>summary:hover,.design-nav-menu[open]>summary{background:#ffffff14}.design-nav-menu>div{position:absolute;right:0;top:calc(100% + 13px);z-index:80;background:#fffefa;border:1px solid #ccdabc;border-radius:12px;padding:8px;min-width:185px;box-shadow:0 12px 35px #173a3226}.site-header .nav .design-nav-menu a{display:block!important;color:#295a3f;font-size:12px!important;padding:10px 12px!important}.site-header .nav .design-nav-menu a:hover{background:#edf4e3;color:#185638}
 @media(max-width:650px){.design-nav-menu{display:block}.header-row{gap:7px}.brand-replay{display:none}.brand{font-size:17px;gap:8px;white-space:nowrap}.brand svg{width:32px;height:32px}.site-header .nav{gap:4px;flex-wrap:nowrap}.site-header .nav .design-catalog-link{font-size:10px!important;padding:8px 9px!important}}
+}

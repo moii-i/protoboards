@@ -1,3 +1,4 @@
+@layer override,legacy;@layer legacy{
 
 .lesson-pdf-link,.lesson-tools-footer a{font:inherit;color:#245a46;border:1px solid #bfd0c3;border-radius:8px;background:#fff;padding:7px 10px;text-decoration:none;min-height:32px;box-sizing:border-box;display:inline-flex;align-items:center}
 .lesson-tools-footer{display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid #d3dfcf;margin-top:16px;padding-top:12px;font-size:11px}.lesson-tools-footer>*{flex:1;justify-content:center;text-align:center}
@@ -16,3 +17,4 @@
 .learning-placement-card.lesson-card-folded>p,.lesson-signal-card.lesson-card-folded>.lesson-signal-body{display:none}.learning-placement-card.lesson-card-folded{max-width:300px}.learning-placement-card.lesson-card-folded .learning-placement-actions{margin-top:7px}
 .lesson-card-tools button:focus-visible,.lesson-signal-card button:focus-visible,.lesson-signal-card select:focus-visible{outline:3px solid #b99037;outline-offset:2px}
 @media(max-width:720px){.lesson-signal-card{width:250px;font-size:10px;padding:9px 11px;top:7px;left:7px}.lesson-signal-card .learning-card-head>strong{font-size:11px}.lesson-card-tools{gap:2px}.lesson-card-tools button{width:24px!important;min-width:24px!important;min-height:28px!important}.learning-card-head{gap:4px}.learning-placement-card{max-width:260px}.learning-placement-card.lesson-card-folded{max-width:260px}.lesson-tools-footer{gap:6px}.lesson-tools-footer>*{font-size:10px;min-width:130px}}
+}

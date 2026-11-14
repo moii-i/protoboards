@@ -1,3 +1,4 @@
+@layer override,legacy;@layer legacy{
 .is-cable #assemblyIsland,.is-cable #mapNav{display:none!important}
 .fullscreen .clean-workspace:has(.mapbox:not(.in-3d))>.component-assembly-panel[data-kind=leads]{display:none!important}
 .is-cable .assembly-stage-actions>.island-renderers{margin:0;background:var(--ws-subtle);border-color:var(--ws-border)}
@@ -47,3 +48,4 @@ body.cable-page .assembly-choice-head>div:first-child>p{display:none}
 body.cable-page .assembly-helper{margin-bottom:4px}
 @media(max-width:650px){.cable-island{gap:3px;padding:5px;border-radius:11px}.cable-island button{min-width:32px;min-height:34px;padding:5px}.cable-island #cableMark span{display:none}.cable-island #cableCounter{min-width:61px;font-size:10px}.assembly-option-cards{grid-template-columns:minmax(0,1fr);gap:8px}.assembly-option{padding:12px 14px}.assembly-option[aria-current=true]{padding:11px 13px}.assembly-option strong{font-size:16px}.cable-island #cableDrag{min-width:22px}.is-cable .assembly-stage-actions>span{display:none}}
 @media(prefers-reduced-motion:reduce){.assembly-option{transition:none}}
+}
