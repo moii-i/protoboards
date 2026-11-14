@@ -6,6 +6,7 @@ const getJSON=(key,fallback={})=>{try{return JSON.parse(localStorage.getItem(key
 const setJSON=(key,value)=>{try{localStorage.setItem(key,JSON.stringify(value));}catch{}};
 const path=location.pathname.replace(/\.html$/,'');
 const isCatalog=path==='/circuitos',kind=(path==='/puerta'||path==='/puerta-catodo')?'puerta':path==='/555'?'555':path==='/contador'?'contador':path==='/contador-descendente'?'descendente':'letras';
+document.documentElement.dataset.circuit=isCatalog?'catalogo':kind;
 const defaultDoor='dip-cc-compacto';
 const doorProfiles=new Map([
  [defaultDoor,{url:'/puerta-catodo',suffix:'routing:v2:proteus-11r-v1'}],
@@ -36,7 +37,7 @@ if(nav){
 if(!isCatalog){
  const main=document.querySelector('main.wrap'),picker=document.querySelector('.circuit-picker');
  const breadcrumb=document.createElement('nav');breadcrumb.className='design-breadcrumb';breadcrumb.setAttribute('aria-label','Ruta de navegación');breadcrumb.innerHTML='<a href="/circuitos">Tus circuitos</a>'+icon('arrow')+'<span aria-current="page"></span>';breadcrumb.lastElementChild.textContent={puerta:'Control de puerta',555:'Temporizador NE555',letras:'Letras A–H',contador:'Contador 0–9',descendente:'Contador 9–0'}[kind];main?.prepend(breadcrumb);
- if(picker)picker.innerHTML='<span>Montajes</span>'+[['descendente','/contador-descendente','chip','Contador 9-0','5 V'],['contador','/contador','chip','Contador 0-9','5 V'],['letras','/','chip','Letras A–H','5 V'],['555','/555','clock','NE555','9 V'],['puerta',doorHref,'door','Puerta automática','5 V']].map(([k,href,i,label,voltage])=>'<a href="'+href+'"'+(k===kind?' aria-current="page"':'')+'>'+icon(i)+label+'<small>'+voltage+'</small></a>').join('');
+ if(picker)picker.innerHTML='<span>Montajes</span>'+[['descendente','/contador-descendente','chip','Contador 9-0','5 V'],['contador','/contador','chip','Contador 0-9','5 V'],['letras','/','chip','Letras A–H','5 V'],['555','/555','clock','NE555','9 V'],['puerta',doorHref,'door','Puerta automática','5 V']].map(([k,href,i,label,voltage])=>'<a data-circuit="'+k+'" href="'+href+'"'+(k===kind?' aria-current="page"':'')+'>'+icon(i)+label+'<small>'+voltage+'</small></a>').join('');
  const start=document.querySelector('.hero-start');if(start)start.innerHTML='Empezar / continuar '+icon('arrow');
  const footer=document.createElement('footer');footer.className='design-footer';footer.innerHTML='<div><strong>Protoboards</strong> · by moi &amp; chat</div><span><a href="/circuitos">Todos los circuitos</a><a href="#montaje">Volver al montaje ↑</a></span><div>Aprende conectando, a tu ritmo.</div>';main?.append(footer);
  setJSON('protoboards:last-circuit:v1',{kind,variant:doorVariant});
@@ -144,7 +145,7 @@ function tallerMotion(){
 }
 if(!isCatalog){const tallerReady=()=>{if(!initTools())return false;buildTaller();return true;};if(!tallerReady()){let tries=0;const timer=setInterval(()=>{if(tallerReady()||++tries>120)clearInterval(timer);},100);}
  const list=document.getElementById('stageList');if(list){let done=new Set([...list.querySelectorAll('button.done')].map(b=>b.dataset.step||b.textContent));let toastTimer;
- new MutationObserver(()=>{const next=new Set([...list.querySelectorAll('button.done')].map(b=>b.dataset.step||b.textContent));const added=[...next].filter(k=>!done.has(k));done=next;if(!added.length)return;document.querySelector('.design-complete')?.remove();const t=document.createElement('div');t.className='design-complete';t.setAttribute('role','status');t.innerHTML=icon('check')+'<div><strong>Un bloque más, conectado.</strong><small>Tu avance quedó guardado en este navegador.</small></div><button type="button" aria-label="Cerrar aviso">×</button>';t.querySelector('button').onclick=()=>t.remove();document.body.append(t);clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.remove(),4000);}).observe(list,{subtree:true,attributes:true,childList:true,attributeFilter:['class']});
+ new MutationObserver(()=>{const next=new Set([...list.querySelectorAll('button.done')].map(b=>b.dataset.step||b.textContent));const added=[...next].filter(k=>!done.has(k));done=next;if(!added.length)return;document.querySelector('.design-complete')?.remove();const t=document.createElement('div');t.className='design-complete';t.setAttribute('role','status');t.innerHTML=icon('check')+'<div><strong>Un bloque más, conectado.</strong><small>Tu avance quedó guardado en este navegador.</small></div><button type="button" aria-label="Cerrar aviso">×</button>';t.querySelector('button').onclick=()=>t.remove();document.body.append(t);clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.remove(),4000);tallerCelebrate(next.size,list.querySelectorAll('button').length);}).observe(list,{subtree:true,attributes:true,childList:true,attributeFilter:['class']});
  }
 }
 function updateCatalog(){
@@ -168,4 +169,71 @@ function updateCatalog(){
  }
 }
 if(isCatalog){updateCatalog();addEventListener('storage',updateCatalog);addEventListener('pageshow',updateCatalog);}
+/* Taller 6: pistas animadas en la portada, barra de pasos flotante y celebraciones. */
+const tallerFull=()=>document.documentElement.dataset.workspaceMotion==='full';
+function tallerTraces(){
+ const body=document.querySelector('.catalog-featured .circuit-card-body');if(!body||body.querySelector('.taller-traces'))return;
+ const paths=['M400 40H300l-30 30h-90l-20 20','M400 110h-70l-30 30h-60','M400 180h-50l-30 30h-60l-20 20h-50','M400 250h-90l-20 20h-70','M360 0v30l-20 20h-40','M400 300v-20l-25-25'];
+ const ends=[[160,90],[240,140],[190,230],[220,270],[300,50],[375,255]];
+ const svg='<svg viewBox="0 0 400 300" preserveAspectRatio="xMaxYMid slice" aria-hidden="true" focusable="false">'+
+  paths.map(d=>'<path class="taller-trace" d="'+d+'" pathLength="300"/>').join('')+
+  paths.map((d,i)=>'<path class="taller-pulse" style="--d:'+(i*.55).toFixed(2)+'s" d="'+d+'" pathLength="300"/>').join('')+
+  ends.map(([x,y])=>'<circle class="taller-pad" cx="'+x+'" cy="'+y+'" r="4.5"/>').join('')+'</svg>';
+ const wrap=document.createElement('div');wrap.className='taller-traces';wrap.innerHTML=svg;body.prepend(wrap);
+}
+function tallerSpark(x,y,amount=18,spread=110){
+ if(!tallerFull())return;
+ const colors=['var(--circuit)','var(--appearance-accent)','var(--appearance-gold)','#ff8a66'];
+ for(let i=0;i<amount;i++){
+  const s=document.createElement('i');s.className='taller-spark';s.setAttribute('aria-hidden','true');
+  const a=Math.random()*Math.PI*2,r=spread*(.35+Math.random()*.75);
+  s.style.cssText='--x:'+x+'px;--y:'+y+'px;--dx:'+(Math.cos(a)*r).toFixed(1)+'px;--dy:'+(Math.sin(a)*r-spread*.25).toFixed(1)+'px;--r:'+Math.round(Math.random()*540-270)+'deg;--c:'+colors[i%colors.length]+';animation-delay:'+Math.round(Math.random()*90)+'ms';
+  document.body.append(s);setTimeout(()=>s.remove(),1300);
+ }
+}
+function tallerCelebrate(done,total){
+ const target=document.querySelector('.taller-stepdock.is-on .taller-stepdock-bar')||document.querySelector('.stage-list button.active');
+ const r=target?.getBoundingClientRect();
+ const x=r&&r.width?r.left+r.width/2:innerWidth/2,y=r&&r.height?r.top+r.height/2:innerHeight*.7;
+ if(total&&done>=total){
+  tallerSpark(innerWidth/2,innerHeight*.45,60,Math.min(innerWidth,700)*.45);
+  const t=document.querySelector('.design-complete');if(t){t.classList.add('taller-final');const s=t.querySelector('strong'),m=t.querySelector('small');if(s)s.textContent='¡Montaje completo!';if(m)m.textContent='Todos los bloques quedaron marcados. Ahora pruébalo.';}
+ }else tallerSpark(x,y,18,90);
+}
+function tallerStepDock(){
+ if(isCatalog||document.querySelector('.taller-stepdock'))return;
+ const prev=document.getElementById('prevStep'),next=document.getElementById('nextStep'),list=document.getElementById('stageList');if(!prev||!next||!list)return;
+ const dock=document.createElement('nav');dock.className='taller-stepdock';dock.setAttribute('aria-label','Pasos del montaje');
+ dock.innerHTML='<button type="button" class="taller-stepdock-prev" aria-label="Paso anterior"><span aria-hidden="true">←</span></button><button type="button" class="taller-stepdock-info" title="Volver al visor"><span class="taller-stepdock-count"></span><strong class="taller-stepdock-title"></strong><i class="taller-stepdock-bar" aria-hidden="true"><b></b></i></button><button type="button" class="taller-stepdock-next">Siguiente <span aria-hidden="true">→</span></button>';
+ document.body.append(dock);
+ const [p,info,n]=dock.querySelectorAll('button');
+ p.addEventListener('click',()=>prev.click());n.addEventListener('click',()=>next.click());
+ info.addEventListener('click',()=>{const head=document.querySelector('.assembly-stage-head')||document.querySelector('.stage-header')||document.getElementById('montaje');head?.scrollIntoView({behavior:tallerFull()?'smooth':'auto',block:'start'});});
+ const sync=()=>{
+  const btns=[...list.querySelectorAll('button')],i=btns.findIndex(b=>b.classList.contains('active')),done=btns.filter(b=>b.classList.contains('done')).length,active=btns[i];
+  const title=active?[...active.childNodes].filter(c=>!(c.classList&&c.classList.contains('number'))).map(c=>c.textContent).join(' ').trim():'';
+  const num=b=>(b?.querySelector('.number')?.textContent||'').trim(),cur=num(active)||String(i+1),last=num(btns[btns.length-1])||String(btns.length);
+  dock.querySelector('.taller-stepdock-count').textContent=btns.length?'Paso '+cur+' de '+last+' · '+done+' listos':'';
+  dock.querySelector('.taller-stepdock-title').textContent=title||document.getElementById('stageTitle')?.textContent||'';
+  dock.querySelector('.taller-stepdock-bar b').style.width=(btns.length?Math.round(done/btns.length*100):0)+'%';
+  p.disabled=prev.disabled||i<=0;n.disabled=next.disabled;
+ };
+ const watch=new MutationObserver(()=>requestAnimationFrame(sync));
+ watch.observe(list,{subtree:true,attributes:true,childList:true,attributeFilter:['class']});
+ for(const b of [prev,next])watch.observe(b,{attributes:true,attributeFilter:['disabled']});
+ sync();
+ // Aparece cuando la cabecera del paso ya quedó arriba de la pantalla.
+ const anchor=()=>document.querySelector('.assembly-stage-head')||document.querySelector('.stage-header')||next;
+ let target=null;const io=new IntersectionObserver(entries=>{for(const e of entries){const on=!e.isIntersecting&&e.boundingClientRect.top<0;dock.classList.toggle('is-on',on);document.body.classList.toggle('taller-dock-on',on);}});
+ const attach=()=>{const a=anchor();if(a&&a!==target){if(target)io.unobserve(target);target=a;io.observe(a);}};
+ attach();let tries=0;const timer=setInterval(()=>{attach();if(++tries>20)clearInterval(timer);},300);
+}
+function tallerCatalogSteps(){
+ for(const card of document.querySelectorAll('[data-circuit-card]')){
+  const k=card.dataset.circuitCard,count=k==='descendente'?7:k==='contador'?6:k==='letras'?14:k==='555'?7:10,tags=card.querySelector('.circuit-card-tags');
+  if(tags&&!tags.querySelector('.taller-steps')){const s=document.createElement('span');s.className='taller-steps';s.textContent=count+' pasos';tags.append(s);}
+ }
+}
+if(isCatalog){tallerTraces();tallerCatalogSteps();}
+else{let dockTries=0;const dockTimer=setInterval(()=>{if(document.querySelector('.taller-bar')){tallerStepDock();clearInterval(dockTimer);}else if(++dockTries>120)clearInterval(dockTimer);},120);}
 })();

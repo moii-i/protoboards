@@ -103,7 +103,7 @@ Object.assign(model, {
     'Mide INICIO_N: unos 5 V con el circuito encendido. Llega a los pines 2 y 6 de U1 y U2. R8 va a +5 V y C3 a GND.',
     'Pin 12 de U1 (A_N) alimenta los pines 5 de U1 y 1 y 5 de U2. Entradas sobrantes de U3 (12 y 13) a GND.',
     'A sale del pin 13 de U1 y D del pin 8 de U2: son las salidas Q̄. B y C salen de Q.',
-    'Pulsa INICIO y comprueba 9. Avanza pulsos: 8, 7, …, 0 y otra vez 9 sin parpadeos de 10–15.'
+    'Enciende y comprueba que aparece 9. Observa 8, 7, …, 0 y otra vez 9 sin parpadeos de 10–15. Gira RV1 para cambiar la velocidad.'
   ],
   reviewChecks: [
     ['Revisé muescas, pin 1 y la posición de RV1.', 'Verifiqué valores y polaridad de C1 y C3.'],

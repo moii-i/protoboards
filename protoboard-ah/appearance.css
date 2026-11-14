@@ -483,3 +483,112 @@ body.design-enhanced,body.design-enhanced :is(.site-header,.workspace,.sidebar,.
   .taller-bar .design-main-actions{order:3}
   .taller-bar .bench-controls{order:4}
 }
+
+/* ==========================================================================
+   TALLER 6 · personalidad para estudiantes
+   Títulos en Bricolage Grotesque, códigos en JetBrains Mono, un color propio
+   para cada circuito, pistas con corriente en la portada, barra de pasos
+   flotante y chispas al completar. Colores eléctricos del montaje intactos.
+   ========================================================================== */
+@font-face{font-family:"Bricolage Grotesque";src:url("./fonts/bricolage-grotesque.woff2") format("woff2-variations"),url("./fonts/bricolage-grotesque.woff2") format("woff2");font-weight:200 800;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"JetBrains Mono";src:url("./fonts/jetbrains-mono.woff2") format("woff2-variations"),url("./fonts/jetbrains-mono.woff2") format("woff2");font-weight:100 800;font-style:normal;font-display:swap}
+:root{
+  --appearance-display:"Bricolage Grotesque",Manrope,system-ui,sans-serif;
+  /* Color de identidad por circuito (claro) */
+  --c-descendente:#6d4ee0;--c-contador:#0b7d9f;--c-letras:#ad4421;--c-555:#9a5c08;--c-puerta:#2c5fd0;--c-catalogo:var(--appearance-accent);
+  --on-circuit:#fff;--circuit:var(--appearance-accent);
+}
+:root[data-workspace-theme=night]{
+  --c-descendente:#a891ff;--c-contador:#4fd1f0;--c-letras:#ff8a66;--c-555:#f5b54f;--c-puerta:#86a8ff;--on-circuit:#0b100e;
+}
+:root[data-workspace-theme=contrast]{--c-descendente:#4a2fb3;--c-contador:#05596f;--c-letras:#8e3315;--c-555:#6e4204;--c-puerta:#1b44a3}
+:root[data-circuit=descendente],[data-circuit-card=descendente],[data-circuit=descendente]{--circuit:var(--c-descendente)}
+:root[data-circuit=contador],[data-circuit-card=contador],[data-circuit=contador]{--circuit:var(--c-contador)}
+:root[data-circuit=letras],[data-circuit-card=letras],[data-circuit=letras]{--circuit:var(--c-letras)}
+:root[data-circuit="555"],[data-circuit-card="555"],[data-circuit="555"]{--circuit:var(--c-555)}
+:root[data-circuit=puerta],[data-circuit-card=puerta],[data-circuit=puerta]{--circuit:var(--c-puerta)}
+
+/* ---- Tipografía de títulos ---- */
+.design-enhanced :is(h1,h2),body.catalog-home :is(h1,h2,h3),.design-enhanced :is(.resource,.logic-design,.assembly-choice) h3{font-family:var(--appearance-display);font-weight:760;letter-spacing:-.025em}
+body.taller .hero h1{font-size:calc(clamp(30px,3.8vw,48px) * var(--appearance-scale));letter-spacing:-.035em;line-height:1}
+body.catalog-home.design-enhanced .catalog-featured h1{letter-spacing:-.045em;line-height:.95;font-weight:780}
+body.catalog-home.design-enhanced .catalog-section-head h2{letter-spacing:-.035em}
+.design-enhanced :is(code,kbd,samp,.ledger-hole,.endpoint-box strong,.counter,#fromHole,#toHole,.connection-id,.cable-locations strong,.logic-table td,.logic-eq li){font-family:"JetBrains Mono",var(--appearance-mono)}
+
+/* ---- Identidad de color ---- */
+body.taller .hero .eyebrow{color:var(--circuit)}
+body.taller .hero .eyebrow::before{background:var(--circuit)}
+body.taller .design-breadcrumb [aria-current]{color:var(--circuit);font-weight:750}
+body.taller .circuit-picker a::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--circuit);flex:none;margin-right:2px;box-shadow:0 0 0 3px color-mix(in srgb,var(--circuit) 22%,transparent)}
+body.taller .circuit-picker a svg{display:none}
+body.taller .circuit-picker a{display:inline-flex;align-items:center;gap:6px}
+body.taller .circuit-picker a:hover{border-color:var(--circuit)}
+@layer override{body.taller .circuit-picker a[aria-current]{background:var(--circuit)!important;color:var(--on-circuit)!important;border-color:var(--circuit)!important}}
+body.taller .circuit-picker a[aria-current]::before{background:var(--on-circuit);box-shadow:none}
+body.taller .stage-list button.active{box-shadow:inset 3px 0 var(--circuit)}
+body.taller .workspace{border-top:3px solid var(--circuit)}
+:root[data-workspace-theme=night] body.taller{background:radial-gradient(1100px 480px at 15% -12%,color-mix(in srgb,var(--circuit) 13%,transparent),transparent 62%),radial-gradient(900px 420px at 95% 0%,#3ddc970d,transparent 60%),var(--appearance-page)}
+:root[data-workspace-theme=paper] body.taller{background:radial-gradient(1100px 420px at 15% -14%,color-mix(in srgb,var(--circuit) 9%,transparent),transparent 62%),var(--appearance-page)}
+
+/* ---- Catálogo: color por práctica, chip de pasos y pistas animadas ---- */
+body.catalog-home.design-enhanced .circuit-grid .circuit-card{border-top:3px solid var(--circuit)}
+body.catalog-home.design-enhanced .catalog-preview-id i{background:var(--circuit);border-color:var(--circuit);border-radius:50%}
+body.catalog-home.design-enhanced .circuit-grid .circuit-card:hover{border-color:color-mix(in srgb,var(--circuit) 60%,var(--appearance-border));border-top-color:var(--circuit);box-shadow:0 18px 40px #0b1a1418,0 0 0 1px color-mix(in srgb,var(--circuit) 30%,transparent)}
+:root[data-workspace-theme=night] body.catalog-home .circuit-grid .circuit-card:hover{box-shadow:0 20px 46px #00000070,0 0 0 1px color-mix(in srgb,var(--circuit) 40%,transparent),0 0 40px color-mix(in srgb,var(--circuit) 14%,transparent)}
+body.catalog-home.design-enhanced .circuit-grid .circuit-card h3{transition:color .2s}
+body.catalog-home.design-enhanced .circuit-grid .circuit-card:hover h3{color:var(--circuit)}
+body.catalog-home.design-enhanced .circuit-card-progress-track i{background:linear-gradient(90deg,var(--circuit),var(--appearance-accent))}
+body.catalog-home.design-enhanced .circuit-card-tags .taller-steps{background:color-mix(in srgb,var(--circuit) 14%,transparent);border-color:color-mix(in srgb,var(--circuit) 38%,transparent);color:var(--appearance-ink);font-weight:750}
+body.catalog-home.design-enhanced .catalog-featured .catalog-kicker{color:var(--circuit)}
+body.catalog-home.design-enhanced .catalog-featured{border-top:3px solid var(--circuit)}
+body.catalog-home.design-enhanced .catalog-featured .circuit-card-body{position:relative;isolation:isolate}
+body.catalog-home.design-enhanced .catalog-featured .circuit-card-body>*{position:relative;z-index:1}
+body.catalog-home.design-enhanced .catalog-featured .circuit-card-body>.taller-traces{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;color:var(--circuit);-webkit-mask-image:linear-gradient(to left,#000 0%,#000 12%,transparent 52%);mask-image:linear-gradient(to left,#000 0%,#000 12%,transparent 52%)}
+.taller-traces svg{position:absolute;inset:0;width:100%;height:100%}
+.taller-traces .taller-trace{fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;opacity:.16}
+.taller-traces .taller-pad{fill:var(--appearance-surface);stroke:currentColor;stroke-width:2;opacity:.42}
+.taller-traces .taller-pulse{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-dasharray:16 284;stroke-dashoffset:300;opacity:0}
+:root[data-workspace-motion=full] .taller-traces .taller-pulse{opacity:.9;animation:taller-current 3.4s linear infinite;animation-delay:var(--d,0s);filter:drop-shadow(0 0 3px currentColor)}
+@keyframes taller-current{from{stroke-dashoffset:300}to{stroke-dashoffset:0}}
+@media(max-width:650px){body.catalog-home.design-enhanced .catalog-featured .circuit-card-body>.taller-traces{-webkit-mask-image:linear-gradient(to top left,#000 0%,transparent 70%);mask-image:linear-gradient(to top left,#000 0%,transparent 70%)}}
+
+/* ---- Barra de pasos flotante ---- */
+.taller-stepdock{position:fixed;left:50%;bottom:max(12px,env(safe-area-inset-bottom));z-index:58;display:flex;align-items:stretch;gap:6px;width:min(580px,calc(100vw - 20px));padding:6px;border-radius:16px;background:color-mix(in srgb,var(--appearance-surface) 90%,transparent);border:1px solid var(--appearance-border);box-shadow:0 14px 38px #0b1a1430,0 0 0 1px #ffffff08 inset;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);translate:-50% 150%;opacity:0;pointer-events:none;transition:translate .38s var(--taller-ease),opacity .25s var(--taller-ease);font-family:var(--appearance-type)}
+:root[data-workspace-theme=night] .taller-stepdock{box-shadow:0 16px 44px #00000080,0 0 0 1px #ffffff0a inset}
+.taller-stepdock.is-on{translate:-50% 0;opacity:1;pointer-events:auto}
+body.fullscreen .taller-stepdock,body:has(.design-tool-group[open]) .taller-stepdock,body:has(dialog[open]) .taller-stepdock{translate:-50% 150%;opacity:0;pointer-events:none}
+.taller-stepdock button{min-height:48px;border-radius:11px;border:1px solid var(--appearance-border);background:var(--appearance-soft);color:var(--appearance-ink);font:inherit;cursor:pointer}
+.taller-stepdock .taller-stepdock-prev{width:48px;flex:none;font-size:18px}
+.taller-stepdock .taller-stepdock-info{flex:1;min-width:0;display:grid;align-content:center;gap:3px;padding:5px 12px;text-align:left;background:transparent;border-color:transparent}
+.taller-stepdock-count{font-size:11px;color:var(--appearance-muted);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.taller-stepdock-title{font-family:var(--appearance-display);font-size:14px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--appearance-ink)}
+.taller-stepdock-bar{display:block;height:4px;border-radius:4px;background:var(--appearance-soft);overflow:hidden}
+.taller-stepdock-bar b{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--circuit),var(--appearance-accent));transition:width .5s var(--taller-ease)}
+.taller-stepdock .taller-stepdock-next{flex:none;padding:0 16px;background:var(--appearance-accent);border-color:var(--appearance-accent);color:var(--appearance-on-accent);font-weight:800;white-space:nowrap}
+.taller-stepdock button:hover:not(:disabled){filter:brightness(1.06)}
+.taller-stepdock button:disabled{opacity:.45;cursor:default}
+body.taller-dock-on :is(.design-complete,.toast){bottom:96px}
+
+/* ---- Aviso de bloque completado y chispas ---- */
+:root[data-workspace-theme=night] .design-enhanced ~ .design-complete,:root[data-workspace-theme=night] .design-complete{background:var(--appearance-surface);border-color:var(--appearance-border);color:var(--appearance-ink);box-shadow:0 18px 44px #00000080}
+.design-complete{border-left:4px solid var(--circuit)!important;font-family:var(--appearance-type)}
+.design-complete svg{color:var(--circuit)}
+.design-complete small{color:var(--appearance-muted)!important}
+.design-complete.taller-final{border-left-color:var(--appearance-gold)!important}
+.design-complete.taller-final strong{font-family:var(--appearance-display);font-size:16px}
+.taller-spark{position:fixed;left:var(--x);top:var(--y);z-index:950;width:7px;height:7px;border-radius:2px;background:var(--c);pointer-events:none;box-shadow:0 0 8px var(--c);animation:taller-spark .95s cubic-bezier(.15,.7,.3,1) both}
+.taller-spark:nth-child(3n){width:5px;height:10px}
+@keyframes taller-spark{0%{transform:translate(-50%,-50%) scale(1);opacity:1}70%{opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy) + 40px)) rotate(var(--r)) scale(.35);opacity:0}}
+/* Encabezado: texto claro en todas las páginas (Letras heredaba gris de su diseño claro) */
+body.design-enhanced .site-header{background:color-mix(in srgb,var(--appearance-header) 94%,transparent)}
+body.design-enhanced .site-header :is(.brand,.brand span){color:#f3f7f2}
+body.design-enhanced .site-header .brand small{color:#f3f7f2;opacity:.62}
+body.design-enhanced .site-header .nav a:not(.design-catalog-link){color:#dce7e0}
+body.design-enhanced .site-header .nav a:not(.design-catalog-link):hover{color:#fff}
+body.design-enhanced .site-header .brand span{font-family:var(--appearance-display);letter-spacing:-.02em}
+/* Espacio para la barra flotante al final de la página */
+body.taller .design-footer{padding-bottom:max(96px,calc(84px + env(safe-area-inset-bottom)))}
+.taller-stepdock{visibility:hidden;transition:translate .38s var(--taller-ease),opacity .25s var(--taller-ease),visibility 0s linear .38s}
+.taller-stepdock.is-on{visibility:visible;transition:translate .38s var(--taller-ease),opacity .25s var(--taller-ease),visibility 0s}
+body.fullscreen .taller-stepdock,body:has(.design-tool-group[open]) .taller-stepdock,body:has(dialog[open]) .taller-stepdock{visibility:hidden}
+:root[data-workspace-theme=contrast] .taller-stepdock{background:var(--appearance-surface)}

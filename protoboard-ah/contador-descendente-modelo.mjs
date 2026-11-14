@@ -32,7 +32,7 @@ export const stages=[
   ['Inicialización en 9','INICIO_N une los cuatro CLEAR (pines 2 y 6 de U1 y U2). Al encender, C3 la mantiene en bajo un momento y después R8 la sube a 5 V: el contador arranca en 9.'],
   ['Flip-flops JK y compuertas','A_N (pin 12 de U1) es el reloj de los otros tres flip-flops. Tres NAND del 74LS00 generan JB y KD. Las cuatro entradas sobrantes van a GND.'],
   ['Decodificador y display','Lleva A, B, C y D al 74LS48 y sus siete salidas al 5011AS. A y D salen de Q̄ porque esos flip-flops guardan el bit invertido.'],
-  ['Prueba de 9 a 0','Pulsa INICIO: debe aparecer 9. Avanza diez pulsos: 9, 8, …, 1, 0 y de nuevo 9.'],
+  ['Prueba de 9 a 0','Enciende la fuente: C3 arranca el conteo en 9. Observa diez pulsos: 9, 8, …, 1, 0 y de nuevo 9.'],
 ];
 
 function buildPassives(){
