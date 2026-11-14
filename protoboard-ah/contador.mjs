@@ -1,4 +1,4 @@
-import { model as wiring, pulse, indicators } from './contador-modelo.mjs';
+import { model as wiring, buildCounter, pulse, indicators } from './contador-modelo.mjs';
 import * as art from './contador-2d.mjs';
 
 const el = id => document.getElementById(id);
@@ -9,12 +9,14 @@ const read = key => {
 const write = (key, data) => {
   try { localStorage.setItem(key, JSON.stringify(data)); } catch {}
 };
-const requested = new URLSearchParams(location.search).get('c1');
+const query = new URLSearchParams(location.search);
+const previous = query.get('distribucion') === 'anterior';
+const requested = query.get('c1');
 const profile = requested === '10' || (requested !== '4.7' && read(profileKey) === '10') ? '10' : '47';
 const capacitor = profile === '10' ? '10 µF' : '4.7 µF';
 const interval = Math.round(.693 * (10000 + 2 * 100000) * (profile === '10' ? 10e-6 : 4.7e-6) * 1000);
 const period = (interval / 1000).toLocaleString('es-MX');
-const model = structuredClone(wiring);
+const model = previous ? buildCounter({ previous: true }) : structuredClone(wiring);
 const cap = model.items.find(item => item.id === 'P_C1');
 cap.value = capacitor;
 cap.label = 'C1 · ' + capacitor;
@@ -47,8 +49,8 @@ Object.assign(model, {
   viewerName: 'Contador de 0 a 9',
   singleSupply: true,
   assemblyVariant: 'contador',
-  layoutVersion: 'contador-830-v1',
-  progressKey: 'protoboard:contador:v1' + (profile === '10' ? ':10uf' : ''),
+  layoutVersion: previous ? 'contador-830-v1' : 'contador-830-v2',
+  progressKey: (previous ? 'protoboard:contador:v1' : 'protoboard:contador:v2') + (profile === '10' ? ':10uf' : ''),
   progressTotal: model.components.length + model.items.filter(item => item.kind === 'wire').length,
   reviewStage: -1,
   viewBoxes: { A: model.bounds },
@@ -116,6 +118,16 @@ write(profileKey, profile);
 window.model = model;
 window.DOOR_VARIANT = 'contador';
 el('assemblyRetry').onclick = () => location.reload();
+const layoutLink = el('counterLayout');
+if (previous) {
+  layoutLink.href = '/contador#montaje';
+  layoutLink.textContent = 'Volver a la distribución actual';
+  for (const link of document.querySelectorAll('[data-counter-profile]')) {
+    const target = new URL(link.href);
+    target.searchParams.set('distribucion', 'anterior');
+    link.href = target.href;
+  }
+}
 document.querySelector('[data-counter-profile="' + profile + '"]').setAttribute('aria-current', 'true');
 el('counterTiming').textContent = 'C1: ' + capacitor + ' · R6: 10 kΩ · R7: 100 kΩ · Periodo nominal: ' + period + ' s.';
 el('viewerTiming').textContent = capacitor + ' · ' + period + ' s por pulso';
@@ -127,7 +139,7 @@ for (const label of ['2 × 74LS73A', '1 × 74LS00', '1 × 74LS48', '1 × NE555',
 
 const load = name => new Promise((resolve, reject) => {
   const script = document.createElement('script');
-  script.src = './' + name + '.js?v=mesa-contador-v2';
+  script.src = './' + name + '.js?v=contador-orden-v3';
   script.onload = resolve;
   script.onerror = () => reject(new Error('No se pudo cargar ' + name));
   document.body.append(script);

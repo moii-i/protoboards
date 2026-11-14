@@ -97,7 +97,7 @@ function updateCatalog(){
  for(const card of document.querySelectorAll('[data-circuit-card]')){
   const k=card.dataset.circuitCard;
   const counter=k==='contador';
-  const counterStorage='protoboard:contador:v1'+(getJSON('protoboard:contador:v1:perfil')==='10'?':10uf':'');
+  const counterStorage='protoboard:contador:v2'+(getJSON('protoboard:contador:v1:perfil')==='10'?':10uf':'');
   const storage=counter?counterStorage:k==='letras'?'practica21:estudio:v3':k==='555'?'protoboard:ne555:v1':doorStorage(defaultDoor);
   const state=getJSON(storage),count=counter?5:k==='letras'?14:k==='555'?7:10;
   const completed=new Set((Array.isArray(state.completed)?state.completed:[]).filter(n=>Number.isInteger(n)&&n>=0&&n<count));const started=completed.size>0||(state.marked?.length>0)||state.step>0;

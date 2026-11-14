@@ -13,8 +13,8 @@
 .counter-page .board-row,.counter-page .board-column{font:700 13px Arial,sans-serif;fill:#445c4d}
 .counter-page .board-column,.counter-page .led-number{text-anchor:middle}
 .counter-page .led-number{font:700 15px Arial,sans-serif;fill:#fff}
-.counter-page .counter-led{fill:url(#ledLens)}
-.counter-page .counter-led.on{fill:url(#ledOn)}
+.counter-page .led-lens{fill:#624275}
+.counter-page .led-lens.on{fill:#d98cff;filter:drop-shadow(0 0 6px #db90ff)}
 .counter-page .counter-segment{fill:#676168}
 .counter-page .counter-segment.on{fill:#ff6052}
 .counter-page .mapbox .colored-wire{stroke-width:4.5}

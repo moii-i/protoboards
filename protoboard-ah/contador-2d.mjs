@@ -5,8 +5,6 @@ const gradients=`<defs>
   <linearGradient id="metalLead" x2="1" y2="1"><stop stop-color="#8b9494"/><stop offset=".45" stop-color="#edf2ef"/><stop offset="1" stop-color="#8e9a96"/></linearGradient>
   <linearGradient id="chipMold" x2="0" y2="1"><stop stop-color="#41444a"/><stop offset=".18" stop-color="#2d3034"/><stop offset=".82" stop-color="#23272a"/><stop offset="1" stop-color="#16191c"/></linearGradient>
   <linearGradient id="resShell" x2="0" y2="1"><stop stop-color="#f1d3a6"/><stop offset=".52" stop-color="#d2ab7d"/><stop offset="1" stop-color="#a87b54"/></linearGradient>
-  <radialGradient id="ledLens" cx=".28" cy=".27" r=".83"><stop stop-color="#d8a3ef"/><stop offset=".46" stop-color="#9f55c2"/><stop offset="1" stop-color="#432757"/></radialGradient>
-  <radialGradient id="ledOn" cx=".35" cy=".25" r=".85"><stop stop-color="#fff0ff"/><stop offset=".34" stop-color="#ed9aff"/><stop offset="1" stop-color="#9c3ada"/></radialGradient>
   <linearGradient id="electrolytic" x2="1" y2="1"><stop stop-color="#31505d"/><stop offset="1" stop-color="#172d39"/></linearGradient>
   <g id="counterHole"><rect x="-6" y="-6" width="12" height="12" rx="2" fill="#c6c6b9"/><path d="M-4 -4h8v8h-8z" fill="#424940"/><path d="M-4 3h8" stroke="#9a9d8b" stroke-width="1.3"/></g>
 </defs>`;
@@ -48,8 +46,6 @@ export function passive(item){
     const standing=Math.hypot(b[0]-a[0],b[1]-a[1])<72;
     const width=standing?30:66;
     shape=`<path d="M${a.join(' ')}L${b.join(' ')}" stroke="url(#metalLead)" stroke-width="6"/><g transform="${at(standing?a[0]:x,standing?a[1]:y)} rotate(${angle})"><path d="M${-width/2} -9Q${-width/2+3} -15 ${-width/2+10} -13H${width/2-10}Q${width/2-3} -15 ${width/2} -9V9Q${width/2-3} 15 ${width/2-10} 13H${-width/2+10}Q${-width/2+3} 15 ${-width/2} 9Z" fill="url(#resShell)"/>${[...(bands[item.value]||bands['1 kΩ']),'#a78740'].map((c,i)=>`<rect x="${(-.37+i*.21)*width}" y="-13" width="${Math.max(2.2,width*.076)}" height="26" rx="1" fill="${c}"/>`).join('')}</g>`;
-  }else if(item.kind==='led'){
-    shape=`<path d="M${a.join(' ')}L${b.join(' ')}" stroke="url(#metalLead)" stroke-width="6"/><g transform="${at(x,y)}"><circle r="29" fill="#54325e"/><circle class="counter-led" data-led="${item.value}" r="25"/><path d="M${b[0]>a[0]?21:-21} -14v28" stroke="#d3a7dd" stroke-opacity=".6" stroke-width="2"/>${text(item.bit,0,5,'led-number')}</g>`;
   }else{
     shape=`<path d="M${a.join(' ')}L${b.join(' ')}" stroke="url(#metalLead)" stroke-width="6"/>`;
     shape+=item.polarized?`<g transform="${at(x,y)}"><circle r="23" fill="url(#electrolytic)"/><circle r="18" fill="#9caeb3"/><path d="M-9 0h18M0-9v18" stroke="#657c82" stroke-width="2"/>${text('+',-30,5,'board-print')}${text('−',25,5,'board-print')}</g>`:`<ellipse cx="${x}" cy="${y}" rx="20" ry="16" fill="#bc7a47" stroke="#795338" stroke-width="2"/>${text('104',x,y+4,'led-number')}`;

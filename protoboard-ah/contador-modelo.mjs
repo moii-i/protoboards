@@ -20,15 +20,18 @@ const color={VCC:'#b92c49',GND:'#246190',RELOJ:'#a75b15',BORRA_N:'#a03370','1':'
 const stages=[['Coloca las piezas','Orienta las muescas hacia la izquierda. Coloca primero los integrados, luego el display, los pasivos y los LED.'],['Alimentación de 5 V','Une ambos lados de cada riel y lleva alimentación y tierra a los integrados.'],['Reloj con NE555','Conecta DESCARGA, TIEMPO y CONTROL. El pin 3 entrega RELOJ al primer flip-flop.'],['Cadena JK y borrado','Las salidas 1, 2 y 4 encadenan el reloj. La NAND borra cuando 2 y 8 están altas.'],['Display y LED','Lleva BCD al 74LS48 y sus siete salidas al 5011AS. Los LED se alimentan con las salidas invertidas.'],['Prueba 0 a 9','Comprueba la secuencia completa. Al salir de 9, BORRA_N se activa brevemente y vuelve a aparecer 0.']];
 
 const part=(id,kind,value,a,b,fromNet,toNet,extra={})=>({id:'P_'+id,partId:id,kind,value,a,b,stage:0,label:`${id} · ${value}`,fromNet,toNet,...extra});
-const passives=[
-  part('R1','res','10 kΩ',hole('j',46),hole('+B',46),'BLANCO_N','VCC'),
-  ...LEDs.map((l,i)=>part('R'+(i+2),'res','1 kΩ',hole('b',l.anode),hole('+T',l.anode===20?21:l.anode),'ANODO_'+l.bit,'VCC')),
-  part('R6','res','10 kΩ',hole('a',6),hole('+T',6),'DESCARGA','VCC'),
-  part('R7','res','100 kΩ',hole('b',6),hole('b',7),'DESCARGA','TIEMPO'),
-  part('C1','cap','4.7 µF',hole('a',7),hole('a',9),'TIEMPO','GND',{polarized:true}),
-  part('C2','cap','100 nF',hole('a',8),hole('b',9),'CONTROL','GND'),
-  ...LEDs.map(l=>part(l.id,'led',l.id,hole('a',l.anode),hole('a',l.cathode),'ANODO_'+l.bit,'LED'+l.bit+'_N',{color:'#a63fe0',bit:l.bit,label:`${l.id} · LED de peso ${l.bit}`})),
-];
+function buildPassives(previous){
+  const ledRow=previous?'a':'d',resistorRow=previous?'b':'a',timingRow=previous?'a':'d';
+  return [
+    part('R1','res','10 kΩ',hole('j',46),hole('+B',46),'BLANCO_N','VCC'),
+    ...LEDs.map((l,i)=>part('R'+(i+2),'res','1 kΩ',hole(resistorRow,l.anode),hole('+T',l.anode===20?21:l.anode),'ANODO_'+l.bit,'VCC')),
+    part('R6','res','10 kΩ',hole('a',6),hole('+T',6),'DESCARGA','VCC'),
+    part('R7','res','100 kΩ',hole('b',6),hole('b',7),'DESCARGA','TIEMPO'),
+    part('C1','cap','4.7 µF',hole(timingRow,7),hole(timingRow,9),'TIEMPO','GND',{polarized:true}),
+    part('C2','cap','100 nF',hole('a',8),hole('b',9),'CONTROL','GND'),
+    ...LEDs.map(l=>part(l.id,'led',l.id,hole(ledRow,l.anode),hole(ledRow,l.cathode),'ANODO_'+l.bit,'LED'+l.bit+'_N',{color:'#a63fe0',bit:l.bit,label:`${l.id} · LED de peso ${l.bit}`})),
+  ];
+}
 
 function compress(points){
   const clean=points.filter((p,i)=>!i||p[0]!==points[i-1][0]||p[1]!==points[i-1][1]);
@@ -48,11 +51,20 @@ function intersections([a,b],[c,d]){
   return Math.min(Math.max(a[axis],b[axis]),Math.max(c[axis],d[axis]))>Math.max(Math.min(a[axis],b[axis]),Math.min(c[axis],d[axis]))?3:0;
 }
 const packages=[...chips.map(c=>[point(hole('e',c.start))[0]-12,420,point(hole('f',c.start+c.pins/2-1))[0]+12,491]),[1700,358,1850,582]];
-function clipsBody([a,b]){
-  return packages.some(([l,t,r,d])=>a[0]===b[0]?a[0]>l&&a[0]<r&&Math.min(a[1],b[1])<d&&Math.max(a[1],b[1])>t:a[1]>t&&a[1]<d&&Math.min(a[0],b[0])<r&&Math.max(a[0],b[0])>l);
+function clipsBody([a,b],bodies){
+  return bodies.some(([l,t,r,d])=>a[0]===b[0]?a[0]>l&&a[0]<r&&Math.min(a[1],b[1])<d&&Math.max(a[1],b[1])>t:a[1]>t&&a[1]<d&&Math.min(a[0],b[0])<r&&Math.max(a[0],b[0])>l);
 }
 
-function build(){
+export function buildCounter({previous=false}={}){
+  const passives=buildPassives(previous);
+  const indicatorBodies=passives.filter(part=>part.kind==='led'||part.kind==='cap').map(part=>{
+    const [[ax,ay],[bx,by]]=[point(part.a),point(part.b)];
+    const x=(ax+bx)/2,y=(ay+by)/2-(part.kind==='led'?35:0);
+    const halfWidth=part.kind==='cap'&&!part.polarized?22:24;
+    const halfHeight=part.kind==='cap'&&!part.polarized?18:24;
+    return [x-halfWidth,y-halfHeight,x+halfWidth,y+halfHeight];
+  });
+  const bodies=previous?packages:[...packages,...indicatorBodies];
   const occupied=new Set(),nodes=new Map(),items=[],wires=[],terminals=[];
   function attach(h,net,ref){
     const key=h.join('/');
@@ -84,7 +96,7 @@ function build(){
     let best;
     for(const option of options){
       const route=compress(option),edges=segments(route);
-      if(edges.some(clipsBody))continue;
+      if(edges.some(edge=>clipsBody(edge,bodies)))continue;
       const crossing=wires.map(w=>segments(w.route).reduce((sum,s)=>sum+edges.reduce((n,e)=>n+intersections(s,e),0),0));
       const cost=edges.reduce((sum,e)=>sum+distance(...e),0)+route.length*8+crossing.reduce((sum,n)=>sum+n*18,0);
       if(!best||cost<best.cost)best={route,cost,crossing};
@@ -130,7 +142,7 @@ function build(){
   return {bounds,stages,chips,displays:[display],items,components,terminals,feeds,colors:color,boards:{A:{columns:63,xOffset:0,yOffset:0,railBreak:31,railColumns}},presentation:'contador'};
 }
 
-export const model=build();
+export const model=buildCounter();
 // TI 74LS48 T2 truth table. The original patterns omit a on 6 and d on 9.
 export const segmentsFor=['abcdef','bc','abdeg','abcdg','bcfg','acdfg','cdefg','abc','abcdefg','abcfg'];
 
