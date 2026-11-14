@@ -1,0 +1,159 @@
+.catalog-home{
+  --catalog-page:var(--appearance-page);--catalog-surface:var(--appearance-surface);--catalog-soft:var(--appearance-soft);
+  --catalog-ink:var(--appearance-ink);--catalog-muted:var(--appearance-muted);--catalog-border:var(--appearance-border);
+  --catalog-green:var(--appearance-header);--catalog-green-light:var(--appearance-accent);--catalog-on-green:#fffdf3;
+  --catalog-gold:var(--appearance-gold);--catalog-focus:var(--appearance-focus);
+  background:var(--catalog-page);color:var(--catalog-ink);
+}
+.catalog-home .site-header{background:var(--catalog-green);border-color:var(--catalog-green)}
+.catalog-home .site-header .header-row{min-height:74px}
+.catalog-home .site-header .brand,.catalog-home .site-header .brand small,.catalog-home .site-header .nav>a{color:var(--catalog-on-green)}
+.catalog-home .site-header .nav .design-catalog-link{background:#ffffff1f;border-color:#ffffff38;color:var(--catalog-on-green)}
+.catalog-header-actions{display:flex;align-items:center;gap:14px}
+.catalog-home .design-nav-menu summary{
+  color:var(--catalog-on-green);background:#ffffff14;border:1px solid #ffffff44;
+}
+.catalog-home .design-nav-menu>div{background:var(--catalog-surface);border-color:var(--catalog-border)}
+.catalog-home .design-nav-menu>div a{color:var(--catalog-ink)}
+.catalog-home :is(a,button,summary):focus-visible{outline:3px solid var(--catalog-focus);outline-offset:3px}
+
+.catalog-home .design-catalog{padding-top:29px;padding-bottom:36px}
+.catalog-index{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin-bottom:12px;color:var(--catalog-muted);font-size:12px;
+}
+.catalog-kicker{
+  margin:0;color:var(--catalog-green-light);font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+}
+.catalog-home .catalog-featured{
+  display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:0;
+  background:var(--catalog-green);border:1px solid var(--catalog-green);border-radius:19px;
+  box-shadow:none;overflow:hidden;isolation:isolate;
+}
+.catalog-home .catalog-featured:hover{transform:none;border-color:var(--catalog-green)}
+.catalog-featured .circuit-card-body{
+  grid-column:1;grid-row:1;min-width:0;padding:clamp(26px,3.4vw,44px);
+  display:flex;flex-direction:column;justify-content:center;
+  color:var(--catalog-on-green);background:none;
+}
+.catalog-featured .catalog-kicker{color:#ecc488}
+.catalog-featured h1{
+  max-width:9ch;margin:10px 0 13px;color:var(--catalog-on-green);
+  font-size:clamp(41px,5.1vw,71px);line-height:1;letter-spacing:-.065em;font-weight:800;
+}
+.catalog-home .catalog-featured .circuit-card-description{
+  min-height:0;max-width:36ch;margin:0 0 16px;color:#dbe9dd;font-size:calc(14px * var(--appearance-scale));line-height:1.7;
+}
+.catalog-featured .circuit-card-tags{margin:0 0 19px}
+.catalog-home .catalog-featured .circuit-card-tags span{
+  background:#ffffff13;border-color:#ffffff38;color:#f1f3e8;
+}
+.catalog-home .catalog-featured .circuit-card-preview{
+  grid-column:2;grid-row:1;margin:12px 12px 12px 0;min-height:335px;
+  border:0;border-radius:12px;aspect-ratio:auto;background:#ebf0e8;align-self:stretch;
+}
+.catalog-home .catalog-featured .circuit-card-preview img{
+  position:absolute;top:50%;left:-8%;width:116%;max-width:none;height:auto;
+  transform:translateY(-50%);object-fit:contain;
+}
+.catalog-home .catalog-featured .circuit-card-preview img.showcase-frame{inset:auto;top:50%;left:-8%}
+.catalog-preview-id{
+  position:absolute;z-index:2;top:18px;left:18px;display:flex;align-items:center;gap:7px;
+  color:#345445;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+}
+.catalog-preview-id i{width:7px;height:7px;border:1px solid #3b6651;border-radius:2px;flex:none}
+.catalog-home .circuit-preview-label{
+  inset:auto auto 15px 15px;background:#fffdf4;border:1px solid #aabcad;border-radius:6px;
+  color:#2d4c3d;font-size:10px;font-weight:750;
+}
+.catalog-home .showcase-preview-play{
+  right:16px;top:15px;min-height:36px;padding:6px 11px;border:1px solid #aabcad;
+  border-radius:7px;background:#fffdf4;color:#244737;font:inherit;font-size:11px;font-weight:800;
+}
+.catalog-home .showcase-preview-play:hover{background:#e2ecde}
+.catalog-home .showcase-preview-play[aria-pressed=true]{background:#143d32;color:#fffdf3;border-color:#143d32}
+.catalog-home .showcase-preview-state{bottom:15px;right:15px;font-size:11px;color:#254536;background:#fffdf4}
+.catalog-featured .showcase-preview-play{right:28px;top:28px}
+.catalog-featured .circuit-card-progress{margin-top:0;max-width:340px;border-color:#ffffff38}
+.catalog-featured .circuit-card-progress-label{color:#dbe9dd}
+.catalog-featured .circuit-card-progress-label [data-catalog-percent]{color:#ffe0a8}
+.catalog-home .circuit-card-progress-track{height:4px;background:var(--catalog-soft);border-radius:3px}
+.catalog-home .catalog-featured .circuit-card-progress-track{background:#ffffff26}
+.catalog-home .circuit-card-progress-track i{background:var(--catalog-gold)}
+.catalog-home .circuit-card-action{
+  margin-top:11px;justify-content:space-between;min-height:43px;border-radius:7px;
+  background:var(--catalog-soft);border-color:var(--catalog-border);color:var(--catalog-ink);font-size:12px;
+}
+.catalog-home .circuit-card-action:hover{background:var(--catalog-surface);border-color:var(--catalog-green-light);color:var(--catalog-ink)}
+.catalog-home .catalog-featured .circuit-card-action{background:#f0c887;color:#273324;border-color:#f0c887}
+.catalog-home .catalog-featured .circuit-card-action:hover{background:#ffda9b;border-color:#ffda9b}
+.catalog-home .catalog-featured .catalog-alternatives{color:#dbe9dd;border-color:#ffffff38;margin-top:13px}
+.catalog-home .catalog-featured .catalog-alternatives a{color:#ffe0a8}
+
+.catalog-practices{margin-top:38px;scroll-margin-top:94px}
+.catalog-home .catalog-section-head{align-items:flex-end;gap:12px;margin:0 0 15px}
+.catalog-home .catalog-section-head h2{margin:4px 0 0;color:var(--catalog-ink);font-size:clamp(26px,3.3vw,42px);letter-spacing:-.05em}
+.catalog-resume{
+  display:inline-flex;align-items:center;gap:7px;padding:7px 0;color:var(--catalog-green-light);
+  font-size:12px;font-weight:800;text-decoration:none;white-space:nowrap;
+}
+.catalog-resume:hover{text-decoration:underline;text-underline-offset:3px}
+.catalog-resume svg{width:15px;height:15px}
+.catalog-home .circuit-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.catalog-home .circuit-grid .circuit-card{
+  display:flex;flex-direction:column;background:var(--catalog-surface);border-color:var(--catalog-border);
+  border-radius:13px;box-shadow:none;
+}
+.catalog-home .circuit-grid .circuit-card:hover{border-color:var(--catalog-green-light);transform:translateY(-2px)}
+.catalog-home .circuit-grid .circuit-card-preview{aspect-ratio:2.05;background:#eaf0eb;border-color:var(--catalog-border)}
+.catalog-home .circuit-grid .circuit-card-preview img{object-fit:contain;padding:0}
+.catalog-home .circuit-grid .circuit-card-body{display:flex;flex:1;flex-direction:column;min-width:0;padding:20px 22px;background:none}
+.catalog-home .circuit-grid .circuit-card h3{margin:0 0 6px;color:var(--catalog-ink);font-size:clamp(20px,2.7vw,30px);letter-spacing:-.045em}
+.catalog-home .circuit-grid .circuit-card-description{min-height:0;margin:0 0 12px;color:var(--catalog-muted);font-size:calc(13px * var(--appearance-scale));line-height:1.65}
+.catalog-home .circuit-card-tags span{background:var(--catalog-soft);border:1px solid var(--catalog-border);color:var(--catalog-ink)}
+.catalog-home .circuit-grid .circuit-card-progress{margin-top:auto;padding-top:13px}
+.catalog-home .circuit-grid .circuit-card-progress-label{color:var(--catalog-muted)}
+.catalog-home .circuit-grid [data-catalog-percent]{color:var(--catalog-green-light)}
+.catalog-home .catalog-note{margin-top:24px;background:var(--catalog-surface);border-color:var(--catalog-border);color:var(--catalog-ink)}
+.catalog-home .catalog-note :is(p,a,svg){color:var(--catalog-muted)}
+.catalog-home .design-footer{margin-top:24px;color:var(--catalog-muted);border-color:var(--catalog-border)}
+.catalog-home .design-footer strong{color:var(--catalog-ink)}
+
+@media(max-width:850px){
+  .catalog-home .catalog-featured{grid-template-columns:minmax(0,1fr) minmax(0,1.15fr)}
+  .catalog-featured .circuit-card-body{padding:25px}
+  .catalog-featured h1{font-size:clamp(38px,6vw,52px)}
+  .catalog-home .catalog-featured .circuit-card-preview{min-height:280px}
+}
+@media(max-width:650px){
+  .catalog-home .site-header .header-row{min-height:60px}
+  .catalog-header-actions{gap:6px}
+  .catalog-home .design-catalog{padding-top:18px}
+  .catalog-index{font-size:10px}
+  .catalog-home .catalog-featured{grid-template-columns:minmax(0,1fr);border-radius:13px}
+  .catalog-home .catalog-featured .circuit-card-preview{
+    grid-column:1;grid-row:1;min-height:0;aspect-ratio:1.63;margin:8px 8px 0;border-radius:8px;
+  }
+  .catalog-featured .circuit-card-body{grid-column:1;grid-row:2;padding:17px}
+  .catalog-featured h1{max-width:none;margin:7px 0 8px;font-size:clamp(33px,8vw,46px)}
+  .catalog-home .catalog-featured .circuit-card-description{font-size:calc(13px * var(--appearance-scale));margin-bottom:10px}
+  .catalog-featured .circuit-card-tags{margin-bottom:12px}
+  .catalog-featured .circuit-card-progress{max-width:none}
+  .catalog-home .showcase-preview-play{right:10px;top:9px;min-height:38px}
+  .catalog-home .catalog-featured .showcase-preview-play{right:16px;top:16px}
+  .catalog-preview-id{left:10px;top:17px;font-size:8px;gap:4px}
+  .catalog-home .circuit-preview-label,.catalog-home .showcase-preview-state{bottom:9px;font-size:9px}
+  .catalog-home .circuit-preview-label{left:9px}
+  .catalog-home .showcase-preview-state{right:9px}
+  .catalog-practices{margin-top:27px}
+  .catalog-home .catalog-section-head{flex-wrap:wrap;align-items:flex-start;gap:3px}
+  .catalog-home .circuit-grid{grid-template-columns:minmax(0,1fr);gap:11px}
+  .catalog-home .circuit-grid .circuit-card-body{padding:15px}
+  .catalog-home .catalog-note a{white-space:normal}
+}
+@media(max-width:370px){
+  .catalog-home .site-header .nav .design-catalog-link{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .catalog-home .circuit-grid .circuit-card:hover{transform:none}
+}

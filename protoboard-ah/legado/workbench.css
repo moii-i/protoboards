@@ -1,0 +1,58 @@
+/* A flexible workspace, shared by all three assembly guides. */
+.bench-toolbar{position:sticky;top:10px;z-index:18;display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 14px;padding:12px 16px;background:#fffefaf5;border:1px solid #d4dfcc;border-radius:14px;box-shadow:0 5px 20px #153d3209;backdrop-filter:blur(12px)}
+.bench-toolbar-title{display:flex;align-items:center;gap:10px;min-width:0}
+.bench-toolbar-title>svg{width:26px;height:26px;color:#38744f;flex-shrink:0}
+.bench-toolbar-title strong{display:block;font-size:12px;font-weight:800;color:#214b35}
+.bench-toolbar-title span{display:block;color:#667761;font-size:10px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;max-width:42vw;margin-top:2px}
+.bench-controls{display:flex;align-items:center;gap:14px;flex-shrink:0}
+.bench-widths{display:flex;gap:3px;background:#eff3e8;border:1px solid #e0e7d6;padding:3px;border-radius:9px}
+.bench-widths button{min-height:31px;border:1px solid transparent;background:transparent;font-size:11px;padding:5px 10px;border-radius:6px;color:#58704d;font-weight:650}
+.bench-widths button[aria-pressed=true]{border-color:#ccdcbf;background:#fffefa;color:#285d3b;box-shadow:0 2px 5px #24492f0b}
+.bench-widths button:disabled{opacity:.4}
+.bench-toggle{display:flex;align-items:center;gap:7px;min-height:35px;border:1px solid #d3dfc8;background:#f9fcf3;color:#285d3b;padding:6px 10px;font-size:11px;font-weight:750;white-space:nowrap}
+.bench-toggle svg{width:15px;height:15px;transition:transform .2s}
+.bench-toggle[aria-expanded=false] svg{transform:rotate(180deg)}
+.workbench-active .bench-layout{position:relative;grid-template-columns:minmax(0,var(--bench-sidebar,225px)) minmax(0,1fr);transition:grid-template-columns .24s cubic-bezier(.2,.7,.3,1),gap .24s}
+.workbench-active .bench-layout>.sidebar{min-width:0;overflow:clip;transition:opacity .16s,padding .24s,border-width .24s,visibility 0s}
+.workbench-active .bench-layout[data-collapsed=true]{grid-template-columns:minmax(0,0px) minmax(0,1fr);gap:0}
+.workbench-active .bench-layout[data-collapsed=true]>.sidebar{opacity:0;visibility:hidden;padding-left:0;padding-right:0;border-width:0;transition:opacity .12s,padding .24s,border-width .24s,visibility 0s .24s}
+.bench-resizer{position:absolute;top:0;bottom:0;left:calc(var(--bench-sidebar,225px) + 4px);width:14px;cursor:col-resize;touch-action:none;outline:none;z-index:2;display:flex;justify-content:center}
+.bench-resizer:before{content:'';position:sticky;top:100px;width:3px;height:65px;border-radius:5px;background:#c9d8bd;margin-top:30px;transition:height .16s,background .16s}
+.bench-resizer:hover:before,.bench-resizer:focus-visible:before{background:#488053;height:92px}
+.bench-resizer:focus-visible:before{outline:2px solid #b77b26;outline-offset:3px}
+.bench-layout[data-collapsed=true] .bench-resizer{display:none}
+.workbench-active .bench-resizing{transition:none;user-select:none;cursor:col-resize}
+.workbench-active .bench-resizing>.sidebar{transition:none}
+.workbench-active .design-tool-panel{animation:none;transform-origin:top left}
+.workbench-active .design-tool-group[data-bench-closing=true]>.design-tool-panel{pointer-events:none}
+.workbench-active .design-tool-dock:has(.design-tool-group[open]){z-index:40}
+.bench-sheet-grip{display:none}
+.fullscreen .bench-toolbar,.fullscreen .bench-resizer{display:none!important}
+@media(min-width:801px){.workbench-active .bench-layout>.sidebar{top:88px}.bench-layout .stage-list button{overflow-wrap:anywhere}}
+@media(max-width:1100px){.bench-controls{gap:8px}.bench-widths button{padding:5px 7px}.bench-toolbar-title span{max-width:31vw}.bench-toolbar{padding:11px 13px}.bench-resizer{left:calc(var(--bench-sidebar,225px) + 1px)}}
+@media(max-width:800px){
+ .workbench-active .bench-layout,.workbench-active .bench-layout[data-collapsed=true]{grid-template-columns:minmax(0,1fr);gap:17px;transition:none}
+ .workbench-active .bench-layout[data-collapsed=true]>.sidebar{display:none}
+ .workbench-active .bench-layout>.sidebar{position:static;max-height:52vh;overflow:auto}
+ .bench-widths,.bench-resizer{display:none}
+ .bench-toolbar-title span{max-width:52vw}.bench-toolbar{gap:8px;top:8px}
+}
+@media(max-width:650px){
+ .bench-toolbar{padding:11px 12px;border-radius:12px;margin-bottom:12px}
+ .bench-toolbar-title>svg{display:none}.bench-toolbar-title strong{font-size:11px}
+ .bench-toolbar-title span{font-size:9px;max-width:47vw}.bench-toggle{font-size:10px;padding:6px 8px;min-height:38px}
+ .workbench-active .design-tool-panel{top:auto;bottom:max(10px,env(safe-area-inset-bottom));left:10px;right:10px;border-radius:21px;height:48vh;height:48dvh;max-height:calc(100dvh - 30px);padding:43px 17px 20px;overscroll-behavior:contain;transform-origin:center bottom;transition:height .24s cubic-bezier(.2,.7,.3,1)}
+ .workbench-active .design-tool-group[data-sheet-size=full]>.design-tool-panel{height:84vh;height:84dvh}
+ .bench-sheet-grip{position:absolute;top:0;left:0;width:100%;display:grid;place-items:center;height:38px;min-height:38px!important;padding:0!important;border:0;border-radius:20px 20px 0 0;background:transparent;touch-action:none;cursor:ns-resize}
+ .bench-sheet-grip span{height:4px;width:40px;border-radius:5px;background:#b8cbae}
+ .bench-sheet-grip:hover{background:#eff5e7}.bench-sheet-grip:focus-visible{outline-offset:-5px}
+ .workbench-active .design-panel-close{min-height:38px;width:38px}
+ .workbench-active .bench-sheet-dragging{transition:none!important}
+}
+@media(prefers-reduced-motion:reduce){.bench-toolbar *,.workbench-active .bench-layout,.workbench-active .bench-layout>.sidebar,.bench-resizer:before,.workbench-active .design-tool-panel{transition:none!important}}
+.motion-off .bench-toolbar *,.motion-off .bench-layout,.motion-off .bench-layout>.sidebar,.motion-off .design-tool-panel{transition:none!important}
+@media print{.bench-toolbar,.bench-resizer{display:none!important}.workbench-active .bench-layout{display:block}.workbench-active .bench-layout>.sidebar{display:none}}
+
+@media(max-width:360px){.workbench-active .design-tool-dock{gap:0;padding-left:8px;padding-right:8px}.workbench-active .design-tool-group>summary{padding:6px 5px;gap:4px;font-size:10px}.workbench-active .design-tool-group>summary:after{margin-left:2px}.workbench-active .design-tool-group>summary svg{width:12px;height:12px}}
+
+.bench-motion-off .bench-toolbar *,.bench-motion-off .bench-layout,.bench-motion-off .bench-layout>.sidebar,.bench-motion-off .design-tool-panel{transition:none!important}

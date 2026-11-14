@@ -1,0 +1,49 @@
+.is-cable #assemblyIsland,.is-cable #mapNav{display:none!important}
+.fullscreen .clean-workspace:has(.mapbox:not(.in-3d))>.component-assembly-panel[data-kind=leads]{display:none!important}
+.is-cable .assembly-stage-actions>.island-renderers{margin:0;background:var(--ws-subtle);border-color:var(--ws-border)}
+.is-cable .assembly-stage-actions #closeExpanded{position:static;inset:auto;box-shadow:none;font-size:11px}
+#cableStepMode{font-size:11px}
+.cable-island{position:absolute;z-index:11;display:flex;align-items:center;gap:5px;padding:6px;border:1px solid var(--ws-border);border-radius:13px;background:var(--ws-surface);color:var(--ws-ink);box-shadow:0 5px 18px #112b2426;max-width:calc(100% - 16px);box-sizing:border-box;isolation:isolate;user-select:none}
+.cable-island[hidden]{display:none!important}
+.cable-island button{font:inherit;font-size:12px;background:var(--ws-surface);color:var(--ws-ink);border:1px solid var(--ws-border);border-radius:8px;min-width:32px;min-height:32px;padding:5px 8px;cursor:pointer;white-space:nowrap;box-sizing:border-box}
+.cable-island button:disabled{opacity:.4;cursor:default}
+.cable-island button:focus-visible{outline:3px solid var(--ws-focus);outline-offset:2px}
+.cable-island #cableDrag{touch-action:none;cursor:grab;border-color:transparent;padding:3px;min-width:24px;color:var(--ws-muted);font-size:17px}
+.cable-island.is-dragging #cableDrag{cursor:grabbing}
+.cable-island #cableCounter{font:700 11px/1.2 ui-monospace,Consolas,monospace;min-width:66px;text-align:center;font-variant-numeric:tabular-nums}
+.cable-island #cableMark{background:var(--ws-accent);border-color:var(--ws-accent);color:var(--ws-on-accent);font-size:11px}
+.cable-island #cableMore[aria-expanded=true]{border-color:var(--ws-accent);background:var(--ws-subtle)}
+.cable-island.is-folded :is(#cableMark,#cableMore){display:none}
+.cable-tools{color:var(--ws-ink);font-size:12px}
+.cable-tools-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:12px}
+.cable-tools-head h3{margin:0;font-size:15px;line-height:1.4}
+.cable-tools button,.cable-tools select{font:inherit;background:var(--ws-surface);color:var(--ws-ink);border:1px solid var(--ws-border);border-radius:8px;padding:7px 9px;min-height:35px;cursor:pointer}
+.cable-tools-head button{min-width:32px;padding:3px;font-size:20px}
+.cable-tools label{display:grid;gap:7px;margin:14px 0 6px;font-size:11px;font-weight:650}
+.cable-tools input[type=range]{width:100%;margin:7px 0;accent-color:var(--ws-accent);min-height:28px;touch-action:pan-y}
+.cable-tools .cable-tool-actions{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.cable-tool-actions button{flex:1;font-size:11px}
+.cable-tools p{font-size:11px;line-height:1.6;color:var(--ws-muted)}
+.cable-tools output{font-size:11px;font-variant-numeric:tabular-nums;color:var(--ws-muted)}
+.cable-tools fieldset{border:0;border-top:1px solid var(--ws-border);padding:12px 0 0;margin:15px 0 0;min-width:0}
+.cable-tools legend{font-weight:750;font-size:12px;padding-right:7px}
+.cable-tools select{width:100%}
+.cable-workbench #map .connection.selected .wirehalo{stroke-width:var(--selection-halo-width,7px);stroke-opacity:var(--selection-halo-opacity,1)}
+.assembly-option-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0 12px}
+.assembly-option{display:grid;gap:6px;position:relative;min-width:0;padding:15px 17px;border:1px solid var(--ws-border);border-radius:13px;background:var(--ws-surface);color:var(--ws-ink)!important;text-decoration:none;transition:background-color .16s,border-color .16s}
+.assembly-option strong{font-size:17px}.assembly-option small{font-size:11px;line-height:1.6;color:var(--ws-muted)}
+.assembly-option .option-eyebrow{font-size:10px;color:var(--ws-muted);letter-spacing:.4px}
+.assembly-option[aria-current=true]{border:2px solid var(--ws-accent);padding:14px 16px;background:var(--ws-subtle)}
+.assembly-option .option-status{font-size:10px;font-weight:750;color:var(--ws-accent)}
+.assembly-option:hover{border-color:var(--ws-accent)}
+.assembly-reference{border:1px solid var(--ws-border);border-radius:14px;background:var(--ws-surface);margin:22px 0;color:var(--ws-ink)}
+.assembly-reference>summary{cursor:pointer;padding:15px 18px;font-size:12px;font-weight:750;line-height:1.5}
+.assembly-reference .clear-layout-summary{margin:0;border:0;border-top:1px solid var(--ws-border);box-shadow:none;border-radius:0 0 14px 14px}
+body.cable-page .hero{padding:16px 0 18px;margin-bottom:0}
+body.cable-page .hero h1{font-size:clamp(27px,3vw,38px);margin-bottom:9px}
+body.cable-page .hero .specs{display:none}
+body.cable-page .assembly-choice{margin-bottom:16px!important;padding:16px 20px!important}
+body.cable-page .assembly-choice-head>div:first-child>p{display:none}
+body.cable-page .assembly-helper{margin-bottom:4px}
+@media(max-width:650px){.cable-island{gap:3px;padding:5px;border-radius:11px}.cable-island button{min-width:32px;min-height:34px;padding:5px}.cable-island #cableMark span{display:none}.cable-island #cableCounter{min-width:61px;font-size:10px}.assembly-option-cards{grid-template-columns:minmax(0,1fr);gap:8px}.assembly-option{padding:12px 14px}.assembly-option[aria-current=true]{padding:11px 13px}.assembly-option strong{font-size:16px}.cable-island #cableDrag{min-width:22px}.is-cable .assembly-stage-actions>span{display:none}}
+@media(prefers-reduced-motion:reduce){.assembly-option{transition:none}}
