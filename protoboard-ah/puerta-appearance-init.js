@@ -62,6 +62,10 @@
       if (!Object.hasOwn(allowed, key) || !allowed[key].includes(value)) return false;
       preferences[key] = value;
       if (key !== 'theme') preferences.profile = 'custom';
+      // Cambio de tema con fundido suave cuando el navegador lo permite y hay movimiento completo.
+      if (key === 'theme' && document.startViewTransition && getState().effects === 'full') {
+        try { document.startViewTransition(save); return true; } catch {}
+      }
       save();
       return true;
     },

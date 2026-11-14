@@ -357,3 +357,129 @@ body.workbench-active .bench-layout[data-collapsed=true]{grid-template-columns:m
 @media(max-width:800px){body.workbench-active .bench-layout,body.workbench-active .bench-layout[data-collapsed=true]{grid-template-columns:minmax(0,1fr);gap:17px}}
 body.taller .bench-layout[data-collapsed=true]>.sidebar{padding-left:0;padding-right:0;border-width:0;opacity:0;visibility:hidden;box-shadow:none}
 body.design-enhanced .site-header .brand-replay{background:transparent;color:#ffffffb3;border:1px solid #ffffff26;border-radius:8px}body.design-enhanced .site-header .brand-replay:hover{background:#ffffff14;color:#fff}
+
+/* ==========================================================================
+   TALLER 5 · catálogo, contraste en ambos temas y movimiento fino
+   ========================================================================== */
+
+/* ---- Catálogo: tarjeta destacada con colores del tema (antes era verde fija) ---- */
+body.catalog-home.design-enhanced .catalog-featured{border-color:var(--appearance-border)}
+body.catalog-home.design-enhanced .catalog-featured .circuit-card-body{color:var(--appearance-ink)}
+body.catalog-home.design-enhanced .catalog-featured .catalog-kicker{color:var(--appearance-accent)}
+body.catalog-home.design-enhanced .catalog-featured h1{color:var(--appearance-ink)}
+body.catalog-home.design-enhanced .catalog-featured .circuit-card-description{color:var(--appearance-muted)}
+body.catalog-home.design-enhanced .catalog-featured .circuit-card-tags span{background:var(--appearance-soft);border-color:var(--appearance-border);color:var(--appearance-ink)}
+body.catalog-home.design-enhanced .catalog-featured .circuit-card-progress{border-color:var(--appearance-border)}
+body.catalog-home.design-enhanced .catalog-featured .circuit-card-progress-label{color:var(--appearance-muted)}
+body.catalog-home.design-enhanced .catalog-featured .circuit-card-progress-track{background:var(--appearance-soft)}
+body.catalog-home.design-enhanced :is(.catalog-featured,.circuit-grid) [data-catalog-percent]{color:var(--appearance-accent);font-variant-numeric:tabular-nums}
+body.catalog-home.design-enhanced .catalog-featured .circuit-card-action:hover{background:var(--appearance-accent);border-color:var(--appearance-accent);filter:brightness(1.08)}
+body.catalog-home.design-enhanced .catalog-alternatives{color:var(--appearance-muted);border-color:var(--appearance-border)}
+body.catalog-home.design-enhanced .catalog-alternatives :is(summary,a){color:var(--appearance-accent)}
+body.catalog-home.design-enhanced .catalog-alternatives summary{cursor:pointer}
+body.catalog-home.design-enhanced .circuit-card-action{font-size:calc(13px * var(--appearance-scale));min-height:46px}
+body.catalog-home.design-enhanced .circuit-card-action:hover{background:var(--appearance-accent);color:var(--appearance-on-accent);border-color:var(--appearance-accent);filter:brightness(1.08)}
+body.catalog-home.design-enhanced .circuit-card-action svg{transition:translate var(--taller-fast) var(--taller-ease)}
+body.catalog-home.design-enhanced .circuit-card-action:hover svg{translate:3px 0}
+
+/* ---- Miniaturas: llenan todo el recuadro con el mismo fondo de la captura ---- */
+body.catalog-home.design-enhanced .circuit-card-preview{background:#edf1ed;border-color:var(--appearance-border);isolation:isolate}
+body.catalog-home.design-enhanced .circuit-grid .circuit-card-preview :is(img,img.showcase-frame){position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 52%;padding:0;mix-blend-mode:normal;background:#edf1ed}
+body.catalog-home.design-enhanced .circuit-grid .circuit-card-preview img{transition:transform .6s var(--taller-ease),opacity .2s}
+body.catalog-home.design-enhanced .circuit-grid .circuit-card:hover .circuit-card-preview img{transform:scale(1.045)}
+body.catalog-home.design-enhanced .catalog-featured .circuit-card-preview{background:#edf1ed}
+body.catalog-home.design-enhanced .catalog-featured .circuit-card-preview img{transition:transform .8s var(--taller-ease)}
+body.catalog-home.design-enhanced .catalog-featured:hover .circuit-card-preview img{transform:translateY(-50%) scale(1.03)}
+:root[data-workspace-theme=night] body.catalog-home .circuit-grid .circuit-card-preview::after{content:"";position:absolute;inset:auto 0 0;height:38%;z-index:1;pointer-events:none;background:linear-gradient(to bottom,transparent,#0b100e2e)}
+/* Rótulos y botón de la miniatura en modo oscuro: vidrio oscuro legible sobre la captura clara */
+:root[data-workspace-theme=night] body.catalog-home :is(.showcase-preview-play,.circuit-preview-label,.showcase-preview-state){background:#121916e0;color:var(--appearance-ink);border-color:#ffffff1f;box-shadow:0 4px 14px #00000040}
+:root[data-workspace-theme=night] body.catalog-home .showcase-preview-play:hover{background:#19221ef0}
+:root[data-workspace-theme=night] body.catalog-home .showcase-preview-play[aria-pressed=true]{background:var(--appearance-accent);color:var(--appearance-on-accent);border-color:var(--appearance-accent)}
+:root[data-workspace-theme=night] body.catalog-home .catalog-preview-id{color:#28473a}
+body.catalog-home.design-enhanced .circuit-grid .circuit-card{transition:transform .35s var(--taller-ease),box-shadow .35s var(--taller-ease),border-color .2s}
+body.catalog-home.design-enhanced .circuit-grid .circuit-card:hover{transform:translateY(-3px);box-shadow:0 18px 40px #0b1a1418;border-color:color-mix(in srgb,var(--appearance-accent) 55%,var(--appearance-border))}
+:root[data-workspace-theme=night] body.catalog-home .circuit-grid .circuit-card:hover{box-shadow:0 18px 44px #00000066,0 0 0 1px #3ddc9726}
+body.catalog-home.design-enhanced .catalog-note{border-radius:var(--taller-radius)}
+
+/* ---- Contraste: piezas que conservaban colores fijos del tema claro ---- */
+body.taller .circuit-picker a[aria-current] small{color:inherit;opacity:.8}
+.design-enhanced .stage-list button:not(.active,.done) .number{color:var(--appearance-muted)}
+.design-enhanced .component-assembly-panel small{color:var(--appearance-muted)}
+:root[data-workspace-theme=night] .design-enhanced :is(.design-footer strong,.footer strong){color:var(--appearance-ink)}
+:root[data-workspace-theme=night] .design-enhanced th{background:var(--appearance-soft);color:var(--appearance-muted);border-color:var(--appearance-border)}
+:root[data-workspace-theme=night] .design-enhanced td{border-color:var(--appearance-border)}
+:root[data-workspace-theme=night] .design-enhanced :is(tr.current,tr.selected){background:color-mix(in srgb,var(--appearance-accent) 14%,transparent)}
+:root[data-workspace-theme=night] .design-enhanced :is(tr.current,tr.selected) :is(th,td,code,b){background:transparent;color:var(--appearance-ink)}
+:root[data-workspace-theme=night] .design-enhanced .logic-table tr.current th{color:var(--appearance-accent)}
+:root[data-workspace-theme=night] .design-enhanced :is(.simulation,.board-toolbar,.display-tools){background:transparent;color:var(--appearance-ink)}
+:root[data-workspace-theme=night] .design-enhanced .simulation{background:var(--appearance-soft);border:1px solid var(--appearance-border)}
+:root[data-workspace-theme=night] .design-enhanced .display-tools label{color:var(--appearance-muted)}
+/* Diagrama lógico del contador en modo oscuro */
+:root[data-workspace-theme=night] .logic-schematic-wrap{background:var(--appearance-canvas);border-color:var(--appearance-border)}
+:root[data-workspace-theme=night] .logic-schematic text{fill:var(--appearance-ink)}
+:root[data-workspace-theme=night] .logic-schematic .sch-sub{fill:var(--appearance-muted)}
+:root[data-workspace-theme=night] .logic-schematic .sch-num{fill:#7f958a}
+:root[data-workspace-theme=night] .logic-schematic :is(.sch-box,.sch-bubble){fill:var(--appearance-surface);stroke:#a9c2b6}
+:root[data-workspace-theme=night] .logic-schematic .sch-wire{stroke:#a9c2b6}
+:root[data-workspace-theme=night] .logic-schematic .sch-node{fill:#a9c2b6}
+:root[data-workspace-theme=night] .logic-schematic .sch-res{fill:#4a3a22;stroke:#d7a965}
+:root[data-workspace-theme=night] .logic-schematic .sch-net path{fill:#3ddc971a;stroke:var(--appearance-accent)}
+:root[data-workspace-theme=night] .logic-schematic .sch-net text{fill:var(--appearance-accent)}
+
+/* ---- Tipografía y comodidad ---- */
+.design-enhanced :is(p,li,dd,figcaption){text-wrap:pretty}
+.design-enhanced :is(h1,h2,h3){font-optical-sizing:auto}
+.design-enhanced :is(.counter,[data-catalog-percent],#completedCount,.cc-bench-count,output){font-variant-numeric:tabular-nums}
+.design-enhanced :is(button,a,summary,select,input,[tabindex]):focus-visible{outline:2px solid var(--appearance-focus);outline-offset:2px;border-radius:6px}
+:root[data-workspace-theme=night]{scrollbar-color:#2f3f38 var(--appearance-page)}
+:root[data-workspace-theme=night] .design-enhanced ::-webkit-scrollbar-thumb{background:#2f3f38;border-radius:8px}
+:root[data-workspace-motion=full]{scroll-behavior:smooth}
+@media(hover:none){.design-enhanced :is(button,.hero-start,.circuit-card-action):active{transform:scale(.98)}}
+
+/* ---- Movimiento: cambio de tema suave y aparición al desplazarse ---- */
+body.design-enhanced,body.design-enhanced :is(.site-header,.workspace,.sidebar,.resource,.assembly-choice,.logic-design,.circuit-card,.catalog-featured,.catalog-note,.taller-bar,.stage-header,.connection-card){transition:background-color .35s var(--taller-ease),border-color .35s var(--taller-ease),color .35s var(--taller-ease),box-shadow .35s var(--taller-ease)}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.32s;animation-timing-function:var(--taller-ease)}
+@keyframes taller-rise{from{opacity:0;translate:0 14px}to{opacity:1;translate:none}}
+@keyframes taller-reveal{from{opacity:.001;translate:0 22px;scale:.985}to{opacity:1;translate:none;scale:none}}
+:root[data-workspace-motion=full] body.catalog-home :is(.catalog-index,.catalog-featured,.catalog-section-head){animation:taller-rise .55s var(--taller-ease) backwards}
+:root[data-workspace-motion=full] body.catalog-home .catalog-featured{animation-delay:60ms}
+:root[data-workspace-motion=full] body.catalog-home .catalog-section-head{animation-delay:140ms}
+:root[data-workspace-motion=full] body.catalog-home .circuit-grid .circuit-card{animation:taller-rise .55s var(--taller-ease) backwards}
+:root[data-workspace-motion=full] body.catalog-home .circuit-grid .circuit-card:nth-child(1){animation-delay:180ms}
+:root[data-workspace-motion=full] body.catalog-home .circuit-grid .circuit-card:nth-child(2){animation-delay:240ms}
+:root[data-workspace-motion=full] body.catalog-home .circuit-grid .circuit-card:nth-child(3){animation-delay:300ms}
+:root[data-workspace-motion=full] body.catalog-home .circuit-grid .circuit-card:nth-child(4){animation-delay:360ms}
+:root[data-workspace-motion=full] body.taller :is(.design-breadcrumb,.circuit-picker,.hero){animation:taller-rise .5s var(--taller-ease) backwards}
+:root[data-workspace-motion=full] body.taller .circuit-picker{animation-delay:50ms}
+:root[data-workspace-motion=full] body.taller .hero{animation-delay:100ms}
+:root[data-workspace-motion=full] body.taller .layout{animation:taller-rise .6s var(--taller-ease) .15s backwards}
+@supports (animation-timeline:view()){
+  :root[data-workspace-motion=full] body.design-enhanced :is(.resource,.logic-design,.logic-grid>article,.catalog-note,.design-footer){animation:taller-reveal linear both;animation-timeline:view();animation-range:entry 0% entry 35%}
+}
+/* La barra y las tarjetas táctiles cómodas en teléfono */
+@media(max-width:700px){
+  .taller-bar :is(.taller-modes button,.design-main-actions button,.bench-toggle){min-height:40px}
+  .taller-bar #startTour{min-height:40px}
+  .taller-bar .design-tool-group>summary{min-height:40px}
+  body.taller .stage-header .stage-nav button{min-height:42px}
+  body.taller .stage-header .stage-nav{gap:8px}
+  body.catalog-home.design-enhanced .circuit-grid .circuit-card-preview{aspect-ratio:1.75}
+  body.catalog-home.design-enhanced .circuit-card-action{min-height:48px}
+}
+/* Teléfono: el lienzo 2D se ajusta a la forma de la placa (sin franjas vacías); el 3D conserva su alto */
+@media(max-width:700px){
+  body.taller:not(.fullscreen) .map-stage.cable-workbench .assembly-viewports:has(.mapbox:not(.in-3d)){height:auto;aspect-ratio:1.35;min-height:280px;max-height:64dvh}
+  body.taller.counter-page:not(.fullscreen) .assembly-viewports:has(.mapbox:not(.in-3d)){aspect-ratio:1.9;min-height:220px}
+  body.taller .assembly-stage-head .assembly-stage-actions{justify-content:flex-start;width:100%}
+  body.taller .assembly-stage-head .assembly-stage-actions button{flex:1 1 auto}
+  body.taller .assembly-stage-head .cc-bench-overview{flex-basis:100%}
+}
+@media(max-width:700px){
+  body.taller:not(.fullscreen) .map-stage:not(.cable-workbench)>.mapbox:not(.in-3d){height:auto;aspect-ratio:1.2;min-height:300px;max-height:64dvh}
+  /* Barra en tres filas: modos · herramientas · recorrido y ampliar */
+  .taller-bar .taller-modes{order:0}
+  .taller-bar .design-tool-dock{order:1;flex:1 1 100%}
+  .taller-bar #startTour{order:2}
+  .taller-bar .design-main-actions{order:3}
+  .taller-bar .bench-controls{order:4}
+}
