@@ -379,8 +379,8 @@ body.catalog-home.design-enhanced .catalog-alternatives :is(summary,a){color:var
 body.catalog-home.design-enhanced .catalog-alternatives summary{cursor:pointer}
 body.catalog-home.design-enhanced .circuit-card-action{font-size:calc(13px * var(--appearance-scale));min-height:46px}
 body.catalog-home.design-enhanced .circuit-card-action:hover{background:var(--appearance-accent);color:var(--appearance-on-accent);border-color:var(--appearance-accent);filter:brightness(1.08)}
-body.catalog-home.design-enhanced .circuit-card-action svg{transition:translate var(--taller-fast) var(--taller-ease)}
-body.catalog-home.design-enhanced .circuit-card-action:hover svg{translate:3px 0}
+body.catalog-home.design-enhanced :is(.circuit-card-action,.catalog-resume) :is(svg,span[aria-hidden]){display:inline-block;transition:translate var(--taller-fast) var(--taller-ease)}
+body.catalog-home.design-enhanced :is(.circuit-card-action,.catalog-resume):hover :is(svg,span[aria-hidden]){translate:4px 0}
 
 /* ---- Miniaturas: llenan todo el recuadro con el mismo fondo de la captura ---- */
 body.catalog-home.design-enhanced .circuit-card-preview{background:#edf1ed;border-color:var(--appearance-border);isolation:isolate}
