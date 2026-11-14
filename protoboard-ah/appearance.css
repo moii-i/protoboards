@@ -154,6 +154,94 @@ body.design-enhanced .site-header .brand svg rect{fill:var(--appearance-accent)}
 body.design-enhanced .site-header .nav a{border-radius:var(--taller-radius-sm)}
 body.design-enhanced .site-header .nav a[aria-current],body.design-enhanced .site-header .nav a:hover{background:#ffffff14}
 
+/* ---- Cabecera compacta de la práctica ---- */
+body.taller .design-breadcrumb{margin:14px 0 6px;font-size:13px}
+body.taller .circuit-picker{gap:6px;padding:0;margin:0 0 10px;background:none;border:0;box-shadow:none;flex-wrap:wrap}
+body.taller .circuit-picker>span{display:none}
+body.taller .circuit-picker a{min-height:32px;padding:5px 11px;border-radius:999px;font-size:13px;background:var(--appearance-surface);border:1px solid var(--appearance-border);color:var(--appearance-ink);box-shadow:none}
+body.taller .circuit-picker a[aria-current]{background:var(--appearance-accent);color:var(--appearance-on-accent);border-color:var(--appearance-accent)}
+body.taller .circuit-picker a small{opacity:.75}
+body.taller .hero{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:10px 28px;padding:6px 0 14px;margin:0;background:none;border:0;box-shadow:none;min-height:0}
+body.taller .hero>div:first-child{padding:0}
+body.taller .hero h1{font-size:clamp(28px,3.3vw,40px);line-height:1.05;letter-spacing:-.035em;margin:6px 0 8px}
+body.taller .hero h1+p,body.taller .hero>div>p{max-width:76ch;margin:0;font-size:15px;color:var(--appearance-muted)}
+body.taller .hero .eyebrow{color:var(--appearance-accent);font-size:12px;letter-spacing:.12em}
+body.taller .hero-actions{display:none}
+body.taller .hero .specs{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;max-width:460px;padding:0;background:none;border:0}
+body.taller .hero .specs span{padding:5px 10px;border-radius:999px;font-size:12.5px;font-weight:700;background:var(--appearance-soft);color:var(--appearance-ink);border:1px solid var(--appearance-border)}
+body.taller .bench-toolbar{display:none}
+
+/* ---- Mesa de trabajo: pasos + visor ---- */
+body.taller .layout{gap:16px;margin-top:4px}
+body.taller .sidebar{top:76px;max-height:calc(100dvh - 92px);overflow:auto;border-radius:var(--taller-radius);background:var(--appearance-surface);border:1px solid var(--appearance-border);box-shadow:var(--taller-shadow);scrollbar-width:thin}
+body.taller .stage-list button{border-radius:10px;font-size:14px}
+body.taller .stage-list button.active{background:var(--appearance-soft);box-shadow:inset 3px 0 var(--appearance-accent)}
+body.taller .stage-list button.done .number,body.taller .stage-list button.done :is(span:first-child){color:var(--appearance-accent)}
+body.taller .workspace{display:flex;flex-direction:column;border-radius:var(--taller-radius);background:var(--appearance-surface);border:1px solid var(--appearance-border);box-shadow:var(--taller-shadow);overflow:visible}
+body.taller .workspace>*{min-width:0}
+
+/* La barra única */
+.taller-bar{position:sticky;top:68px;z-index:35;display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;padding:8px 10px;margin:0;background:color-mix(in srgb,var(--appearance-surface) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--appearance-border);border-radius:var(--taller-radius) var(--taller-radius) 0 0}
+.taller-bar .taller-modes{display:inline-flex;gap:2px;padding:3px;margin:0;border-radius:10px;background:var(--appearance-soft);border:1px solid var(--appearance-border);flex:none}
+.taller-bar .taller-modes button{min-height:32px;padding:4px 12px;border:0;border-radius:8px;background:transparent;color:var(--appearance-muted);box-shadow:none;text-align:center}
+.taller-bar .taller-modes button b{font-size:13px;font-weight:800}
+.taller-bar .taller-modes button small{display:none}
+.taller-bar .taller-modes button[aria-pressed=true]{background:var(--appearance-accent);color:var(--appearance-on-accent)}
+.taller-bar #startTour{min-height:32px;padding:4px 10px;font-size:13px;border-radius:8px}
+.taller-bar .design-tool-dock{display:flex;align-items:center;gap:4px;padding:0;margin:0;background:none;border:0;box-shadow:none;min-height:0;flex:none}
+.taller-bar .design-dock-label,.taller-bar .design-dock-status{display:none}
+.taller-bar .design-tool-group>summary{min-height:32px;padding:4px 10px;border-radius:8px;font-size:13px;font-weight:750;border:1px solid transparent}
+.taller-bar .design-tool-group[open]>summary,.taller-bar .design-tool-group>summary:hover{background:var(--appearance-soft);border-color:var(--appearance-border)}
+.taller-bar .design-main-actions{display:flex;gap:4px;margin:0}
+.taller-bar .design-main-actions button{min-height:32px;padding:4px 10px;font-size:13px;border-radius:8px}
+.taller-bar .taller-context{display:flex;align-items:center;gap:8px;margin:0 0 0 auto;padding:0;background:none;border:0;font-size:12.5px;color:var(--appearance-muted);min-width:0}
+.taller-bar .taller-context strong{font-size:12.5px;color:var(--appearance-ink);white-space:nowrap}
+.taller-bar .taller-context span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:28ch}
+.taller-bar .bench-controls{display:flex;gap:6px;align-items:center;margin:0}
+.taller-bar .bench-widths{padding:2px;border-radius:9px}
+.taller-bar .bench-widths button{min-height:28px;padding:2px 9px;font-size:12px}
+.taller-bar .bench-toggle{min-height:32px;padding:4px 10px;font-size:12.5px;border-radius:8px}
+body.taller :is(.learning-mode,.scene-bar,#wireClarityHint,.design-viewer-hint){position:absolute!important;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;margin:0;padding:0;border:0}
+
+/* Visor grande, primero */
+body.taller:not(.fullscreen) .map-stage.cable-workbench{display:flex;flex-direction:column}
+body.taller .map-stage.cable-workbench>.assembly-viewports{order:1}
+body.taller .map-stage.cable-workbench>.component-assembly-panel{order:2;margin:0;border-radius:0;border-inline:0}
+body.taller .map-stage.cable-workbench>.assembly-footer{order:3}
+body.taller:not(.fullscreen) .assembly-viewports{height:clamp(420px,62dvh,720px)}
+body.taller .assembly-viewports{background:var(--appearance-canvas)}
+body.taller:not(.fullscreen) .map-stage:not(.cable-workbench)>.mapbox{height:clamp(420px,62dvh,720px)}
+body.taller .mapbox{background:var(--appearance-canvas)}
+body.taller :is(.assembly-stage-head,.stage-header){padding:12px 16px;border-bottom:1px solid var(--appearance-border);background:var(--appearance-surface)}
+body.taller :is(.assembly-stage-head,.stage-header) h2{font-size:clamp(20px,1.9vw,26px);letter-spacing:-.02em;line-height:1.15;margin:2px 0}
+body.taller :is(.assembly-stage-head,.stage-header) :is(.stage-tag,.eyebrow,.stage-kicker){color:var(--appearance-accent);letter-spacing:.11em;font-size:11.5px}
+body.taller .stage-header #stageText,body.taller .assembly-stage-head p{color:var(--appearance-muted);font-size:14px;max-width:80ch}
+body.taller :is(.connection-card,.check-stage,.legend){border-color:var(--appearance-border)}
+body.taller .connection-card{border-top:1px solid var(--appearance-border)}
+body.taller .workspace>:last-child{border-radius:0 0 var(--taller-radius) var(--taller-radius)}
+body.taller .canvas-caption{font-size:12px}
+
+/* Configuración y recursos debajo del montaje */
+body.taller .taller-config{margin:18px 0 0}
+body.taller :is(.resource,.assembly-choice,.logic-design,.design-tool-panel,.component-assembly-panel){border-radius:var(--taller-radius);border-color:var(--appearance-border);box-shadow:var(--taller-shadow)}
+body.taller .resource h2,body.taller .assembly-choice h2{font-size:22px;letter-spacing:-.02em}
+body.taller .resource-grid{gap:16px}
+
+/* Botones */
+body.taller :is(button.primary,.hero-start,#markNext,#islandMark){background:var(--appearance-accent);border-color:var(--appearance-accent);color:var(--appearance-on-accent);font-weight:800}
+body.taller :is(button.primary,#markNext):hover{box-shadow:0 0 0 4px var(--taller-glow)}
+body.taller :is(.workspace,.sidebar,.resource) button:not(.primary):hover{border-color:var(--appearance-accent)}
+
+/* ---- Movimiento ---- */
+:root[data-workspace-motion=full] .design-tool-group[open]>.design-tool-panel{animation:taller-pop var(--taller-fast) var(--taller-ease)}
+:root[data-workspace-motion=full] body.taller .map-stage.taller-step-change :is(.assembly-viewports,.mapbox){animation:taller-settle var(--taller-cam) var(--taller-ease)}
+:root[data-workspace-motion=full] body.taller .connection-card.taller-pulse{animation:taller-pulse .55s var(--taller-ease)}
+:root[data-workspace-motion=full] .taller-draw{stroke-dasharray:1;stroke-dashoffset:1;animation:taller-draw .55s var(--taller-ease) forwards;animation-delay:var(--taller-delay,0ms)}
+@keyframes taller-pop{from{opacity:0;translate:0 -4px}to{opacity:1;translate:0 0}}
+@keyframes taller-settle{from{opacity:.55;filter:saturate(.6)}to{opacity:1;filter:none}}
+@keyframes taller-pulse{0%{box-shadow:inset 0 0 0 0 var(--taller-glow)}40%{box-shadow:inset 0 0 0 999px var(--taller-glow)}100%{box-shadow:inset 0 0 0 0 transparent}}
+@keyframes taller-draw{to{stroke-dashoffset:0}}
+
 /* ---- Catálogo ---- */
 body.catalog-home.design-enhanced .catalog-featured{border-radius:18px;background:var(--appearance-surface);border:1px solid var(--appearance-border);box-shadow:var(--taller-shadow);overflow:hidden}
 body.catalog-home.design-enhanced .circuit-card{border-radius:16px;background:var(--appearance-surface);border:1px solid var(--appearance-border);box-shadow:var(--taller-shadow)}
@@ -164,3 +252,87 @@ body.catalog-home.design-enhanced .catalog-kicker{color:var(--appearance-accent)
 body.catalog-home.design-enhanced .circuit-card-tags span{background:var(--appearance-soft);color:var(--appearance-ink);border-color:var(--appearance-border)}
 body.catalog-home.design-enhanced .circuit-card-action{background:var(--appearance-accent);color:var(--appearance-on-accent);border-color:var(--appearance-accent)}
 
+/* ---- Móvil ---- */
+@media(max-width:900px){
+  .taller-bar{top:60px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;border-radius:0}
+  .taller-bar::-webkit-scrollbar{display:none}
+  .taller-bar .taller-context{display:none}
+  .taller-bar>*{flex:none}
+  body.taller .hero{grid-template-columns:1fr}
+  body.taller .hero .specs{justify-content:flex-start}
+  body.taller .assembly-viewports{height:clamp(380px,62dvh,620px)}
+  body.taller .map-stage:not(.cable-workbench)>.mapbox{height:clamp(360px,60dvh,600px)}
+}
+
+/* Orden de la columna del visor (páginas con y sin mesa de cable) */
+body.taller #montaje{scroll-margin-top:72px}
+body.taller .workspace>*{order:5}
+body.taller .workspace>.taller-bar{order:0}
+body.taller .workspace>.stage-header{order:1}
+body.taller .workspace>.map-stage{order:2}
+body.taller .workspace>.connection-card{order:3}
+body.taller .workspace>.component-assembly-panel{order:4;margin:0;border-radius:0;border-inline:0;border-bottom:0}
+body.taller .stage-header{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:4px 16px}
+body.taller .stage-header>*{grid-column:1/-1}
+body.taller .stage-header>.stage-top{grid-column:1/-1}
+body.taller :is(#stageText,.assembly-stage-head p){display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;cursor:pointer}
+body.taller :is(#stageText,.assembly-stage-head p).taller-expanded{display:block}
+body.taller :is(#stageText,.assembly-stage-head p):not(.taller-expanded)::after{content:""}
+.taller-bar .taller-modes button::before,.taller-bar .taller-modes button::after{display:none!important}
+.design-tool-panel .bench-widths{display:flex;margin-top:8px}
+/* Cabecera del paso en una sola franja */
+body.taller .assembly-stage-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px}
+body.taller .assembly-stage-head .cc-bench-overview{display:flex;align-items:center;gap:14px;flex:1 1 320px;min-width:0;padding:0;border:0;background:none}
+body.taller .assembly-stage-head .cc-bench-current{min-width:0}
+body.taller .assembly-stage-head .cc-bench-current h2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.taller .assembly-stage-head .assembly-stage-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:6px;flex:0 1 auto;padding:0;border:0;background:none}
+body.taller .assembly-stage-head .assembly-stage-actions button{min-height:34px;padding:5px 11px;border-radius:8px;font-size:13px}
+body.taller .scene-switch{padding:3px;border-radius:10px;background:var(--appearance-soft);border:1px solid var(--appearance-border);gap:2px}
+body.taller .scene-switch button{min-height:30px;border:0;border-radius:8px;background:transparent;color:var(--appearance-muted);font-weight:800}
+body.taller .scene-switch button[aria-pressed=true]{background:var(--appearance-accent);color:var(--appearance-on-accent)}
+body.taller .stage-header .stage-top{display:contents}
+body.taller .stage-header #miniStage{grid-column:1;grid-row:1}
+body.taller .stage-header .stage-nav{grid-column:2;grid-row:1/3;align-self:center;display:flex;gap:6px}
+body.taller .stage-header #stageTitle{grid-column:1;grid-row:2}
+body.taller .stage-header :is(#stageText,.step-summary,.mobile-progress){grid-column:1/-1}
+/* El 2D de los contadores conserva la proporción de su placa; el 3D usa más alto */
+body.taller.counter-page:not(.fullscreen) .assembly-viewports:has(.mapbox:not(.in-3d)){height:auto;aspect-ratio:2.6/1;max-height:68dvh;min-height:360px}
+body.taller:not(.fullscreen) .assembly-viewports:has(.mapbox.in-3d){height:clamp(460px,72dvh,860px)}
+
+/* Estado del encuadre bajo el título del paso; ocultar pasos como icono */
+body.taller .taller-context{display:flex;flex-wrap:wrap;gap:4px 8px;margin:2px 0 0;padding:0;background:none;border:0;font-size:12.5px;color:var(--appearance-muted)}
+body.taller .taller-context strong{font-size:12.5px;font-weight:700;color:var(--appearance-muted)}
+body.taller .stage-header .taller-context{grid-column:1/-1}
+.taller-bar .bench-controls{margin-left:auto}
+.taller-bar .bench-toggle{width:36px;padding:0;justify-content:center}
+.taller-bar .bench-toggle span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+/* Letras y NE555: el panel de piezas va después del lienzo */
+body.taller:not(.fullscreen) .map-stage:not(.cable-workbench){display:flex;flex-direction:column}
+body.taller .map-stage:not(.cable-workbench)>.mapbox{order:1}
+body.taller .map-stage:not(.cable-workbench)>.component-assembly-panel{order:2;margin:0;border-radius:0;border-inline:0}
+body.taller .map-stage:not(.cable-workbench)>:not(.mapbox,.component-assembly-panel){order:0}
+body.taller .stage-header .taller-context{justify-content:flex-start}
+/* Móvil: cabecera mínima para que el visor aparezca pronto */
+@media(max-width:700px){
+  body.taller .hero h1+p,body.taller .hero>div>p{display:none}
+  body.taller .hero .specs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;justify-content:flex-start;max-width:100%}
+  body.taller .hero .specs span{flex:none}
+  body.taller .circuit-picker{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  body.taller .circuit-picker a{flex:none}
+  body.taller .hero h1{font-size:30px}
+  body.taller .assembly-stage-head .cc-bench-current h2{white-space:normal}
+}
+
+/* Pantalla ampliada: lienzo oscuro y bordes del sistema */
+body.taller.fullscreen .map-stage{background:var(--appearance-canvas);border-color:var(--appearance-border)}
+body.taller.fullscreen::before{background:#000000a6}
+
+/* Los saltos y scrollIntoView respetan el encabezado y la barra fijos */
+html:has(body.taller){scroll-padding-top:128px}
+html:has(body.design-enhanced){scroll-padding-top:76px}
+html:has(body.taller){scroll-padding-top:128px}
+
+body.taller .stage-header .stage-nav{align-items:center;flex-wrap:wrap;justify-content:flex-end}
+body.taller .stage-header .stage-nav .taller-scene-switch{margin-right:6px}
+
+body.taller.fullscreen .site-header{z-index:1}

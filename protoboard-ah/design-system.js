@@ -88,7 +88,61 @@ function initTools(){
  window.protoboardsDesign={openTools(name){const d=dock.querySelector('[data-design-tool="'+name+'"]');if(d)setToolOpen(d,true);},closeTools};
  return true;
 }
-if(!isCatalog){if(!initTools()){let tries=0;const timer=setInterval(()=>{if(initTools()||++tries>120)clearInterval(timer);},100);}
+/* Taller: visor primero. Mueve controles existentes a una sola barra; conserva IDs y manejadores. */
+function buildTaller(){
+ if(document.querySelector('.taller-bar'))return;
+ const workspace=document.querySelector('.workspace'),dock=document.querySelector('.design-tool-dock');if(!workspace||!dock)return;
+ document.body.classList.add('taller');
+ const bar=document.createElement('div');bar.className='taller-bar';bar.setAttribute('role','toolbar');bar.setAttribute('aria-label','Mesa de trabajo');
+ const modes=document.querySelector('.learning-mode .mode-options');if(modes){modes.classList.add('taller-modes');bar.append(modes);}
+ const tour=document.getElementById('startTour');if(tour)bar.append(tour);
+ bar.append(dock);
+ const actions=document.querySelector('.design-main-actions');if(actions)bar.append(actions);
+
+
+ for(const text of document.querySelectorAll('#stageText,.assembly-stage-head p')){text.title='Pulsa para ver todo el texto';text.addEventListener('click',()=>text.classList.toggle('taller-expanded'));}
+ workspace.prepend(bar);
+ // Algunas piezas (mesa de cable, barra de anchos) se crean después: se ubican al aparecer.
+ const settle=()=>{
+  const bench=document.querySelector('.bench-controls');if(bench&&bench.parentElement!==bar)bar.append(bench);
+  const widths=document.querySelector('.bench-widths'),view=document.getElementById('design-panel-view');if(widths&&view&&widths.parentElement!==view)view.append(widths);
+  const context=document.querySelector('.map-context'),head=document.querySelector('.assembly-stage-head .cc-bench-current')||(!document.querySelector('.cable-workbench')&&document.querySelector('.stage-header'));
+  if(context&&head&&context.parentElement!==head){context.classList.add('taller-context');head.append(context);}
+ };
+ settle();let settleTries=0;const settleTimer=setInterval(()=>{settle();if(++settleTries>30)clearInterval(settleTimer);},250);
+ const sceneSwitch=document.querySelector('.scene-bar .scene-switch'),stageNav=document.querySelector('.stage-header .stage-nav');if(sceneSwitch&&stageNav){sceneSwitch.classList.add('taller-scene-switch');stageNav.prepend(sceneSwitch);}
+ const choice=document.querySelector('.assembly-choice'),layout=document.getElementById('montaje');
+ if(choice&&layout&&!choice.contains(layout)){choice.classList.add('taller-config');layout.after(choice);}
+ tallerMotion();
+}
+// Letras no cerraba la vista ampliada con Escape; las demás guías ya lo hacen.
+if(kind==='letras')document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('fullscreen')&&!document.querySelector('.design-tool-group[open],dialog[open]')){document.getElementById('expand')?.click();}});
+function tallerMotion(){
+ const root=document.documentElement,full=()=>root.dataset.workspaceMotion==='full';
+ const stage=()=>document.querySelector('.map-stage');
+ let last=null;
+ const title=document.getElementById('stageTitle');
+ const draw=()=>{
+  const active=document.querySelector('.stage-list button.active');if(!active)return;
+  const index=[...active.parentElement.querySelectorAll('button')].indexOf(active);
+  if(index===last)return;const first=last===null;last=index;if(first||!full())return;
+  const s=stage();if(s){s.classList.remove('taller-step-change');void s.offsetWidth;s.classList.add('taller-step-change');setTimeout(()=>s.classList.remove('taller-step-change'),400);}
+  const map=document.getElementById('map');if(!map||map.closest('[hidden]'))return;
+  const paths=[...map.querySelectorAll('#wires .connection[data-stage="'+index+'"] .colored-wire,#wires .connection[data-stage="'+index+'"] path.wire')].slice(0,40);
+  paths.forEach((p,i)=>{p.setAttribute('pathLength','1');p.style.setProperty('--taller-delay',Math.min(i*35,700)+'ms');p.classList.remove('taller-draw');void p.getBBox;p.classList.add('taller-draw');
+   const clean=()=>{p.classList.remove('taller-draw');p.removeAttribute('pathLength');p.style.removeProperty('--taller-delay');};p.addEventListener('animationend',clean,{once:true});setTimeout(clean,1600);});
+ };
+ const list=document.getElementById('stageList');
+ if(list)new MutationObserver(()=>requestAnimationFrame(draw)).observe(list,{subtree:true,attributes:true,attributeFilter:['class']});
+ if(title)new MutationObserver(()=>requestAnimationFrame(draw)).observe(title,{childList:true,characterData:true,subtree:true});
+ draw();
+ document.addEventListener('change',e=>{
+  if(!e.target.matches('#connectionDone,#ledger input[type=checkbox],#completed'))return;
+  const card=document.querySelector('.connection-card');if(!card||!full())return;
+  card.classList.remove('taller-pulse');void card.offsetWidth;card.classList.add('taller-pulse');setTimeout(()=>card.classList.remove('taller-pulse'),600);
+ });
+}
+if(!isCatalog){const tallerReady=()=>{if(!initTools())return false;buildTaller();return true;};if(!tallerReady()){let tries=0;const timer=setInterval(()=>{if(tallerReady()||++tries>120)clearInterval(timer);},100);}
  const list=document.getElementById('stageList');if(list){let done=new Set([...list.querySelectorAll('button.done')].map(b=>b.dataset.step||b.textContent));let toastTimer;
  new MutationObserver(()=>{const next=new Set([...list.querySelectorAll('button.done')].map(b=>b.dataset.step||b.textContent));const added=[...next].filter(k=>!done.has(k));done=next;if(!added.length)return;document.querySelector('.design-complete')?.remove();const t=document.createElement('div');t.className='design-complete';t.setAttribute('role','status');t.innerHTML=icon('check')+'<div><strong>Un bloque más, conectado.</strong><small>Tu avance quedó guardado en este navegador.</small></div><button type="button" aria-label="Cerrar aviso">×</button>';t.querySelector('button').onclick=()=>t.remove();document.body.append(t);clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.remove(),4000);}).observe(list,{subtree:true,attributes:true,childList:true,attributeFilter:['class']});
  }
