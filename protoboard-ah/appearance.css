@@ -1,17 +1,22 @@
 :root{
-  --appearance-page:#f5f4eb;--appearance-surface:#fffdf6;--appearance-soft:#efeee2;
-  --appearance-ink:#21382d;--appearance-muted:#52665a;--appearance-border:#d8dfd2;
-  --appearance-header:#143d32;--appearance-accent:#245a47;--appearance-on-accent:#fffdf3;
-  --appearance-gold:#c3964c;--appearance-focus:#9d6024;--appearance-canvas:#eaf0e9;
-  --appearance-type:Manrope,system-ui,sans-serif;--appearance-mono:ui-monospace,Consolas,monospace;
+  /* Taller · claro */
+  --appearance-page:#f2f4ef;--appearance-surface:#ffffff;--appearance-soft:#eef2ec;
+  --appearance-ink:#13231c;--appearance-muted:#4c5f55;--appearance-border:#d6ded4;
+  --appearance-header:#0f1f19;--appearance-accent:#127a52;--appearance-on-accent:#f4fff9;
+  --appearance-gold:#b97a12;--appearance-focus:#a35d00;--appearance-canvas:#e7ece6;
+  --appearance-type:Manrope,system-ui,sans-serif;--appearance-mono:"JetBrains Mono","Cascadia Mono","Cascadia Code",ui-monospace,SFMono-Regular,Consolas,monospace;
   --appearance-scale:1;
+  --taller-radius:12px;--taller-radius-sm:8px;--taller-shadow:0 1px 0 #0000000a,0 8px 24px #0b1a1412;
+  --taller-glow:#127a5233;--taller-fast:150ms;--taller-cam:300ms;--taller-ease:cubic-bezier(.2,.7,.2,1);
 }
 :root[data-workspace-theme=night]{
+  /* Taller oscuro: grafito y verde PCB. Colores eléctricos y de piezas no cambian. */
   color-scheme:dark;
-  --appearance-page:#111916;--appearance-surface:#192620;--appearance-soft:#22332a;
-  --appearance-ink:#f3f0e5;--appearance-muted:#bac8bd;--appearance-border:#52695a;
-  --appearance-header:#142f26;--appearance-accent:#b8e2b7;--appearance-on-accent:#142619;
-  --appearance-gold:#e2b972;--appearance-focus:#ffcd80;--appearance-canvas:#28372e;
+  --appearance-page:#0b100e;--appearance-surface:#121916;--appearance-soft:#19221e;
+  --appearance-ink:#e8efea;--appearance-muted:#9aada2;--appearance-border:#26332d;
+  --appearance-header:#080c0a;--appearance-accent:#3ddc97;--appearance-on-accent:#03150d;
+  --appearance-gold:#f2b14c;--appearance-focus:#ffd27a;--appearance-canvas:#0e1512;
+  --taller-shadow:0 1px 0 #ffffff08 inset,0 10px 30px #0000005c;--taller-glow:#3ddc9733;
 }
 :root[data-workspace-theme=contrast]{
   --appearance-page:#fff;--appearance-surface:#fff;--appearance-soft:#eff4f1;
@@ -107,7 +112,7 @@ body.design-enhanced .site-header .brand{color:#fffdf3}
 .site-appearance button[aria-pressed=true]{box-shadow:inset 0 -2px var(--appearance-accent)}
 .site-appearance .site-appearance-close{width:42px;flex:none;font-size:23px;line-height:1}
 .site-appearance-options i{display:block;width:23px;height:14px;margin:0 auto 5px;border:1px solid #617567;border-radius:3px;background:#f5f4eb}
-.site-appearance-options [data-appearance-theme=night] i{background:#142f26}
+.site-appearance-options [data-appearance-theme=night] i{background:#121916;border-color:#3ddc97}
 .site-appearance-options [data-appearance-theme=contrast] i{background:linear-gradient(90deg,#fff 50%,#081d15 50%)}
 .site-appearance-fields label{display:grid;gap:5px;margin:4px 0 9px;font-size:calc(12px * var(--appearance-scale));font-weight:700}
 .site-appearance-fields select{width:100%}
@@ -124,3 +129,38 @@ body.design-enhanced .site-header .brand{color:#fffdf3}
   @keyframes appearance-open{from{opacity:.5;translate:0 12px}to{opacity:1;translate:0 0}}
 }
 @media(max-width:370px){.appearance-header-actions .nav .design-catalog-link{display:none}}
+
+/* ==========================================================================
+   TALLER · rediseño 2026-11
+   Visor primero, una sola barra de herramientas, tipografía con jerarquía
+   y un sistema de movimiento común. Todo usa las variables --appearance-*.
+   Los colores de cables, piezas y de la placa no se modifican.
+   ========================================================================== */
+
+/* ---- Base y tipografía ---- */
+body.design-enhanced{font-size:calc(15px * var(--appearance-scale));line-height:1.55;-webkit-font-smoothing:antialiased}
+.design-enhanced :is(button,select,input,summary,a){transition:background-color var(--taller-fast) var(--taller-ease),border-color var(--taller-fast) var(--taller-ease),color var(--taller-fast) var(--taller-ease),box-shadow var(--taller-fast) var(--taller-ease),transform var(--taller-fast) var(--taller-ease)}
+.design-enhanced :is(button,.hero-start,.circuit-card-action):active{transform:translateY(1px)}
+.design-enhanced :is(code,kbd,samp,.ledger-hole,.endpoint-box strong,.counter,#fromHole,#toHole,.connection-id,.cable-locations strong){font-family:var(--appearance-mono);font-feature-settings:"zero" 1}
+.design-enhanced ::selection{background:var(--taller-glow)}
+:root[data-workspace-theme=night] body.design-enhanced{background:radial-gradient(1200px 520px at 20% -10%,#3ddc9712,transparent 60%),var(--appearance-page)}
+
+/* ---- Encabezado del sitio ---- */
+body.design-enhanced .site-header{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--appearance-header) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid #ffffff14;box-shadow:none}
+body.design-enhanced .site-header .header-row{min-height:60px}
+body.design-enhanced .site-header .brand svg rect{fill:var(--appearance-accent)}
+:root[data-workspace-theme=night] body.design-enhanced .site-header .brand svg :is(path,circle){stroke:#03150d;fill:none}
+:root[data-workspace-theme=night] body.design-enhanced .site-header .brand svg circle{fill:#03150d}
+body.design-enhanced .site-header .nav a{border-radius:var(--taller-radius-sm)}
+body.design-enhanced .site-header .nav a[aria-current],body.design-enhanced .site-header .nav a:hover{background:#ffffff14}
+
+/* ---- Catálogo ---- */
+body.catalog-home.design-enhanced .catalog-featured{border-radius:18px;background:var(--appearance-surface);border:1px solid var(--appearance-border);box-shadow:var(--taller-shadow);overflow:hidden}
+body.catalog-home.design-enhanced .circuit-card{border-radius:16px;background:var(--appearance-surface);border:1px solid var(--appearance-border);box-shadow:var(--taller-shadow)}
+body.catalog-home.design-enhanced .circuit-card:hover{border-color:color-mix(in srgb,var(--appearance-accent) 55%,var(--appearance-border))}
+body.catalog-home.design-enhanced .circuit-card-preview{background:var(--appearance-canvas)}
+body.catalog-home.design-enhanced :is(.catalog-featured h1,.catalog-section-head h2){letter-spacing:-.04em}
+body.catalog-home.design-enhanced .catalog-kicker{color:var(--appearance-accent)}
+body.catalog-home.design-enhanced .circuit-card-tags span{background:var(--appearance-soft);color:var(--appearance-ink);border-color:var(--appearance-border)}
+body.catalog-home.design-enhanced .circuit-card-action{background:var(--appearance-accent);color:var(--appearance-on-accent);border-color:var(--appearance-accent)}
+

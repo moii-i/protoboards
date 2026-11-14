@@ -3,7 +3,7 @@
   const root = document.documentElement;
   const storage = 'protoboards:appearance:v1';
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  const defaults = {theme: 'paper', density: 'comfortable', text: 'normal', quality: 'auto', effects: 'system', profile: 'custom'};
+  const defaults = {theme: 'night', density: 'comfortable', text: 'normal', quality: 'auto', effects: 'system', profile: 'custom'};
   const allowed = {
     theme: ['paper', 'night', 'contrast'], density: ['compact', 'comfortable'], text: ['normal', 'large', 'larger'],
     quality: ['auto', 'economy', 'sharp'], effects: ['system', 'full', 'reduced', 'off'], profile: ['custom', 'study', 'build', 'present']
@@ -18,6 +18,8 @@
     const preferences = {...defaults};
     try {
       const saved = JSON.parse(localStorage.getItem(storage) || '{}');
+      // Taller (2026-11): dark is the new default. 'paper' saved before revision 2 was the old default, not a choice.
+      if (saved && saved.rev !== 2 && saved.theme === 'paper') delete saved.theme;
       for (const key of Object.keys(allowed)) {
         if (allowed[key].includes(saved?.[key])) preferences[key] = saved[key];
       }
@@ -39,13 +41,13 @@
     root.dataset.workspaceText = preferences.text;
     root.dataset.workspaceMotion = state.effects;
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.content = preferences.theme === 'night' ? '#142f26' : '#143d32';
+    if (meta) meta.content = preferences.theme === 'night' ? '#090d0b' : '#0f1f19';
     document.dispatchEvent(new CustomEvent('workspace-appearance-change', {detail: {...state, saved}}));
   }
 
   function save() {
     let saved = false;
-    try { localStorage.setItem(storage, JSON.stringify(preferences)); saved = true; } catch {}
+    try { localStorage.setItem(storage, JSON.stringify({...preferences, rev: 2})); saved = true; } catch {}
     apply(saved);
   }
 
