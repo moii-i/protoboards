@@ -12,7 +12,7 @@
  choice.value=variant;
  choice.onchange=()=>{const url=new URL(location.href);url.searchParams.set('montaje',choice.value);location.assign(url.href);};
  byId('assemblyRetry').onclick=()=>location.reload();
- document.querySelectorAll('.circuit-picker a').forEach(a=>{a.removeAttribute('aria-current');if(a.getAttribute('href')==='/puerta')a.setAttribute('aria-current','page');});
+ document.querySelectorAll('.circuit-picker a').forEach(a=>{a.removeAttribute('aria-current');if(a.dataset.circuit==='puerta'||a.getAttribute('href')==='/puerta')a.setAttribute('aria-current','page');});
  const external=document.createElement('details');external.className='external-controls-note';
  external.innerHTML='<summary>Mandos externos: 3 SCMM-122 + 2 SS0501A</summary><p>ABRIR, CERRAR y STOP conservan su posición. Los finales se accionan con su palanca. Identifica COM/NC/NA con multímetro: el orden de terminales dibujado es ilustrativo.</p><p>Suelda y aísla tres cables por mando; lleva sus extremos a los agujeros indicados. Mantén la orden enclavada durante STOP para reanudarla.</p><a href="#montaje" class="external-controls-focus">Ver mandos y sus cables</a>';
  document.querySelector('.assembly-choice').after(external);
