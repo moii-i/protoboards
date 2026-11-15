@@ -206,7 +206,7 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     else box((width-45)/30,.06,65/30,toWorld([x+20+(width-45)/2,455.5+b.yOffset],.035),new THREE.MeshStandardMaterial({color:0xd0d8d2,roughness:1}));
     const print=texture((ctx,w,h)=>{
       ctx.scale(w/width,h/605);ctx.fillStyle='#faf9ef';ctx.fillRect(0,0,width,605);
-      ctx.font='bold 14px Arial';ctx.fillStyle='#475b52';ctx.fillText(counter?'830 PUNTOS · PASO 2,54 mm':'PLACA '+name+' · '+b.columns+' COLUMNAS',12,23);
+      ctx.font='bold 14px Arial';ctx.fillStyle='#475b52';ctx.fillText(model.boardLabel||(counter?'830 PUNTOS · PASO 2,54 mm':'PLACA '+name+' · '+b.columns+' COLUMNAS'),12,23);
       ctx.font='13px Arial';ctx.textAlign='center';
       for(let c=1;c<=b.columns;c++)if(c===1||c%5===0||c===b.columns)ctx.fillText(c,35+(c-1)*30,116);
       ctx.textAlign='left';for(const row of 'abcdefghij')ctx.fillText(row,10,point([name,row,1])[1]-z+5);
@@ -306,7 +306,36 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     collectComponent(display.id,before,Object.values(display.pins));
   }
 
+  // Cable dupont que sale de la placa hacia un módulo externo (sensor, motor o pilas).
+  // El módulo es una ficha ilustrativa; las redes eléctricas viven en el modelo.
+  const leadModules=new Set();
+  function moduleToken(it,group){
+    const m=model.modules?.[it.module];if(!m)return;
+    const c=toWorld(it.anchor,0),specs={sensor:[4.4,.2,1.9,0x1d5fa8],motor:[3.4,2.2,2.6,0xf2d548],battery:[6.4,1.4,2.4,0x24272b],battery9:[1.9,3.1,1.1,0x2d3a46]},[w,h,d,color]=specs[m.type]||specs.sensor;
+    const body=roundedBox(w,h,d,c.clone().setY(h/2+.05),new THREE.MeshStandardMaterial({color,roughness:.5}),group,.08);body.userData={id:it.id};pickables.push(body);
+    if(m.type==='sensor')for(const [dx,tone] of [[-.5,0x23308f],[.5,0x141414]])mesh(new THREE.CylinderGeometry(.3,.3,.42,16),new THREE.MeshStandardMaterial({color:tone,roughness:.3}),c.clone().add(new THREE.Vector3(dx,.42,-.45)),group);
+    if(m.type==='motor'){const wheel=mesh(new THREE.CylinderGeometry(1.7,1.7,.8,32),dark.clone(),c.clone().add(new THREE.Vector3(Math.sign(c.x)*2.2,1.75,0)),group);wheel.rotation.z=Math.PI/2;}
+    if(m.type==='battery')for(let i=0;i<4;i++){const cell=mesh(new THREE.CylinderGeometry(.52,.52,2,20),new THREE.MeshStandardMaterial({color:0xc8a640,metalness:.4,roughness:.4}),c.clone().add(new THREE.Vector3(-2.25+i*1.5,1.5,0)),group);cell.rotation.x=Math.PI/2;}
+    contactShadow(c.clone().setY(.02),w+.8,d+.8,group);
+    // Placa del módulo hacia afuera de la placa, del lado contrario a sus cables.
+    const away=it.anchor[1]<145?-1:it.anchor[1]>750?1:0,side=away?0:Math.sign(c.x);
+    group.add(topLabel(m.name,c.clone().setY(.03).add(new THREE.Vector3(side*(w/2+2.1),0,away*(d/2+1.1))),Math.max(3.6,m.name.length*.3),Math.max(1.8,m.name.length*.15),{background:'#faf9ef',color:'#345349',size:58}));
+  }
+  function makeLead(it){
+    const group=new THREE.Group();scene.add(group);
+    // Sale hacia el borde más cercano y rodea la placa por fuera, como en el mapa 2D.
+    const a=hpos(it.a),[hx]=point(it.a),row=it.a[1],upper=row.length>1?row.endsWith('T'):row<'f',slot=it.slot??0,spread=slot-((it.slots??1)-1)/2;
+    const edge=upper?126-slot*9:770+slot*9,endX=it.anchor[0]+spread*14,end=toWorld([endX,it.anchor[1]],.55);
+    const curve=roundedRoute([a.clone().setY(.55),a.clone().setY(1.3),toWorld([hx,edge],1.3),toWorld([endX,edge],1.3),end],.5);
+    const material=new THREE.MeshStandardMaterial({color:it.color||'#555',roughness:.45,metalness:.02});
+    const wire=mesh(new THREE.TubeGeometry(curve,56,.11,8,false),material,new THREE.Vector3(),group);wire.userData={id:it.id};pickables.push(wire);
+    const housing=box(.36,.9,.36,a.clone().setY(.72),new THREE.MeshStandardMaterial({color:0x1d1f22,roughness:.6}),group);housing.userData={id:it.id};pickables.push(housing);
+    const tip=mesh(solidTipGeometry,metal.clone(),a.clone().setY(.09),group);
+    if(!leadModules.has(it.module)){leadModules.add(it.module);moduleToken(it,group);}
+    connections.set(it.id,{group,wire,material,curve,a,b:end,it,routed:false,routePoints:null,height:1.7,plugs:[[{mesh:tip,home:tip.position.clone()}],[]],approach:1});
+  }
   function makeConnection(it) {
+    if(it.lead){makeLead(it);return;}
     if(it.externalLead)return;
     const a=hpos(it.a),b=hpos(it.b),len=a.distanceTo(b),isRes=it.kind==='res',isPart=it.kind!=='wire';
     const routed=!isPart&&Array.isArray(it.route)&&it.route.length>=2;
@@ -352,6 +381,27 @@ export function createViewer({container, model, point, hole, onConnection, onPin
       for(const [i,h] of [a,b].entries())lead([h,h.clone().setY(.4),center.clone().setY(.55).add(new THREE.Vector3(i?.28:-.28,0,0))],group);
       const top=center.clone().setY(2.359);box(.76,.008,.022,top,dark.clone(),group).rotation.y=Math.PI/4;box(.76,.008,.022,top,dark.clone(),group).rotation.y=-Math.PI/4;contactShadow(center,2.1,1.8,group);
       if(!counter){const label=topLabel(it.id+' · '+it.value,center.clone().setY(.055).add(new THREE.Vector3(0,0,1.02)),2.4,.45,{background:'#faf9ef',color:'#345349',size:43});group.add(label);}
+    }
+    if(it.kind==='reg'){
+      // Regulador 7805 en TO-220: patas IN, GND y OUT; pestaña metálica hacia el riel superior.
+      const legs=[a,...(it.routedPins||[]).map(([h])=>hpos(h)),b],center=legs.reduce((sum,p)=>sum.add(p),new THREE.Vector3()).multiplyScalar(1/legs.length);
+      const body=roundedBox(3.9,3.4,1.75,center.clone().setY(2.35),textured('#1f2225',.62,.02),group,.12);body.userData={id:it.id};pickables.push(body);
+      const tab=roundedBox(3.9,2.7,.42,center.clone().add(new THREE.Vector3(0,4.45,-.66)),new THREE.MeshStandardMaterial({color:0xc8cdd0,metalness:.85,roughness:.25}),group,.06);
+      mesh(new THREE.CylinderGeometry(.55,.55,.46,20),dark.clone(),center.clone().add(new THREE.Vector3(0,4.85,-.66)),group).rotation.x=Math.PI/2;
+      for(const leg of legs)lead([leg,leg.clone().setY(.45),leg.clone().setY(.7)],group,.06);
+      contactShadow(center,4.6,2.6,group);
+      group.add(topLabel('7805',center.clone().setY(4.07).add(new THREE.Vector3(0,0,.3)),2.2,.62,{background:'#1f2225',color:'#dbe5e1',size:60}));
+      componentHologram.register({id:it.partId||it.id,connectionId:it.id,type:'chip',title:'U3 · Regulador 7805',detail:'IN 9 V · GND · OUT +5 V',anchor:center.clone().setY(6.2),hitPoint:center.clone().setY(2.3),group});
+    }
+    if(it.kind==='slide'){
+      // Selector deslizable de 1 polo y 2 tiros (paso 2,54 mm): palanca a la izquierda = NEGRA.
+      const legs=[a,...(it.routedPins||[]).map(([h])=>hpos(h)),b],center=legs.reduce((sum,p)=>sum.add(p),new THREE.Vector3()).multiplyScalar(1/legs.length);
+      const body=roundedBox(3.4,1.5,1.7,center.clone().setY(.95),new THREE.MeshStandardMaterial({color:0x2a2e33,roughness:.5}),group,.1);body.userData={id:it.id};pickables.push(body);
+      roundedBox(3.5,.12,1.8,center.clone().setY(1.72),new THREE.MeshStandardMaterial({color:0xc4c9cc,metalness:.85,roughness:.25}),group,.04);
+      const lever=roundedBox(.7,.9,.6,center.clone().add(new THREE.Vector3(-.55,2.2,0)),new THREE.MeshStandardMaterial({color:0xf0eee6,roughness:.4}),group,.08);lever.userData={id:it.id,slideLever:true};pickables.push(lever);
+      for(const leg of legs)lead([leg,leg.clone().setY(.3)],group,.06);
+      contactShadow(center,4,2.4,group);
+      componentHologram.register({id:it.partId||it.id,connectionId:it.id,type:'switch',title:'SW1 · Selector de línea',detail:'Izquierda: NEGRA (SEL = 0) · Derecha: BLANCA (SEL = 1)',anchor:center.clone().setY(3),hitPoint:center.clone(),group});
     }
     if(it.kind==='pot'){
       const center=mid.clone().setY(1.02),body=roundedBox(2.65,1.35,1.6,center,new THREE.MeshStandardMaterial({color:0x176994,roughness:.36}),group,.11);body.userData={id:it.id};pickables.push(body);box(2.44,.08,1.42,center.clone().setY(.39),new THREE.MeshStandardMaterial({color:0x10415e}),group);
