@@ -450,7 +450,9 @@ body.design-enhanced,body.design-enhanced :is(.site-header,.workspace,.sidebar,.
 :root[data-workspace-motion=full] body.taller :is(.design-breadcrumb,.circuit-picker,.hero){animation:taller-rise .5s var(--taller-ease) backwards}
 :root[data-workspace-motion=full] body.taller .circuit-picker{animation-delay:50ms}
 :root[data-workspace-motion=full] body.taller .hero{animation-delay:100ms}
-:root[data-workspace-motion=full] body.taller .layout{animation:taller-rise .6s var(--taller-ease) .15s backwards}
+/* .layout contiene paneles y mapa ampliado con position:fixed: solo fundido, nunca translate (lo volvería su bloque contenedor). */
+@keyframes taller-fade{from{opacity:0}to{opacity:1}}
+:root[data-workspace-motion=full] body.taller .layout{animation:taller-fade .45s var(--taller-ease) .15s backwards}
 @supports (animation-timeline:view()){
   :root[data-workspace-motion=full] body.design-enhanced :is(.resource,.logic-design,.logic-grid>article,.catalog-note,.design-footer){animation:taller-reveal linear both;animation-timeline:view();animation-range:entry 0% entry 35%}
 }
