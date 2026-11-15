@@ -4,7 +4,7 @@ La prioridad de ensamblado y el inventario se documentan en `AGENTS.md`. La revi
 
 Guías para Diseño Digital: montaje sobre protoboard, cable por cable, en 2D y 3D.
 
-Catálogo: https://protoboard-ah.vercel.app/circuitos · Contador 9→0: https://protoboard-ah.vercel.app/contador-descendente · Contador 0→9: https://protoboard-ah.vercel.app/contador · Letras: https://protoboard-ah.vercel.app/ · Examen: https://protoboard-ah.vercel.app/puerta
+Catálogo: https://protoboard-ah.vercel.app/circuitos · Seguidor de línea: https://protoboard-ah.vercel.app/seguidor · Contador 9→0: https://protoboard-ah.vercel.app/contador-descendente · Contador 0→9: https://protoboard-ah.vercel.app/contador · Letras: https://protoboard-ah.vercel.app/ · Examen: https://protoboard-ah.vercel.app/puerta
 
 Incluye letras A–H, LED alternados con NE555, contadores BCD ascendente y descendente con 74LS73A y control automático de puerta. Las prácticas conservan una identidad visual compartida.
 
@@ -13,6 +13,7 @@ Incluye letras A–H, LED alternados con NE555, contadores BCD ascendente y desc
 Los dos contadores comparten una protoboard de 830 puntos, el bloque NE555, la geometría de `contador-ruteo.mjs` (agujeros, rieles y ruteo automático de jumpers) y el arte 2D de `contador-2d.mjs`. El 3D usa el visor común con la presentación `contador`.
 
 - `/contador`: 0→9 con borrado asíncrono en 1010 y cuatro LED.
+- `/seguidor`: AGV seguidor de línea del examen del 3er parcial. Dos XOR de un 74LS86 deciden los motores (L293D) y un selector en el chasis cambia entre línea negra y blanca. Protoboard de 400 puntos, 24 jumpers, guía 2D/3D y simulación del recorrido. Ver docs/seguidor-linea.md.
 - `/contador-descendente`: 9→0 con 2 × 74LS73A, 3 NAND de un 74LS00, 74LS48 y 5011AS. Arquitectura ÷2 × ÷5: A y D se guardan invertidos, así CLEAR deja 1001 sin PRESET, y 0→9 sale de las ecuaciones JK. Arranque en 9 al encender con R8 y C3 (sin botón) y velocidad ajustable con RV1 de 20 kΩ. Detalle en [docs/contador-descendente.md](docs/contador-descendente.md).
 
 `node verify-counter-descendente.mjs` reconstruye las tiras, busca cortos y entradas flotantes, obtiene la red de cada pata desde los agujeros y simula tres ciclos y los 16 estados de arranque. Ambos verificadores corren en `npm test`.

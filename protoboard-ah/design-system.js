@@ -5,7 +5,7 @@ const icon=name=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const getJSON=(key,fallback={})=>{try{return JSON.parse(localStorage.getItem(key)||'null')||fallback;}catch{return fallback;}};
 const setJSON=(key,value)=>{try{localStorage.setItem(key,JSON.stringify(value));}catch{}};
 const path=location.pathname.replace(/\.html$/,'');
-const isCatalog=path==='/circuitos',kind=(path==='/puerta'||path==='/puerta-catodo')?'puerta':path==='/555'?'555':path==='/contador'?'contador':path==='/contador-descendente'?'descendente':'letras';
+const isCatalog=path==='/circuitos',kind=(path==='/puerta'||path==='/puerta-catodo')?'puerta':path==='/555'?'555':path==='/contador'?'contador':path==='/contador-descendente'?'descendente':path==='/seguidor'?'seguidor':'letras';
 document.documentElement.dataset.circuit=isCatalog?'catalogo':kind;
 const defaultDoor='dip-cc-compacto';
 const doorProfiles=new Map([
@@ -36,8 +36,8 @@ if(nav){
 }
 if(!isCatalog){
  const main=document.querySelector('main.wrap'),picker=document.querySelector('.circuit-picker');
- const breadcrumb=document.createElement('nav');breadcrumb.className='design-breadcrumb';breadcrumb.setAttribute('aria-label','Ruta de navegación');breadcrumb.innerHTML='<a href="/circuitos">Tus circuitos</a>'+icon('arrow')+'<span aria-current="page"></span>';breadcrumb.lastElementChild.textContent={puerta:'Control de puerta',555:'Temporizador NE555',letras:'Letras A–H',contador:'Contador 0–9',descendente:'Contador 9–0'}[kind];main?.prepend(breadcrumb);
- if(picker)picker.innerHTML='<span>Montajes</span>'+[['descendente','/contador-descendente','chip','Contador 9-0','5 V'],['contador','/contador','chip','Contador 0-9','5 V'],['letras','/','chip','Letras A–H','5 V'],['555','/555','clock','NE555','9 V'],['puerta',doorHref,'door','Puerta automática','5 V']].map(([k,href,i,label,voltage])=>'<a data-circuit="'+k+'" href="'+href+'"'+(k===kind?' aria-current="page"':'')+'>'+icon(i)+label+'<small>'+voltage+'</small></a>').join('');
+ const breadcrumb=document.createElement('nav');breadcrumb.className='design-breadcrumb';breadcrumb.setAttribute('aria-label','Ruta de navegación');breadcrumb.innerHTML='<a href="/circuitos">Tus circuitos</a>'+icon('arrow')+'<span aria-current="page"></span>';breadcrumb.lastElementChild.textContent={puerta:'Control de puerta',555:'Temporizador NE555',letras:'Letras A–H',contador:'Contador 0–9',descendente:'Contador 9–0',seguidor:'AGV seguidor de línea'}[kind];main?.prepend(breadcrumb);
+ if(picker)picker.innerHTML='<span>Montajes</span>'+[['seguidor','/seguidor','chip','Seguidor de línea','5 V · 6 V'],['descendente','/contador-descendente','chip','Contador 9-0','5 V'],['contador','/contador','chip','Contador 0-9','5 V'],['letras','/','chip','Letras A–H','5 V'],['555','/555','clock','NE555','9 V'],['puerta',doorHref,'door','Puerta automática','5 V']].map(([k,href,i,label,voltage])=>'<a data-circuit="'+k+'" href="'+href+'"'+(k===kind?' aria-current="page"':'')+'>'+icon(i)+label+'<small>'+voltage+'</small></a>').join('');
  const start=document.querySelector('.hero-start');if(start)start.innerHTML='Empezar / continuar '+icon('arrow');
  const footer=document.createElement('footer');footer.className='design-footer';footer.innerHTML='<div><strong>Protoboards</strong> · by moi &amp; chat</div><span><a href="/circuitos">Todos los circuitos</a><a href="#montaje">Volver al montaje ↑</a></span><div>Aprende conectando, a tu ritmo.</div>';main?.append(footer);
  setJSON('protoboards:last-circuit:v1',{kind,variant:doorVariant});
@@ -59,7 +59,7 @@ document.addEventListener('pointerdown',e=>{if(!e.target.closest('.design-tool-d
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('.design-tool-group[open]')){closeTools(true);e.preventDefault();}});
 function initTools(){
  const scene=document.querySelector('.scene-bar'),board=document.querySelector('.board-toolbar');
- if(!scene||!board)return false;if((kind==='puerta'||kind==='contador'||kind==='descendente')&&!window.doorLesson)return false;if(document.querySelector('.design-tool-dock'))return true;
+ if(!scene||!board)return false;if((kind==='puerta'||kind==='contador'||kind==='descendente'||kind==='seguidor')&&!window.doorLesson)return false;if(document.querySelector('.design-tool-dock'))return true;
  const dock=document.createElement('div');dock.className='design-tool-dock';dock.setAttribute('aria-label','Herramientas del visor');
  const label=document.createElement('span');label.className='design-dock-label';label.textContent='Herramientas';dock.append(label);
  const view=toolGroup(dock,'view','Vista','Encuadre y visibilidad');
@@ -77,7 +77,7 @@ function initTools(){
  const studio=document.querySelector('.studio-toolbar');
  if(studio){for(const el of [...studio.children])if(el.matches('[data-studio-action],.studio-speed,.studio-auto,#studioPhase'))motion.append(el);studio.querySelector('.studio-divider')?.remove();explore.append(studio);}
  else{
-  const help=document.createElement('p');help.className='small';help.textContent=kind==='555'||kind==='contador'||kind==='descendente'?'Pulsa una pata, un cable o un componente en el visor para consultar su conexión.':'Pulsa un multiplexor, una pata o una conexión en el visor para ver sus detalles.';explore.append(help);
+  const help=document.createElement('p');help.className='small';help.textContent=kind==='555'||kind==='contador'||kind==='descendente'||kind==='seguidor'?'Pulsa una pata, un cable o un componente en el visor para consultar su conexión.':'Pulsa un multiplexor, una pata o una conexión en el visor para ver sus detalles.';explore.append(help);
   const connection=document.createElement('button');connection.type='button';connection.textContent='Ver detalle de la conexión';connection.onclick=()=>{closeTools();document.querySelector('.connection-card')?.scrollIntoView({behavior:'auto',block:'center'});};explore.append(connection);
  }
  const status=document.createElement('span');status.className='design-dock-status';status.innerHTML='<i aria-hidden="true"></i> Mismo montaje · 2D / 3D';dock.append(status);
@@ -158,20 +158,20 @@ if(!isCatalog){const tallerReady=()=>{if(!initTools())return false;buildTaller()
 function updateCatalog(){
  for(const card of document.querySelectorAll('[data-circuit-card]')){
   const k=card.dataset.circuitCard;
-  const counter=k==='contador'||k==='descendente';
-  const counterStorage=k==='descendente'?'protoboard:contador-descendente:v1'+(getJSON('protoboard:contador-descendente:v1:perfil')==='10'?':10uf':''):'protoboard:contador:v2'+(getJSON('protoboard:contador:v1:perfil')==='10'?':10uf':'');
+  const counter=k==='contador'||k==='descendente'||k==='seguidor';
+  const counterStorage=k==='seguidor'?'protoboard:seguidor:v1':k==='descendente'?'protoboard:contador-descendente:v1'+(getJSON('protoboard:contador-descendente:v1:perfil')==='10'?':10uf':''):'protoboard:contador:v2'+(getJSON('protoboard:contador:v1:perfil')==='10'?':10uf':'');
   const storage=counter?counterStorage:k==='letras'?'practica21:estudio:v3':k==='555'?'protoboard:ne555:v1':doorStorage(defaultDoor);
-  const state=getJSON(storage),count=k==='descendente'?7:k==='contador'?6:k==='letras'?14:k==='555'?7:10;
+  const state=getJSON(storage),count=k==='seguidor'||k==='descendente'?7:k==='contador'?6:k==='letras'?14:k==='555'?7:10;
   const completed=new Set((Array.isArray(state.completed)?state.completed:[]).filter(n=>Number.isInteger(n)&&n>=0&&n<count));const started=completed.size>0||(state.marked?.length>0)||state.step>0;
   card.querySelector('[data-catalog-progress]').textContent=started?completed.size+' de '+count+' bloques completados':'Tu próxima conexión empieza aquí';
   const progress=counter?(state.total?Math.min(100,Math.round(((state.marked?.length||0)+(state.assemblyConfirmed?.length||0))/state.total*100)):0):Math.round(completed.size/count*100);
   card.querySelector('[data-catalog-percent]').textContent=progress+'%';
   card.querySelector('.circuit-card-progress-track i').style.width=progress+'%';
-  const href=(k==='descendente'?'/contador-descendente':counter?'/contador':k==='puerta'?doorProfile(defaultDoor).url:k==='555'?'/555':'/')+'#montaje';
+  const href=(k==='seguidor'?'/seguidor':k==='descendente'?'/contador-descendente':counter?'/contador':k==='puerta'?doorProfile(defaultDoor).url:k==='555'?'/555':'/')+'#montaje';
   for(const a of card.querySelectorAll('[data-circuit-link]'))a.href=href;
   card.querySelector('[data-catalog-action]').innerHTML=(started?'Continuar montaje':'Empezar montaje')+icon('arrow');
  }
- const recent=getJSON('protoboards:last-circuit:v1',null);if(recent&&['letras','555','puerta','contador','descendente'].includes(recent.kind)){
+ const recent=getJSON('protoboards:last-circuit:v1',null);if(recent&&['letras','555','puerta','contador','descendente','seguidor'].includes(recent.kind)){
   const card=document.querySelector('[data-circuit-card="'+recent.kind+'"]'),cta=document.getElementById('catalogContinue');if(card&&cta){cta.href=recent.kind==='puerta'?doorProfile(getJSON('protoboards:last-door:v2',defaultDoor)).url+'#montaje':card.querySelector('[data-circuit-link]').href;cta.innerHTML='Volver a mi montaje '+icon('arrow');}
  }
 }
@@ -227,7 +227,7 @@ function tallerStepDock(){
 }
 function tallerCatalogSteps(){
  for(const card of document.querySelectorAll('[data-circuit-card]')){
-  const k=card.dataset.circuitCard,count=k==='descendente'?7:k==='contador'?6:k==='letras'?14:k==='555'?7:10,tags=card.querySelector('.circuit-card-tags');
+  const k=card.dataset.circuitCard,count=k==='seguidor'||k==='descendente'?7:k==='contador'?6:k==='letras'?14:k==='555'?7:10,tags=card.querySelector('.circuit-card-tags');
   if(tags&&!tags.querySelector('.taller-steps')){const s=document.createElement('span');s.className='taller-steps';s.textContent=count+' pasos';tags.append(s);}
  }
 }
