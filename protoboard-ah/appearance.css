@@ -447,6 +447,7 @@ body.design-enhanced,body.design-enhanced :is(.site-header,.workspace,.sidebar,.
 :root[data-workspace-motion=full] body.catalog-home .circuit-grid .circuit-card:nth-child(2){animation-delay:240ms}
 :root[data-workspace-motion=full] body.catalog-home .circuit-grid .circuit-card:nth-child(3){animation-delay:300ms}
 :root[data-workspace-motion=full] body.catalog-home .circuit-grid .circuit-card:nth-child(4){animation-delay:360ms}
+:root[data-workspace-motion=full] body.catalog-home .circuit-grid .circuit-card:nth-child(5){animation-delay:420ms}
 :root[data-workspace-motion=full] body.taller :is(.design-breadcrumb,.circuit-picker,.hero){animation:taller-rise .5s var(--taller-ease) backwards}
 :root[data-workspace-motion=full] body.taller .circuit-picker{animation-delay:50ms}
 :root[data-workspace-motion=full] body.taller .hero{animation-delay:100ms}

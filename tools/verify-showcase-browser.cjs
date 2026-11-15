@@ -20,7 +20,7 @@ async function main(){
  await send('Page.navigate',{url:base+'/circuitos'});await waitFor('Boolean(window.protoboardsShowcase)');
  await waitFor("[...document.querySelectorAll('.circuit-card-preview>img:first-child')].every(i=>i.complete&&i.naturalWidth>0)");
  assert.equal(await evaluate("document.querySelectorAll('.showcase-preview-play').length"),3);
- assert(await evaluate("document.querySelector('.catalog-featured h1').textContent === 'Contador de 9 a 0' && document.querySelectorAll('.catalog-practices [data-circuit-card]').length === 4"));
+ assert(await evaluate("document.querySelector('.catalog-featured h1').textContent === 'AGV seguidor de línea' && document.querySelectorAll('.catalog-practices [data-circuit-card]').length === 5"));
  assert(await evaluate("[...document.querySelectorAll('.circuit-preview-label')].every(label => label.getBoundingClientRect().height < 40)"));
  await shot('catalog-desktop');
  await evaluate("document.querySelector('.appearance-launch').click(); document.querySelector('[data-appearance-theme=night]').click(); document.querySelector('[data-appearance-profile=build]').click()");

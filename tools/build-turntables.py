@@ -13,7 +13,7 @@ from playwright.async_api import async_playwright
 BASE = os.environ.get('PROTOBOARD_QA_URL', 'http://127.0.0.1:4173')
 CHROME = os.environ.get('PROTOBOARD_CHROME')
 OUT = os.path.join(os.path.dirname(__file__), '..', 'protoboard-ah', 'turntable')
-PAGES = [('descendente', '/contador-descendente'), ('contador', '/contador'), ('puerta', '/puerta-catodo'), ('555', '/555'), ('letras', '/')]
+PAGES = [('seguidor', '/seguidor'), ('descendente', '/contador-descendente'), ('contador', '/contador'), ('puerta', '/puerta-catodo'), ('555', '/555'), ('letras', '/')]
 ZOOM_OUT = {}
 VIEWPORT = {}  # tamaño de captura por circuito si hiciera falta
 STEPS = 6            # cuadros a cada lado del centro

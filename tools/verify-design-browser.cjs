@@ -24,7 +24,7 @@ async function main(){
   }
   fs.writeFileSync('protoboard-ah/circuit-catalog.json',JSON.stringify(catalog,null,2));console.log(JSON.stringify({previews:catalog}));ws.close();return;
  }
- for(const [key,route] of [['letras','/'],['555','/555'],['puerta','/puerta?montaje=ls151']]){
+ for(const [key,route] of [['letras','/'],['555','/555'],['puerta','/puerta?montaje=ls151'],['seguidor','/seguidor']]){
   await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});await send('Page.navigate',{url:base+route});await waitFor('Boolean(window.protoboardsDesign)');await evaluate("document.querySelector('.brand-intro')?.remove();");await evaluate('document.fonts.ready');
   assert(await evaluate("document.fonts.check('600 14px Manrope')"));
   assert.equal(await evaluate("document.querySelector('.brand').getAttribute('href')"),'/circuitos');
@@ -54,7 +54,7 @@ async function main(){
   }
   results.push({key,font:true,toolbar:true,toggleControls:true,renderer3D:true,fullscreen:true,savedConnectionsUnchanged:true,mobileWidths:[320,390]});
  }
- await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});await send('Page.navigate',{url:base+'/circuitos'});await waitFor("document.querySelectorAll('.circuit-card').length===5");await evaluate('document.fonts.ready');await waitFor("[...document.images].every(i=>i.complete&&i.naturalWidth>0)");
+ await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});await send('Page.navigate',{url:base+'/circuitos'});await waitFor("document.querySelectorAll('.circuit-card').length===6");await evaluate('document.fonts.ready');await waitFor("[...document.images].every(i=>i.complete&&i.naturalWidth>0)");
  const before=await evaluate("localStorage.getItem('protoboard:ne555:v1')");
  await evaluate("localStorage.setItem('protoboard:ne555:v1',JSON.stringify({completed:[1,2],step:3,marked:['C001']}));");await send('Page.reload');await waitFor("document.querySelector('[data-circuit-card=\\\"555\\\"] [data-catalog-percent]')?.textContent==='29%'");
  assert.equal(await evaluate("document.querySelector('[data-circuit-card=\\\"555\\\"] [data-catalog-action]').textContent.trim()"),'Continuar montaje');
@@ -62,6 +62,6 @@ async function main(){
  if(before===null)await evaluate("localStorage.removeItem('protoboard:ne555:v1')");else await evaluate("localStorage.setItem('protoboard:ne555:v1',"+JSON.stringify(before)+")");
  await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await send('Page.reload');await waitFor("[...document.images].every(i=>i.complete&&i.naturalWidth>0)");assert(await evaluate("document.documentElement.scrollWidth<=innerWidth+2"));await shot('design-catalog-mobile');
  await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});assert.equal(await evaluate("getComputedStyle(document.querySelector('.circuit-card')).transitionDuration"),'0s');
- assert.equal(errors.length,0,JSON.stringify(errors));assert.equal(failed.length,0,JSON.stringify(failed));fs.writeFileSync('work/qa/design-browser-results.json',JSON.stringify({base,results,catalog:{cards:5,images:true,progress:true,mobile:true,reducedMotion:true},errors,failed},null,2));console.log(JSON.stringify({pass:true,results,catalog:true,errors:errors.length,failed:failed.length}));ws.close();
+ assert.equal(errors.length,0,JSON.stringify(errors));assert.equal(failed.length,0,JSON.stringify(failed));fs.writeFileSync('work/qa/design-browser-results.json',JSON.stringify({base,results,catalog:{cards:6,images:true,progress:true,mobile:true,reducedMotion:true},errors,failed},null,2));console.log(JSON.stringify({pass:true,results,catalog:true,errors:errors.length,failed:failed.length}));ws.close();
 }
 main().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>{browser.kill();fs.closeSync(log);});
