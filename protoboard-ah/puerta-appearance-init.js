@@ -27,6 +27,13 @@
     return preferences;
   }
 
+  // Las prácticas arman su mesa de trabajo con JavaScript: el contenido espera oculto
+  // para no mostrar el acomodo anterior. design-system.js lo revela; aquí hay un límite.
+  if (/^\/(index|555|contador|contador-descendente|puerta|puerta-catodo)?(\.html)?$/.test(location.pathname)) {
+    root.classList.add('taller-pending');
+    setTimeout(() => root.classList.remove('taller-pending'), 3500);
+  }
+
   let preferences = read();
   function getState() {
     const choice = preferences.effects;
@@ -62,10 +69,6 @@
       if (!Object.hasOwn(allowed, key) || !allowed[key].includes(value)) return false;
       preferences[key] = value;
       if (key !== 'theme') preferences.profile = 'custom';
-      // Cambio de tema con fundido suave cuando el navegador lo permite y hay movimiento completo.
-      if (key === 'theme' && document.startViewTransition && getState().effects === 'full') {
-        try { document.startViewTransition(save); return true; } catch {}
-      }
       save();
       return true;
     },

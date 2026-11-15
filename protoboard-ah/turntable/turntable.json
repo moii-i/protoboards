@@ -1,0 +1,37 @@
+{
+  "descendente": {
+    "frames": 13,
+    "width": 720,
+    "height": 380,
+    "background": "#e7ece6",
+    "bytes": 217530
+  },
+  "contador": {
+    "frames": 13,
+    "width": 720,
+    "height": 380,
+    "background": "#e7ece6",
+    "bytes": 215778
+  },
+  "puerta": {
+    "frames": 13,
+    "width": 720,
+    "height": 380,
+    "background": "#e7ece6",
+    "bytes": 161862
+  },
+  "555": {
+    "frames": 13,
+    "width": 720,
+    "height": 380,
+    "background": "#edf1ed",
+    "bytes": 167818
+  },
+  "letras": {
+    "frames": 13,
+    "width": 720,
+    "height": 380,
+    "background": "#edf1ed",
+    "bytes": 274472
+  }
+}

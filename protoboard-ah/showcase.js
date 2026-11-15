@@ -4,7 +4,8 @@ const reduced=matchMedia('(prefers-reduced-motion:reduce)'),fine=matchMedia('(ho
 const limited=()=>reduced.matches||['reduced','off'].includes(document.documentElement.dataset.workspaceMotion);
 const cleanPath=s=>s.replace(/\.html$/,'');
 const page=cleanPath(location.pathname),catalog=page==='/circuitos';
-const kind=page==='/puerta-catodo'?'puerta-catodo':page==='/puerta'?'puerta':page==='/555'?'555':'letras';
+const kind=page==='/puerta-catodo'?'puerta-catodo':page==='/puerta'?'puerta':page==='/555'?'555':page==='/contador'?'contador':page==='/contador-descendente'?'descendente':'letras';
+const coverImage={letras:'turntable/letras-poster.webp',555:'turntable/555-poster.webp',puerta:'preview-puerta.png','puerta-catodo':'turntable/puerta-poster.webp',contador:'turntable/contador-poster.webp',descendente:'turntable/descendente-poster.webp'}[kind];
 const frames={letras:[['a','Letra A'],['b','Letra b'],['h','Letra H']],555:[['uno','LED 1 encendido'],['dos','LED 2 encendido']],puerta:[['cerrada','Cerrada · OF'],['movimiento','En movimiento · rU'],['abierta','Abierta · OP'],['pausa','Pausa · SP']]};
 const playIcon='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 3 7 5-7 5z"/></svg>';
 const pauseIcon='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M6 3v10M10 3v10"/></svg>';
@@ -61,9 +62,8 @@ function setupPreviews(){
    }catch{if(request!==token)return;stop();button.disabled=true;button.title='La vista previa no está disponible. Puedes abrir el montaje.';}
   }
   button.onclick=()=>{if(limited()){start(true);return;}if(running){stop();}else start(true);};
-  card.addEventListener('pointerenter',()=>{if(fine.matches&&!limited())start(false);});
+  // Al pasar el cursor, la miniatura gira (design-system.js); los estados se ven con el botón.
   card.addEventListener('pointerleave',()=>{if(!pinned&&!manual)stop();});
-  card.addEventListener('focusin',()=>{if(fine.matches&&!limited()&&!running)start(false);});
   card.addEventListener('focusout',e=>{if(!card.contains(e.relatedTarget)&&!pinned&&!manual)stop();});
   const controller={stop,card,get state(){return {key,running,index,pinned,manual};}};controllers.push(controller);label();
  }
@@ -74,7 +74,7 @@ function installViewer(){
  if(!viewport||!mapbox||typeof window.setRenderer!=='function'||kind.startsWith('puerta')&&!window.doorLesson)return false;
  if(viewport.dataset.showcaseInstalled)return true;viewport.dataset.showcaseInstalled='true';
  const cover=document.createElement('div');cover.className='showcase-viewer-cover';cover.hidden=true;cover.setAttribute('role','status');cover.setAttribute('aria-live','polite');
- cover.innerHTML='<img src="./preview-'+kind+'.png" alt="" width="960" height="600"><div class="showcase-load-caption"><span class="showcase-load-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5"/></svg></span><div><strong>Preparando tu vista 3D</strong><small>Vista de referencia del montaje</small><div class="showcase-load-line" aria-hidden="true"></div></div></div>';mapbox.append(cover);
+ cover.innerHTML='<img src="./'+coverImage+'" alt="" width="720" height="380"><div class="showcase-load-caption"><span class="showcase-load-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5"/></svg></span><div><strong>Preparando tu vista 3D</strong><small>Vista de referencia del montaje</small><div class="showcase-load-line" aria-hidden="true"></div></div></div>';mapbox.append(cover);
  let generation=0,hideTimer=0;
  function reveal(){clearTimeout(hideTimer);cover.classList.remove('is-leaving');cover.hidden=false;mapbox.setAttribute('aria-busy','true');diagnostics.viewer='loading';diagnostics.viewerLoads++;}
  function finish(){mapbox.setAttribute('aria-busy','false');diagnostics.viewer='ready';if(cover.hidden)return;cover.classList.add('is-leaving');clearTimeout(hideTimer);hideTimer=setTimeout(()=>{cover.hidden=true;cover.classList.remove('is-leaving');},reduced.matches||document.getElementById('motion')?.checked===false?0:250);}

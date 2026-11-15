@@ -115,6 +115,13 @@ function buildTaller(){
  const choice=document.querySelector('.assembly-choice'),layout=document.getElementById('montaje');
  if(choice&&layout&&!choice.contains(layout)){choice.classList.add('taller-config');layout.after(choice);}
  tallerMotion();
+ requestAnimationFrame(()=>{
+  const pending=document.documentElement.classList.contains('taller-pending');
+  document.documentElement.classList.remove('taller-pending');
+  // Con la mesa ya armada, vuelve al ancla pedida (p. ej. #montaje) sin saltos posteriores.
+  const id=decodeURIComponent(location.hash.slice(1)),target=id&&document.getElementById(id);
+  if(pending&&target)target.scrollIntoView({block:'start',behavior:'instant'});
+ });
 }
 // Letras no cerraba la vista ampliada con Escape; las demás guías ya lo hacen.
 if(kind==='letras')document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('fullscreen')&&!document.querySelector('.design-tool-group[open],dialog[open]')){document.getElementById('expand')?.click();}});
@@ -171,16 +178,6 @@ function updateCatalog(){
 if(isCatalog){updateCatalog();addEventListener('storage',updateCatalog);addEventListener('pageshow',updateCatalog);}
 /* Taller 6: pistas animadas en la portada, barra de pasos flotante y celebraciones. */
 const tallerFull=()=>document.documentElement.dataset.workspaceMotion==='full';
-function tallerTraces(){
- const body=document.querySelector('.catalog-featured .circuit-card-body');if(!body||body.querySelector('.taller-traces'))return;
- const paths=['M400 40H300l-30 30h-90l-20 20','M400 110h-70l-30 30h-60','M400 180h-50l-30 30h-60l-20 20h-50','M400 250h-90l-20 20h-70','M360 0v30l-20 20h-40','M400 300v-20l-25-25'];
- const ends=[[160,90],[240,140],[190,230],[220,270],[300,50],[375,255]];
- const svg='<svg viewBox="0 0 400 300" preserveAspectRatio="xMaxYMid slice" aria-hidden="true" focusable="false">'+
-  paths.map(d=>'<path class="taller-trace" d="'+d+'" pathLength="300"/>').join('')+
-  paths.map((d,i)=>'<path class="taller-pulse" style="--d:'+(i*.55).toFixed(2)+'s" d="'+d+'" pathLength="300"/>').join('')+
-  ends.map(([x,y])=>'<circle class="taller-pad" cx="'+x+'" cy="'+y+'" r="4.5"/>').join('')+'</svg>';
- const wrap=document.createElement('div');wrap.className='taller-traces';wrap.innerHTML=svg;body.prepend(wrap);
-}
 function tallerSpark(x,y,amount=18,spread=110){
  if(!tallerFull())return;
  const colors=['var(--circuit)','var(--appearance-accent)','var(--appearance-gold)','#ff8a66'];
@@ -234,6 +231,41 @@ function tallerCatalogSteps(){
   if(tags&&!tags.querySelector('.taller-steps')){const s=document.createElement('span');s.className='taller-steps';s.textContent=count+' pasos';tags.append(s);}
  }
 }
-if(isCatalog){tallerTraces();tallerCatalogSteps();}
+if(isCatalog){tallerCatalogSteps();tallerTurntables();}
 else{let dockTries=0;const dockTimer=setInterval(()=>{if(document.querySelector('.taller-bar')){tallerStepDock();clearInterval(dockTimer);}else if(++dockTries>120)clearInterval(dockTimer);},120);}
+/* Miniaturas del catálogo: tira de cuadros del visor 3D; el cursor o el dedo giran el montaje. */
+function tallerTurntables(){
+ const fine=matchMedia('(hover:hover) and (pointer:fine)');
+ fetch('./turntable/turntable.json').then(r=>r.ok?r.json():Promise.reject()).then(meta=>{
+  for(const card of document.querySelectorAll('[data-circuit-card]')){
+   const k=card.dataset.circuitCard,m=meta[k],preview=card.querySelector('.circuit-card-preview');
+   if(!m||!preview||preview.querySelector('.taller-turntable'))continue;
+   preview.style.setProperty('--turntable-bg',m.background);
+   const canvas=document.createElement('canvas');canvas.className='taller-turntable';canvas.setAttribute('aria-hidden','true');
+   const hint=document.createElement('span');hint.className='taller-turntable-hint';hint.setAttribute('aria-hidden','true');
+   hint.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg>'+(fine.matches?'Mueve el cursor para girar':'Desliza para girar');
+   preview.append(canvas,hint);
+   const ctx=canvas.getContext('2d'),mid=(m.frames-1)/2;
+   let img=null,loading=null,cur=mid,target=mid,raf=0,drawn=-1,dragX=null,dragStart=mid,dragged=false;
+   const load=()=>loading||(loading=new Promise((res,rej)=>{const i=new Image();i.decoding='async';i.onload=()=>{img=i;res();};i.onerror=rej;i.src='./turntable/'+k+'.webp';}));
+   function draw(force){if(!img)return;const f=Math.round(cur);if(f===drawn&&!force)return;drawn=f;const cw=canvas.width,ch=canvas.height,s=Math.max(cw/m.width,ch/m.height),w=m.width*s,h=m.height*s;ctx.fillStyle=m.background;ctx.fillRect(0,0,cw,ch);ctx.drawImage(img,f*m.width,0,m.width,m.height,(cw-w)/2,(ch-h)/2,w,h);}
+   const size=()=>{const r=preview.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);canvas.width=Math.max(1,Math.round(r.width*d));canvas.height=Math.max(1,Math.round(r.height*d));draw(true);};
+   function tick(){cur+=(target-cur)*.2;if(Math.abs(target-cur)<.03)cur=target;draw();raf=cur===target?0:requestAnimationFrame(tick);}
+   const go=t=>{target=Math.max(0,Math.min(m.frames-1,t));if(!raf)raf=requestAnimationFrame(tick);};
+   const activate=()=>load().then(()=>{if(!preview.classList.contains('turntable-ready')){size();preview.classList.add('turntable-ready');}}).catch(()=>{});
+   preview.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')activate();});
+   preview.addEventListener('pointermove',e=>{
+    if(!img)return;const r=preview.getBoundingClientRect();
+    if(e.pointerType==='mouse')go((e.clientX-r.left)/r.width*(m.frames-1));
+    else if(dragX!==null){const dx=e.clientX-dragX;if(Math.abs(dx)>8)dragged=true;if(dragged)go(dragStart+dx/r.width*(m.frames-1)*1.3);}
+   });
+   preview.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')go(mid);});
+   preview.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'){activate();dragX=e.clientX;dragStart=target;dragged=false;}});
+   const end=()=>{dragX=null;};preview.addEventListener('pointerup',end);preview.addEventListener('pointercancel',end);
+   preview.addEventListener('click',e=>{if(dragged){e.preventDefault();e.stopPropagation();dragged=false;}},true);
+   new ResizeObserver(()=>{if(img)size();}).observe(preview);
+   if(!fine.matches)new IntersectionObserver((entries,o)=>{if(entries.some(x=>x.isIntersecting)){activate();o.disconnect();}},{rootMargin:'160px'}).observe(preview);
+  }
+ }).catch(()=>{});
+}
 })();

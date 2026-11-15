@@ -235,11 +235,9 @@ body.taller :is(.workspace,.sidebar,.resource) button:not(.primary):hover{border
 /* ---- Movimiento ---- */
 :root[data-workspace-motion=full] .design-tool-group[open]>.design-tool-panel{animation:taller-pop var(--taller-fast) var(--taller-ease)}
 :root[data-workspace-motion=full] body.taller .map-stage.taller-step-change :is(.assembly-viewports,.mapbox){animation:taller-settle var(--taller-cam) var(--taller-ease)}
-:root[data-workspace-motion=full] body.taller .connection-card.taller-pulse{animation:taller-pulse .55s var(--taller-ease)}
 :root[data-workspace-motion=full] .taller-draw{stroke-dasharray:1;stroke-dashoffset:1;animation:taller-draw .55s var(--taller-ease) forwards;animation-delay:var(--taller-delay,0ms)}
 @keyframes taller-pop{from{opacity:0;translate:0 -4px}to{opacity:1;translate:0 0}}
 @keyframes taller-settle{from{opacity:.55;filter:saturate(.6)}to{opacity:1;filter:none}}
-@keyframes taller-pulse{0%{box-shadow:inset 0 0 0 0 var(--taller-glow)}40%{box-shadow:inset 0 0 0 999px var(--taller-glow)}100%{box-shadow:inset 0 0 0 0 transparent}}
 @keyframes taller-draw{to{stroke-dashoffset:0}}
 
 /* ---- Catálogo ---- */
@@ -389,7 +387,7 @@ body.catalog-home.design-enhanced .circuit-grid .circuit-card-preview img{transi
 body.catalog-home.design-enhanced .circuit-grid .circuit-card:hover .circuit-card-preview img{transform:scale(1.045)}
 body.catalog-home.design-enhanced .catalog-featured .circuit-card-preview{background:#edf1ed}
 body.catalog-home.design-enhanced .catalog-featured .circuit-card-preview img{transition:transform .8s var(--taller-ease)}
-body.catalog-home.design-enhanced .catalog-featured:hover .circuit-card-preview img{transform:translateY(-50%) scale(1.03)}
+
 :root[data-workspace-theme=night] body.catalog-home .circuit-grid .circuit-card-preview::after{content:"";position:absolute;inset:auto 0 0;height:38%;z-index:1;pointer-events:none;background:linear-gradient(to bottom,transparent,#0b100e2e)}
 /* Rótulos y botón de la miniatura en modo oscuro: vidrio oscuro legible sobre la captura clara */
 :root[data-workspace-theme=night] body.catalog-home :is(.showcase-preview-play,.circuit-preview-label,.showcase-preview-state){background:#121916e0;color:var(--appearance-ink);border-color:#ffffff1f;box-shadow:0 4px 14px #00000040}
@@ -468,7 +466,7 @@ body.design-enhanced,body.design-enhanced :is(.site-header,.workspace,.sidebar,.
 }
 /* Teléfono: el lienzo 2D se ajusta a la forma de la placa (sin franjas vacías); el 3D conserva su alto */
 @media(max-width:700px){
-  body.taller:not(.fullscreen) .map-stage.cable-workbench .assembly-viewports:has(.mapbox:not(.in-3d)){height:auto;aspect-ratio:1.35;min-height:280px;max-height:64dvh}
+  body.taller:not(.fullscreen) .map-stage.cable-workbench .assembly-viewports:has(.mapbox:not(.in-3d)){height:auto;aspect-ratio:1.35;min-height:380px;max-height:64dvh}
   body.taller.counter-page:not(.fullscreen) .assembly-viewports:has(.mapbox:not(.in-3d)){aspect-ratio:1.9;min-height:220px}
   body.taller .assembly-stage-head .assembly-stage-actions{justify-content:flex-start;width:100%}
   body.taller .assembly-stage-head .assembly-stage-actions button{flex:1 1 auto}
@@ -543,14 +541,6 @@ body.catalog-home.design-enhanced .catalog-featured .catalog-kicker{color:var(--
 body.catalog-home.design-enhanced .catalog-featured{border-top:3px solid var(--circuit)}
 body.catalog-home.design-enhanced .catalog-featured .circuit-card-body{position:relative;isolation:isolate}
 body.catalog-home.design-enhanced .catalog-featured .circuit-card-body>*{position:relative;z-index:1}
-body.catalog-home.design-enhanced .catalog-featured .circuit-card-body>.taller-traces{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;color:var(--circuit);-webkit-mask-image:linear-gradient(to left,#000 0%,#000 12%,transparent 52%);mask-image:linear-gradient(to left,#000 0%,#000 12%,transparent 52%)}
-.taller-traces svg{position:absolute;inset:0;width:100%;height:100%}
-.taller-traces .taller-trace{fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;opacity:.16}
-.taller-traces .taller-pad{fill:var(--appearance-surface);stroke:currentColor;stroke-width:2;opacity:.42}
-.taller-traces .taller-pulse{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-dasharray:16 284;stroke-dashoffset:300;opacity:0}
-:root[data-workspace-motion=full] .taller-traces .taller-pulse{opacity:.9;animation:taller-current 3.4s linear infinite;animation-delay:var(--d,0s);filter:drop-shadow(0 0 3px currentColor)}
-@keyframes taller-current{from{stroke-dashoffset:300}to{stroke-dashoffset:0}}
-@media(max-width:650px){body.catalog-home.design-enhanced .catalog-featured .circuit-card-body>.taller-traces{-webkit-mask-image:linear-gradient(to top left,#000 0%,transparent 70%);mask-image:linear-gradient(to top left,#000 0%,transparent 70%)}}
 
 /* ---- Barra de pasos flotante ---- */
 .taller-stepdock{position:fixed;left:50%;bottom:max(12px,env(safe-area-inset-bottom));z-index:58;display:flex;align-items:stretch;gap:6px;width:min(580px,calc(100vw - 20px));padding:6px;border-radius:16px;background:color-mix(in srgb,var(--appearance-surface) 90%,transparent);border:1px solid var(--appearance-border);box-shadow:0 14px 38px #0b1a1430,0 0 0 1px #ffffff08 inset;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);translate:-50% 150%;opacity:0;pointer-events:none;transition:translate .38s var(--taller-ease),opacity .25s var(--taller-ease);font-family:var(--appearance-type)}
@@ -592,3 +582,38 @@ body.taller .design-footer{padding-bottom:max(96px,calc(84px + env(safe-area-ins
 .taller-stepdock.is-on{visibility:visible;transition:translate .38s var(--taller-ease),opacity .25s var(--taller-ease),visibility 0s}
 body.fullscreen .taller-stepdock,body:has(.design-tool-group[open]) .taller-stepdock,body:has(dialog[open]) .taller-stepdock{visibility:hidden}
 :root[data-workspace-theme=contrast] .taller-stepdock{background:var(--appearance-surface)}
+/* Letras: "Ampliar mapa" no es una capa fija; oculta la columna de pasos y la cabecera */
+body.fullscreen.workbench-active .bench-layout,body.fullscreen.workbench-active .bench-layout[data-collapsed=true]{grid-template-columns:minmax(0,1fr)}
+body.taller.fullscreen :is(.hero,.design-breadcrumb,.circuit-picker){display:none}
+
+/* ==========================================================================
+   TALLER 7 · fluidez y miniaturas 3D
+   ========================================================================== */
+/* Mientras design-system.js arma la mesa, el contenido espera oculto y luego aparece */
+html.taller-pending body.design-enhanced main.wrap,html.taller-pending body:not(.design-enhanced) main.wrap{opacity:0}
+body.design-enhanced main.wrap{transition:opacity .28s var(--taller-ease)}
+:root[data-workspace-motion=off] body.design-enhanced main.wrap{transition:none}
+/* Cambio de página: fundido limpio, sin deformar la miniatura hacia el visor */
+.circuit-card-preview,.map-stage,.site-header{view-transition-name:none!important}
+::view-transition-old(root){animation:.22s var(--taller-ease) both taller-vt-out}
+::view-transition-new(root){animation:.3s var(--taller-ease) both taller-vt-in}
+@keyframes taller-vt-out{to{opacity:0}}
+@keyframes taller-vt-in{from{opacity:0}}
+
+/* Miniaturas: cuadro central del giro 3D, centrado y a todo el recuadro */
+body.catalog-home.design-enhanced .circuit-card-preview{background:var(--turntable-bg,#e9eee8)}
+body.catalog-home.design-enhanced .circuit-card-preview>img:not(.showcase-frame){position:absolute;inset:0;left:0;top:0;width:100%;height:100%;max-width:none;transform:none;object-fit:cover;object-position:50% 50%;padding:0;background:var(--turntable-bg,#e9eee8)}
+body.catalog-home.design-enhanced .circuit-grid .circuit-card:hover .circuit-card-preview img{transform:none}
+.taller-turntable{position:absolute;inset:0;width:100%;height:100%;z-index:1;opacity:0;pointer-events:none;transition:opacity .25s var(--taller-ease)}
+.turntable-ready .taller-turntable{opacity:1}
+.circuit-card-preview{touch-action:pan-y}
+.circuit-card-preview>:is(.catalog-preview-id,.circuit-preview-label,.showcase-preview-state),.circuit-card>.showcase-preview-play{z-index:3}
+.circuit-card-preview>.showcase-frame{z-index:2}
+.showcase-playing .taller-turntable{opacity:0}
+.taller-turntable-hint{position:absolute;left:50%;bottom:12px;z-index:3;display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font:700 11px/1 var(--appearance-type);letter-spacing:.01em;color:#203229;background:#ffffffd9;border:1px solid #0b1a1414;box-shadow:0 4px 14px #0b1a1418;translate:-50% 6px;opacity:0;pointer-events:none;transition:opacity .2s var(--taller-ease),translate .2s var(--taller-ease);white-space:nowrap}
+.taller-turntable-hint svg{width:14px;height:14px}
+.circuit-card-preview:hover .taller-turntable-hint{opacity:1;translate:-50% 0}
+@media(hover:none){.turntable-ready .taller-turntable-hint{animation:taller-hint 3.2s var(--taller-ease) .4s both}}
+@keyframes taller-hint{0%{opacity:0;translate:-50% 6px}12%,75%{opacity:1;translate:-50% 0}100%{opacity:0;translate:-50% 0}}
+:root[data-workspace-motion=off] .taller-turntable-hint{transition:none;animation:none}
+@media(max-width:700px){body.taller .assembly-choice .cc-assembly-header h2{font-size:calc(17px * var(--appearance-scale));line-height:1.2}}

@@ -20,7 +20,7 @@ async function main(){
  await send('Page.navigate',{url:base+'/circuitos'});await waitFor('Boolean(window.protoboardsShowcase)');
  await waitFor("[...document.querySelectorAll('.circuit-card-preview>img:first-child')].every(i=>i.complete&&i.naturalWidth>0)");
  assert.equal(await evaluate("document.querySelectorAll('.showcase-preview-play').length"),3);
- assert(await evaluate("document.querySelector('.catalog-featured h1').textContent === 'Control de puerta' && document.querySelectorAll('.catalog-practices [data-circuit-card]').length === 2"));
+ assert(await evaluate("document.querySelector('.catalog-featured h1').textContent === 'Contador de 9 a 0' && document.querySelectorAll('.catalog-practices [data-circuit-card]').length === 4"));
  assert(await evaluate("[...document.querySelectorAll('.circuit-preview-label')].every(label => label.getBoundingClientRect().height < 40)"));
  await shot('catalog-desktop');
  await evaluate("document.querySelector('.appearance-launch').click(); document.querySelector('[data-appearance-theme=night]').click(); document.querySelector('[data-appearance-profile=build]').click()");
@@ -30,8 +30,8 @@ async function main(){
  await waitFor("!document.querySelector('#siteAppearance').open && document.activeElement.classList.contains('appearance-launch')");
  await send('Page.reload');
  await waitFor("document.querySelector('[data-appearance-theme=night]')?.getAttribute('aria-pressed') === 'true' && document.querySelector('[data-appearance-profile=build]')?.getAttribute('aria-pressed') === 'true' && document.querySelectorAll('.showcase-preview-play').length === 3");
- assert.equal(await evaluate("getComputedStyle(document.body).backgroundColor"),'rgb(17, 25, 22)');
- await waitFor("document.querySelector('.catalog-featured .circuit-card-preview img').naturalWidth === 960");
+ assert.equal(await evaluate("getComputedStyle(document.body).backgroundColor"),'rgb(11, 16, 14)');
+ await waitFor("document.querySelector('.catalog-featured .circuit-card-preview img').naturalWidth === 720");
  await shot('catalog-night');
  await evaluate("document.querySelector('.appearance-launch').click(); document.querySelector('[data-appearance-theme=contrast]').click()");
  assert.equal(await evaluate("document.documentElement.dataset.workspaceTheme"),'contrast');
@@ -51,7 +51,7 @@ async function main(){
   await waitFor("protoboardsShowcase.getState().previews["+i+"].running");
   const first=await evaluate("protoboardsShowcase.getState().previews["+i+"].index");
   await waitFor("protoboardsShowcase.getState().previews["+i+"].running && protoboardsShowcase.getState().previews["+i+"].index!=="+first);
-  assert(await evaluate("document.querySelectorAll('[data-circuit-card]')["+i+"].querySelector('.showcase-frame.is-current').naturalWidth===960"));
+  assert(await evaluate("document.querySelectorAll('.showcase-preview-play')["+i+"].closest('[data-circuit-card]').querySelector('.showcase-frame.is-current').naturalWidth===960"));
   previews.push(await evaluate("protoboardsShowcase.getState().previews["+i+"]"));await evaluate('protoboardsShowcase.stopPreviews()');
  }
  await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
@@ -63,8 +63,9 @@ async function main(){
  await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'no-preference'}]});
  await evaluate("document.querySelector('.appearance-launch').click(); document.querySelector('[data-appearance-theme=night]').click(); document.querySelector('[data-appearance-profile=study]').click(); document.querySelector('.site-appearance-close').click()");
  // Use the browser's native link navigation so cross-document snapshots are exercised.
- await evaluate("protoboardsShowcase.stopPreviews();document.querySelectorAll('[data-catalog-action]')[1].scrollIntoView({block:'center',behavior:'instant'});");
- const link=await evaluate("(()=>{const r=document.querySelectorAll('[data-catalog-action]')[1].getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()");
+ await evaluate("protoboardsShowcase.stopPreviews();document.querySelector('[data-circuit-card=\"555\"] [data-catalog-action]').scrollIntoView({block:'center',behavior:'instant'});");
+ await delay(500);
+ const link=await evaluate("(()=>{const r=document.querySelector('[data-circuit-card=\"555\"] [data-catalog-action]').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()");
  await send('Input.dispatchMouseEvent',{type:'mousePressed',button:'left',buttons:1,clickCount:1,...link});await send('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',buttons:0,clickCount:1,...link});
  await waitFor("location.pathname==='/555'&&Boolean(window.protoboardsShowcase)");
  await waitFor("typeof window.__showcaseNativeTransition==='boolean'");const native=await evaluate('Boolean(window.__showcaseNativeTransition)');
@@ -74,7 +75,7 @@ async function main(){
  const viewerResults=[];
  for(const [key,route] of [['letras','/'],['555','/555'],['puerta','/puerta?montaje=ls151'],['puerta-catodo','/puerta-catodo']]){
   await send('Page.navigate',{url:base+route});await waitFor("Boolean(window.protoboardsShowcase)&&Boolean(document.getElementById('threeViewport')?.dataset.showcaseInstalled)");
-  assert(await evaluate("document.querySelector('.site-header .appearance-launch') && document.documentElement.dataset.workspaceTheme === 'night' && document.documentElement.dataset.workspaceText === 'large' && getComputedStyle(document.body).backgroundColor === 'rgb(17, 25, 22)'"),key);
+  assert(await evaluate("document.querySelector('.site-header .appearance-launch') && document.documentElement.dataset.workspaceTheme === 'night' && document.documentElement.dataset.workspaceText === 'large' && getComputedStyle(document.body).backgroundColor === 'rgb(11, 16, 14)'"),key);
   assert.equal(await evaluate("getComputedStyle(document.querySelector('.hero')).backgroundColor"),'rgba(0, 0, 0, 0)',key+' dark hero blends into the page');
   await evaluate("document.querySelector('.brand-intro')?.remove();setRenderer('2d');document.querySelector('.map-stage').scrollIntoView({block:'center',behavior:'instant'});");
   const progress=await evaluate('JSON.stringify({marked:[...marked],completed:[...completed],step,selected})');
@@ -82,8 +83,8 @@ async function main(){
   await evaluate("setRenderer('3d');true");await waitFor("!document.querySelector('.showcase-viewer-cover').hidden");
   for(let i=0;i<100&&!pauses.length;i++)await delay(50);assert(pauses.length,'The bundle is held during loading');
   assert.equal(await evaluate("document.querySelector('.mapbox').getAttribute('aria-busy')"),'true');
-  await waitFor("document.querySelector('.showcase-viewer-cover img').complete&&document.querySelector('.showcase-viewer-cover img').naturalWidth===960");
-  assert(await evaluate("document.querySelector('.showcase-viewer-cover img').naturalWidth===960"));
+  await waitFor("document.querySelector('.showcase-viewer-cover img').complete&&document.querySelector('.showcase-viewer-cover img').naturalWidth>0");
+  assert(await evaluate("document.querySelector('.showcase-viewer-cover img').naturalWidth>0"));
   await shot('showcase-loading-'+key);
   if(key==='555'){await evaluate("setRenderer('2d');true");assert(await evaluate("document.querySelector('.showcase-viewer-cover').hidden"));assert.equal(await evaluate('rendererMode'),'2d');}
   for(const p of pauses.splice(0))await send('Fetch.continueRequest',{requestId:p.requestId});await send('Fetch.disable');
@@ -161,7 +162,7 @@ async function main(){
  await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
  await send('Emulation.setEmulatedMedia',{features:[{name:'hover',value:'none'},{name:'prefers-reduced-motion',value:'no-preference'}]});
  await send('Page.navigate',{url:base+'/circuitos'});await waitFor('Boolean(window.protoboardsShowcase)');
- await waitFor("document.querySelector('.catalog-featured .circuit-card-preview img').naturalWidth === 960");
+ await waitFor("document.querySelector('.catalog-featured .circuit-card-preview img').naturalWidth === 720");
  assert(await evaluate("document.documentElement.scrollWidth <= innerWidth+1 && document.querySelector('.catalog-featured .circuit-card-preview').getBoundingClientRect().bottom <= document.querySelector('.catalog-featured h1').getBoundingClientRect().top"));
  await evaluate("document.querySelector('.appearance-launch').click()");
  await waitFor("document.querySelector('#siteAppearance').open && Math.abs(document.querySelector('#siteAppearance').getBoundingClientRect().bottom - innerHeight) <= 2 && document.querySelector('#siteAppearance').getBoundingClientRect().width <= innerWidth");

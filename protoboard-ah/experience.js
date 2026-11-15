@@ -15,6 +15,6 @@
     skip.onclick=close;overlay.addEventListener('keydown',e=>{if(e.key==='Escape')close();});timer=setTimeout(close,1050);
     reduced.addEventListener('change',()=>{if(reduced.matches)close();},{once:true});
   }
-  try{if(!sessionStorage.getItem('protoboards:welcome:v1')){sessionStorage.setItem('protoboards:welcome:v1','1');intro();}}catch{intro();}
-  const replay=document.createElement('button');replay.type='button';replay.className='brand-replay';replay.title='Ver animación de entrada';replay.setAttribute('aria-label','Ver animación de entrada');replay.textContent='↻';replay.onclick=intro;replay.hidden=reduced.matches;brand?.after(replay);reduced.addEventListener('change',()=>replay.hidden=reduced.matches);
+  // La animación de entrada ya no se muestra sola: parecía una pantalla de carga entre prácticas.
+  window.protoboardsIntro=intro; // disponible si se quiere mostrar a mano
 })();
