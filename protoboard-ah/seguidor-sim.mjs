@@ -7,12 +7,13 @@
 // Es una demostración geométrica: no modela fricción, voltaje de pilas ni la
 // sensibilidad real del módulo infrarrojo.
 
+// Medidas del modelo 3D (modelos/agv-seguidor.blend): kit 2WD con rueda loca adelante.
 export const car={
-  track:130,        // separación entre ruedas
-  sensorAhead:105,  // de eje a sensores
+  track:134,        // separación entre centros de las ruedas
+  sensorAhead:128,  // de eje a sensores
   sensorGap:12,     // entre centros de los dos sensores (menor que la cinta)
   wheel:66,         // diámetro de rueda TT
-  length:200,width:150
+  rear:62,length:200,width:116
 };
 export const mat={width:1800,height:1200,line:19};
 

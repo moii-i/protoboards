@@ -45,14 +45,15 @@ export function mountTrack({ canvas, evaluate, selector = 0, onSelector, onReadi
   function drawCar(st) {
     const { x, y, heading } = st, half = car.track / 2;
     ctx.save(); ctx.translate(x, y); ctx.rotate(heading);
-    // Chasis de acrílico (eje en x = 0, frente hacia +x).
-    roundRect(-70, -car.width / 2, car.length, car.width, 18);
-    ctx.fillStyle = 'rgba(196,222,232,.72)'; ctx.fill(); ctx.strokeStyle = '#5f7f8b'; ctx.lineWidth = 3; ctx.stroke();
-    // Protoboard y pilas.
-    roundRect(-6, -28, 82, 56, 6); ctx.fillStyle = '#f6f3ea'; ctx.fill(); ctx.strokeStyle = '#b8b5aa'; ctx.lineWidth = 2; ctx.stroke();
-    roundRect(-62, -34, 46, 68, 6); ctx.fillStyle = '#2a2d31'; ctx.fill();
-    // Rueda loca.
-    ctx.beginPath(); ctx.arc(-56, 0, 9, 0, Math.PI * 2); ctx.fillStyle = '#8b969a'; ctx.fill();
+    // Rueda loca adelante, bajo la placa.
+    ctx.beginPath(); ctx.arc(92, 0, 9, 0, Math.PI * 2); ctx.fillStyle = '#8b969a'; ctx.fill();
+    // Chasis de acrílico (eje en x = 0, frente hacia +x), como el modelo 3D.
+    roundRect(-car.rear, -car.width / 2, car.length, car.width, 14);
+    ctx.fillStyle = 'rgba(196,222,232,.66)'; ctx.fill(); ctx.strokeStyle = '#5f7f8b'; ctx.lineWidth = 3; ctx.stroke();
+    // Portapilas 4 × AA atrás, protoboard al centro y pila de 9 V al frente.
+    roundRect(-61, -29, 62, 58, 6); ctx.fillStyle = '#2a2d31'; ctx.fill();
+    roundRect(6, -40, 51, 80, 5); ctx.fillStyle = '#f6f3ea'; ctx.fill(); ctx.strokeStyle = '#b8b5aa'; ctx.lineWidth = 2; ctx.stroke();
+    roundRect(66, -24, 26, 48, 4); ctx.fillStyle = '#3a4a5a'; ctx.fill();
     // Ruedas: verde = avanza, roja = freno.
     for (const [side, m] of [[-1, st.motors.left], [1, st.motors.right]]) {
       const wy = side * half;
