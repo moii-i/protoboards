@@ -56,7 +56,16 @@ Módulo con TCRT5000 (o el ARD-377 de Steren) y comparador LM393, salida digital
 
 ## Simulación del recorrido
 
-Tapete de 1.8 × 1.2 m con forma de riñón (curvas a la izquierda y una a la derecha), cinta de 19 mm. Tracción diferencial: separación de ruedas 130 mm, sensores 105 mm delante del eje. Cada rueda pasa de 0 a su velocidad con un retardo de 70 ms. La lógica sale de `createLogic` con las redes de las patas. `verify-seguidor.mjs` da más de tres vueltas en los dos modos a 250, 320 y 450 mm/s y con un motor 10 % más lento, y comprueba que frena con el selector equivocado y al sacar el carrito de la línea.
+Tapete de 1.8 × 1.2 m con forma de riñón (curvas a la izquierda y una a la derecha), cinta de 19 mm. Tracción diferencial con las medidas del modelo 3D: ruedas a 134 mm entre centros y sensores 128 mm delante del eje. Cada rueda pasa de 0 a su velocidad con un retardo de 70 ms. La lógica sale de `createLogic` con las redes de las patas. `verify-seguidor.mjs` da más de tres vueltas en los dos modos a 250, 320 y 450 mm/s y con un motor 10 % más lento, y comprueba que frena con el selector equivocado y al sacar el carrito de la línea.
+
+## Ensamblado del carrito (modelo 3D)
+
+Sección «Dónde va cada pieza» (`#carro`): visor de nueve pasos sobre `protoboard-ah/agv/agv-seguidor.glb` con portada `agv-portada.webp` (render de Blender). Fuente en `modelos/agv-seguidor.blend` y los scripts de `modelos/agv/`, que leen las rutas de la protoboard del propio modelo de la página. Visor: `seguidor-carro-source.js` → `node build-seguidor-carro.cjs` → `seguidor-carro-3d.js`; pasos y cámaras en `seguidor-carro.mjs`.
+
+- Kit 2WD: placa de acrílico de 3 mm a 46 mm del piso, motores TT bajo la placa con dos soportes y dos tornillos M3 × 30 cada uno, ruedas de 66 mm atrás y rueda loca de bola adelante con separadores de unos 30 mm.
+- Sensores **en espejo**, con el TCRT5000 de cada módulo hacia el centro: es la única forma de que dos módulos de 14 mm de ancho queden a 12 mm. Un separador de latón por módulo; cara del sensor a 3–8 mm del piso, 128 mm delante del eje.
+- Arriba: portapilas 4 × AA atrás, protoboard al centro (fila a al frente, columna 1 a la izquierda; SW1 en la esquina frontal izquierda) y pila de 9 V al frente, todo con cinta doble cara.
+- Cables: los seis de los sensores bajan por la ranura frontal; los de cada motor suben por un agujero lateral; pilas al final.
 
 ## Compras
 

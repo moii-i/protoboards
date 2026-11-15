@@ -4,6 +4,8 @@
 import assert from 'node:assert/strict';
 import {model,chips,leads,columns,railColumns,point,dipHole,createLogic,action} from './protoboard-ah/seguidor-modelo.mjs';
 import {createSim,track} from './protoboard-ah/seguidor-sim.mjs';
+import {assemblySteps} from './protoboard-ah/seguidor-carro.mjs';
+import fs from 'node:fs';
 
 const parent=new Map(),contacts=new Set();
 function strip([board,row,column]){
@@ -110,4 +112,12 @@ for(let i=0;i<2*240;i++)lost.step(1/240);
 lost.nudge(45);for(let i=0;i<240;i++)lost.step(1/240);
 assert.equal(lost.state.status,'alto','Línea perdida: alto seguro');
 
-console.log(JSON.stringify({passed:true,board:'400 puntos',jumpers:wires.length,externalLeads:links.length,chips:physical.map(c=>c.label),truthTable:8,trackMm:Math.round(track.length),laps,scope:'Lógica booleana, continuidad física sin agujeros compartidos, 5 V separado de VM, entradas manejadas y recorrido geométrico. Velocidad real, calibración de sensores y caída del L293D quedan para la pista real y Proteus.'}));
+// Modelo 3D del ensamblado: un nodo paso_N por etapa y cada paso del visor apunta a uno.
+const glb=fs.readFileSync('protoboard-ah/agv/agv-seguidor.glb');
+assert.equal(glb.toString('utf8',0,4),'glTF');assert(glb.length<4e6,'GLB demasiado pesado: '+glb.length);
+const gltf=JSON.parse(glb.toString('utf8',20,20+glb.readUInt32LE(12)));
+const pasos=gltf.nodes.filter(n=>/^paso_[0-9]+$/.test(n.name)).map(n=>n.name);
+assert.deepEqual(pasos.sort(),Array.from({length:8},(_,i)=>'paso_'+(i+1)).sort(),'Nodos paso_1…paso_8');
+assert(assemblySteps.every(s=>s.parts>=0&&s.parts<pasos.length&&s.camera.length===3&&s.target.length===3&&s.text&&s.need),'Pasos del ensamblado');
+assert.equal(assemblySteps.at(-1).parts,pasos.length-1,'El último paso muestra todo el carrito');
+console.log(JSON.stringify({passed:true,assemblyModel:{bytes:glb.length,steps:assemblySteps.length,nodes:pasos.length},board:'400 puntos',jumpers:wires.length,externalLeads:links.length,chips:physical.map(c=>c.label),truthTable:8,trackMm:Math.round(track.length),laps,scope:'Lógica booleana, continuidad física sin agujeros compartidos, 5 V separado de VM, entradas manejadas y recorrido geométrico. Velocidad real, calibración de sensores y caída del L293D quedan para la pista real y Proteus.'}));

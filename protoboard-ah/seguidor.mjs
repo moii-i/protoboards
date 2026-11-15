@@ -1,6 +1,7 @@
 import { model as wiring, createLogic, action } from './seguidor-modelo.mjs';
 import * as art from './seguidor-2d.mjs';
 import { mountTrack } from './seguidor-pista.mjs';
+import { mountAssembly } from './seguidor-carro.mjs';
 
 const el = id => document.getElementById(id);
 const selKey = 'protoboard:seguidor:v1:selector';
@@ -142,6 +143,8 @@ for (const label of ['1 × 74LS86 (dos de sus cuatro XOR)', '1 × L293D (puente 
   item.textContent = label;
   el('assemblyMaterials').append(item);
 }
+
+mountAssembly(el('carro'));
 
 // Pista: comparte el selector con la prueba del visor.
 track = mountTrack({
