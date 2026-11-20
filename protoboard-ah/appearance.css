@@ -656,3 +656,23 @@ body.taller #stageTitle{font-family:var(--appearance-display);letter-spacing:-.0
 body.taller .taller-context strong{color:var(--appearance-ink)}
 body.taller .taller-bar .design-tool-group>summary{color:var(--appearance-ink)}
 body.taller .taller-bar .design-tool-group>summary svg{color:var(--appearance-accent)}
+
+/* ==========================================================================
+   Rediseño 3 · visor 2D: tapete de laboratorio, placa con volumen y cable
+   actual con brillo cobre. Solo estilos: coordenadas, colores eléctricos y
+   rutas no cambian.
+   ========================================================================== */
+body.design-enhanced .map-stage{
+  background-color:var(--appearance-canvas);
+  background-image:radial-gradient(circle at 1px 1px,color-mix(in srgb,var(--appearance-ink) 9%,transparent) 1px,transparent 1.6px);
+  background-size:22px 22px}
+/* La placa se separa del tapete: sombra en el rectángulo base (barato de pintar) */
+body.design-enhanced #map .breadboard>rect:first-child{filter:drop-shadow(0 14px 22px rgb(0 0 0 / .32)) drop-shadow(0 2px 3px rgb(0 0 0 / .22))}
+:root:not([data-workspace-theme=night]) body.design-enhanced #map .breadboard>rect:first-child{filter:drop-shadow(0 12px 20px rgb(60 40 20 / .16)) drop-shadow(0 1px 2px rgb(60 40 20 / .18))}
+/* Cable seleccionado: halo cobre y trazo un poco más grueso */
+body.design-enhanced #map .connection.selected .wirehalo{stroke:var(--appearance-copper-hi);stroke-opacity:.55;stroke-width:10;vector-effect:non-scaling-stroke}
+body.design-enhanced #map .connection.selected .colored-wire{stroke-width:3.4;vector-effect:non-scaling-stroke}
+body.design-enhanced #map .connection.selected .endpoint{stroke:var(--appearance-copper-hi);stroke-width:2.5;vector-effect:non-scaling-stroke}
+/* Los cables que no tocan este paso se apagan con suavidad */
+body.design-enhanced #map .connection{transition:opacity var(--taller-cam) var(--taller-ease)}
+@media (prefers-reduced-motion:reduce){body.design-enhanced #map .connection{transition:none}}
