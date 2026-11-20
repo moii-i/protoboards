@@ -30,7 +30,7 @@ async function main(){
  await waitFor("!document.querySelector('#siteAppearance').open && document.activeElement.classList.contains('appearance-launch')");
  await send('Page.reload');
  await waitFor("document.querySelector('[data-appearance-theme=night]')?.getAttribute('aria-pressed') === 'true' && document.querySelector('[data-appearance-profile=build]')?.getAttribute('aria-pressed') === 'true' && document.querySelectorAll('.showcase-preview-play').length === 3");
- assert.equal(await evaluate("getComputedStyle(document.body).backgroundColor"),'rgb(11, 16, 14)');
+ assert.equal(await evaluate("getComputedStyle(document.body).backgroundColor"),'rgb(14, 17, 22)');
  await waitFor("document.querySelector('.catalog-featured .circuit-card-preview img').naturalWidth === 720");
  await shot('catalog-night');
  await evaluate("document.querySelector('.appearance-launch').click(); document.querySelector('[data-appearance-theme=contrast]').click()");
@@ -75,7 +75,7 @@ async function main(){
  const viewerResults=[];
  for(const [key,route] of [['letras','/'],['555','/555'],['puerta','/puerta?montaje=ls151'],['puerta-catodo','/puerta-catodo']]){
   await send('Page.navigate',{url:base+route});await waitFor("Boolean(window.protoboardsShowcase)&&Boolean(document.getElementById('threeViewport')?.dataset.showcaseInstalled)");
-  assert(await evaluate("document.querySelector('.site-header .appearance-launch') && document.documentElement.dataset.workspaceTheme === 'night' && document.documentElement.dataset.workspaceText === 'large' && getComputedStyle(document.body).backgroundColor === 'rgb(11, 16, 14)'"),key);
+  assert(await evaluate("document.querySelector('.site-header .appearance-launch') && document.documentElement.dataset.workspaceTheme === 'night' && document.documentElement.dataset.workspaceText === 'large' && getComputedStyle(document.body).backgroundColor === 'rgb(14, 17, 22)'"),key);
   assert.equal(await evaluate("getComputedStyle(document.querySelector('.hero')).backgroundColor"),'rgba(0, 0, 0, 0)',key+' dark hero blends into the page');
   await evaluate("document.querySelector('.brand-intro')?.remove();setRenderer('2d');document.querySelector('.map-stage').scrollIntoView({block:'center',behavior:'instant'});");
   const progress=await evaluate('JSON.stringify({marked:[...marked],completed:[...completed],step,selected})');
