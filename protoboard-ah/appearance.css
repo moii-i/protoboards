@@ -676,3 +676,19 @@ body.design-enhanced #map .connection.selected .endpoint{stroke:var(--appearance
 /* Los cables que no tocan este paso se apagan con suavidad */
 body.design-enhanced #map .connection{transition:opacity var(--taller-cam) var(--taller-ease)}
 @media (prefers-reduced-motion:reduce){body.design-enhanced #map .connection{transition:none}}
+
+/* ==========================================================================
+   Rediseño 5 · catálogo: un solo botón relleno (la práctica destacada).
+   Las demás tarjetas usan botón de contorno que se llena al pasar sobre la
+   tarjeta; la tarjeta sube 2 px y su borde toma el color cobre.
+   ========================================================================== */
+body.catalog-home .circuit-card:not(.catalog-featured) .circuit-card-action{
+  background:transparent;color:var(--appearance-accent);border:1px solid color-mix(in srgb,var(--appearance-accent) 50%,var(--appearance-border));box-shadow:none;
+  transition:background-color var(--taller-fast) var(--taller-ease),color var(--taller-fast) var(--taller-ease),border-color var(--taller-fast) var(--taller-ease)}
+body.catalog-home .circuit-card:not(.catalog-featured):is(:hover,:focus-within) .circuit-card-action{background:var(--appearance-accent);color:var(--appearance-on-accent);border-color:var(--appearance-accent)}
+body.catalog-home .circuit-grid .circuit-card{transition:transform var(--taller-fast) var(--taller-ease),box-shadow .2s var(--taller-ease),border-color .2s var(--taller-ease)}
+body.catalog-home .circuit-grid .circuit-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--appearance-accent) 40%,var(--appearance-border))}
+@media (prefers-reduced-motion:reduce){body.catalog-home .circuit-grid .circuit-card:hover{transform:none}}
+body.catalog-home .catalog-featured .circuit-card-action{box-shadow:0 1px 0 #ffffff2e inset,0 10px 24px -8px color-mix(in srgb,var(--appearance-accent) 65%,transparent)}
+/* La vista 3D de cada tarjeta se lee como una mesa de luz: borde interior suave */
+body.catalog-home .circuit-card-preview{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--appearance-ink) 8%,transparent)}
