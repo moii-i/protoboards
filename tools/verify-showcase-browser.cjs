@@ -73,7 +73,7 @@ async function main(){
  assert.equal(await evaluate("sessionStorage.getItem('protoboards:transition:v1')"),null);
  const transition=await evaluate('protoboardsShowcase.getState().transition');await shot('showcase-arrival-555');
  const viewerResults=[];
- for(const [key,route] of [['letras','/'],['555','/555'],['puerta','/puerta?montaje=ls151'],['puerta-catodo','/puerta-catodo']]){
+ for(const [key,route] of [['letras','/letras-clasico'],['555','/555-clasico'],['puerta','/puerta?montaje=ls151'],['puerta-catodo','/puerta-catodo']]){
   await send('Page.navigate',{url:base+route});await waitFor("Boolean(window.protoboardsShowcase)&&Boolean(document.getElementById('threeViewport')?.dataset.showcaseInstalled)");
   assert(await evaluate("document.querySelector('.site-header .appearance-launch') && document.documentElement.dataset.workspaceTheme === 'night' && document.documentElement.dataset.workspaceText === 'large' && getComputedStyle(document.body).backgroundColor === 'rgb(11, 16, 14)'"),key);
   assert.equal(await evaluate("getComputedStyle(document.querySelector('.hero')).backgroundColor"),'rgba(0, 0, 0, 0)',key+' dark hero blends into the page');

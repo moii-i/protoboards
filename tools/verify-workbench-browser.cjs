@@ -20,7 +20,7 @@ async function main(){
  await send('Storage.clearDataForOrigin',{origin:base,storageTypes:'local_storage'});
  await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
  const results=[];
- for(const [key,route] of [['letras','/'],['555','/555-clasico'],['puerta','/puerta?montaje=ls151']]){
+ for(const [key,route] of [['letras','/letras-clasico'],['555','/555-clasico'],['puerta','/puerta?montaje=ls151']]){
   await send('Page.navigate',{url:base+route});await wait("Boolean(window.protoboardsWorkbench)&&Boolean(window.protoboardsDesign)");
   await evaluate("document.querySelector('.bench-toolbar').scrollIntoView({block:'start',behavior:'instant'});");
   const original=await evaluate(progress);

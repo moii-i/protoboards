@@ -1,0 +1,34 @@
+/* Prueba del DIP, tabla y editor de patas de Letras A–H (tomado de la guía clásica). */
+.dip-controls button{width:42px}
+@media(max-width:500px){.simulation .dip-controls button{width:40px}}
+.simulation{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:16px 18px;background:#f0f4ee;border-radius:12px;margin:18px 0}
+.dip-controls{display:flex;gap:4px;align-items:center;background:#1977a4;border:3px solid #145a7b;border-radius:8px;padding:10px 12px;position:relative}
+.dip-controls:before{content:'ON';position:absolute;left:4px;top:-14px;font-size:10px;color:#16648b;font-weight:700}
+.dip-controls button{border:0;width:35px;padding:0;min-height:65px;display:flex;flex-direction:column;gap:5px;align-items:center;background:transparent!important;color:white!important;font-size:11px}
+.dip-controls .track{height:36px;width:19px;border-radius:3px;position:relative;background:#134e66}
+.dip-controls .track:after{content:'';position:absolute;left:3px;bottom:4px;width:13px;height:10px;background:#f9fbef;border-radius:1px;transition:bottom .15s}
+.dip-controls button[aria-pressed=true] .track:after{bottom:22px}
+.dip-controls b{font-size:10px;font-weight:600}
+.demo-display{width:56px;height:86px;background:#24352f;border-radius:8px;padding:7px}
+.expected{font:650 19px/1.4 ui-monospace,Consolas,monospace;color:var(--green)}
+.expected small{font:12px/1.4 system-ui,sans-serif;display:block;color:var(--muted)}
+.truth code{font:13px ui-monospace,Consolas,monospace}
+.pin-config{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0}
+.pin-config label{display:flex;align-items:center;justify-content:space-between;gap:5px;font-size:12px}
+.pin-config select{padding:5px;width:60px}
+.pin-config+ .config-error{font-size:13px;color:#a33536}
+.pin-map summary{cursor:pointer;font-weight:600;color:var(--green);font-size:14px}
+.pin-map button{font-size:12px}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:25px}
+.compare p,.compare li{color:var(--muted);font-size:14px}
+.compare li{margin-bottom:8px}
+.compare b{color:var(--ink)}
+.preview-circuit{padding:10px 14px;border:1px solid var(--line);background:#f6f8f4;border-radius:8px;font:13px/1.8 ui-monospace,Consolas,monospace}
+.pin-notice{font-size:12px;line-height:1.55;color:var(--muted);padding:12px;border-radius:8px;background:#f5f7f0}
+@media(max-width:1100px){.simulation{flex-wrap:wrap}}
+@media(max-width:800px){.compare{grid-template-columns:1fr}}
+@media(max-width:500px){.simulation{padding:14px 12px;gap:14px}.dip-controls button{width:30px}.simulation .expected{font-size:16px}.demo-display{width:47px;height:75px}.pin-config{grid-template-columns:1fr 1fr}}
+.resistor-total{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 14px;background:var(--soft);border:1px solid #d3e4d6;border-radius:10px;font-size:13px!important}
+.resistor-total b{color:var(--green)}
+.resistor-total span{font-size:12px}
+.demo-display rect{fill:#3a3438;transition:fill .15s}.demo-display rect.on{fill:#ff5a3c}
