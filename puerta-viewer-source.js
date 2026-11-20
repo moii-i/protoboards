@@ -569,10 +569,17 @@ export function createViewer({container, model, point, hole, onConnection, onPin
       if(t===1){cameraTween=null;canvas.dataset.moving='false';}
     }
     if(routeTween){const t=THREE.MathUtils.clamp((now-routeTween.started)/routeTween.duration,0,1);traveler.position.copy(routeTween.curve.getPointAt(t));traveler.visible=t<1;markers.forEach(({ring})=>ring.scale.setScalar(1+.25*Math.sin(t*Math.PI*2)));if(t===1){routeTween=null;markers.forEach(({ring})=>ring.scale.setScalar(1));}}
+    if(grow){const el=now-grow.started;let done=true;grow.list.forEach((c,i)=>{const t=THREE.MathUtils.clamp((el-i*45)/650,0,1),e=1-Math.pow(1-t,3),g=c.wire.geometry;g.setDrawRange(0,t>=1?Infinity:Math.floor(g.index.count*e/6)*6);if(t<1)done=false;});if(done)grow=null;}
     controls.update();layoutSelectionMarkers();componentHologram.layout();renderer.render(scene,camera);renderedFrames++;
-    if(cameraTween||routeTween||(moved&&settleFrames-->0))requestRender();
+    if(cameraTween||routeTween||grow||(moved&&settleFrames-->0))requestRender();
   }
+  // Cada cable del paso se "tiende" desde su primer agujero: solo cambia el rango dibujado del tubo, sin rehacer geometría.
+  let grow=null;
+  function endGrow(){if(grow)for(const c of grow.list)c.wire.geometry.setDrawRange(0,Infinity);grow=null;}
+  function growStage(stage){endGrow();if(!active||viewAppearance.motion!=='full')return;const list=[];for(const c of connections.values())if(c.it.stage===stage&&c.group.visible&&c.wire?.geometry?.index&&c.it.kind!=='link')list.push(c);if(!list.length)return;
+    list.sort((p,q)=>(p.it.order??0)-(q.it.order??0));grow={list:list.slice(0,80),started:performance.now()};for(const c of grow.list)c.wire.geometry.setDrawRange(0,0);requestRender();}
   function finishMotion(){
+    endGrow();
     if(cameraTween){camera.position.copy(cameraTween.toPos);controls.target.copy(cameraTween.toTarget);cameraTween=null;controls.update();}
     routeTween=null;traveler.visible=false;markers.forEach(({ring})=>ring.scale.setScalar(1));canvas.dataset.moving='false';requestRender();
   }
@@ -750,6 +757,7 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     getAppearance(){return {...viewAppearance};},
     setSelectionStyle(value={}){if([1,1.4,1.8].includes(value.scale))selectionStyle.scale=value.scale;if([.5,.8,1].includes(value.intensity))selectionStyle.intensity=value.intensity;traceLayers.forEach((line,i)=>{line.material.linewidth=[10,7,3][i]*selectionStyle.scale;line.material.opacity=i===2?1:selectionStyle.intensity;});requestRender();},
     getSelectionStyle(){return {...selectionStyle};},
+    growStage,
     stopReplay(){routeTween=null;traveler.visible=false;requestRender();},
     capture(){renderer.render(scene,camera);return canvas.toDataURL('image/png');},
     preset(value){topView=value==='top';if(!topView){cameraTween=null;camera.position.copy(controls.target).add(new THREE.Vector3(12,70,75));controls.update();}focusBox(lastBox,true);},
