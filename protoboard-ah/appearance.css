@@ -620,3 +620,73 @@ body.catalog-home.design-enhanced .circuit-grid .circuit-card:hover .circuit-car
 @keyframes taller-hint{0%{opacity:0;translate:-50% 6px}12%,75%{opacity:1;translate:-50% 0}100%{opacity:0;translate:-50% 0}}
 :root[data-workspace-motion=off] .taller-turntable-hint{transition:none;animation:none}
 @media(max-width:700px){body.taller .assembly-choice .cc-assembly-header h2{font-size:calc(17px * var(--appearance-scale));line-height:1.2}}
+
+/* ==========================================================================
+   Rediseño 2 · Laboratorio cobre: jerarquía de la mesa de trabajo
+   Un solo botón fuerte por fila (Siguiente paso). Lo secundario queda como
+   botón fantasma y se enciende al pasar el cursor. Respuesta al pulsar breve.
+   ========================================================================== */
+body.taller .assembly-stage-actions>:is(#workspaceReturn,#workspacePreferences,button:not([id])),
+body.taller .assembly-stage-actions .stage-nav #prevStep,
+body.taller .taller-bar #startTour{
+  background:transparent;border-color:transparent;box-shadow:none;color:var(--appearance-muted);font-weight:750;
+  transition:background-color var(--taller-fast) var(--taller-ease),color var(--taller-fast) var(--taller-ease),border-color var(--taller-fast) var(--taller-ease),transform var(--taller-fast) var(--taller-ease)}
+body.taller .assembly-stage-actions>:is(#workspaceReturn,#workspacePreferences,button:not([id])):hover,
+body.taller .assembly-stage-actions .stage-nav #prevStep:hover:not(:disabled),
+body.taller .taller-bar #startTour:hover{background:var(--appearance-soft);border-color:var(--appearance-border);color:var(--appearance-ink)}
+body.taller .assembly-stage-actions .stage-nav #nextStep,
+body.taller #islandNext.primary{
+  box-shadow:0 1px 0 #ffffff2e inset,0 8px 20px -6px color-mix(in srgb,var(--appearance-accent) 60%,transparent);
+  transition:transform var(--taller-fast) var(--taller-ease),box-shadow var(--taller-fast) var(--taller-ease),filter var(--taller-fast) var(--taller-ease)}
+body.taller .assembly-stage-actions .stage-nav #nextStep:hover,body.taller #islandNext.primary:hover{filter:brightness(1.06)}
+body.taller #viewerTestToggle{border-color:color-mix(in srgb,var(--appearance-accent) 45%,var(--appearance-border));color:var(--appearance-accent);background:color-mix(in srgb,var(--appearance-accent) 7%,transparent)}
+body.taller #viewerTestToggle:hover{background:color-mix(in srgb,var(--appearance-accent) 14%,transparent)}
+/* Pulsación: el botón cede un poco, sin rebotes */
+body.design-enhanced :is(.taller-bar,.assembly-stage-actions,.scene-switch,.island-navigation,.island-modes,.stage-list,.circuit-card-actions) button:active:not(:disabled){transform:scale(.97)}
+@media (prefers-reduced-motion:reduce){body.design-enhanced :is(.taller-bar,.assembly-stage-actions,.scene-switch,.island-navigation,.island-modes,.stage-list,.circuit-card-actions) button:active{transform:none}}
+/* 2D / 3D como interruptor compacto */
+body.taller .scene-switch{padding:3px;border-radius:10px;background:var(--appearance-soft);border:1px solid var(--appearance-border)}
+body.taller .scene-switch button{border:0;background:transparent;color:var(--appearance-muted);box-shadow:none;border-radius:8px}
+body.taller .scene-switch button[aria-pressed=true],body.taller .scene-switch button.active{background:var(--appearance-accent);color:var(--appearance-on-accent)}
+/* Encabezado del paso: número en mono cobre, título con más peso */
+body.taller #miniStage{font-family:var(--appearance-mono);letter-spacing:.08em;color:var(--appearance-accent);font-weight:700}
+body.taller #stageTitle{font-family:var(--appearance-display);letter-spacing:-.015em}
+body.taller .taller-context strong{color:var(--appearance-ink)}
+body.taller .taller-bar .design-tool-group>summary{color:var(--appearance-ink)}
+body.taller .taller-bar .design-tool-group>summary svg{color:var(--appearance-accent)}
+
+/* ==========================================================================
+   Rediseño 3 · visor 2D: tapete de laboratorio, placa con volumen y cable
+   actual con brillo cobre. Solo estilos: coordenadas, colores eléctricos y
+   rutas no cambian.
+   ========================================================================== */
+body.design-enhanced .map-stage{
+  background-color:var(--appearance-canvas);
+  background-image:radial-gradient(circle at 1px 1px,color-mix(in srgb,var(--appearance-ink) 9%,transparent) 1px,transparent 1.6px);
+  background-size:22px 22px}
+/* La placa se separa del tapete: sombra en el rectángulo base (barato de pintar) */
+body.design-enhanced #map .breadboard>rect:first-child{filter:drop-shadow(0 14px 22px rgb(0 0 0 / .32)) drop-shadow(0 2px 3px rgb(0 0 0 / .22))}
+:root:not([data-workspace-theme=night]) body.design-enhanced #map .breadboard>rect:first-child{filter:drop-shadow(0 12px 20px rgb(60 40 20 / .16)) drop-shadow(0 1px 2px rgb(60 40 20 / .18))}
+/* Cable seleccionado: halo cobre y trazo un poco más grueso */
+body.design-enhanced #map .connection.selected .wirehalo{stroke:var(--appearance-accent);stroke-opacity:.55;stroke-width:10;vector-effect:non-scaling-stroke}
+body.design-enhanced #map .connection.selected .colored-wire{stroke-width:3.4;vector-effect:non-scaling-stroke}
+body.design-enhanced #map .connection.selected .endpoint{stroke:var(--appearance-accent);stroke-width:2.5;vector-effect:non-scaling-stroke}
+/* Los cables que no tocan este paso se apagan con suavidad */
+body.design-enhanced #map .connection{transition:opacity var(--taller-cam) var(--taller-ease)}
+@media (prefers-reduced-motion:reduce){body.design-enhanced #map .connection{transition:none}}
+
+/* ==========================================================================
+   Rediseño 5 · catálogo: un solo botón relleno (la práctica destacada).
+   Las demás tarjetas usan botón de contorno que se llena al pasar sobre la
+   tarjeta; la tarjeta sube 2 px y su borde toma el color cobre.
+   ========================================================================== */
+body.catalog-home .circuit-card:not(.catalog-featured) .circuit-card-action{
+  background:transparent;color:var(--appearance-accent);border:1px solid color-mix(in srgb,var(--appearance-accent) 50%,var(--appearance-border));box-shadow:none;
+  transition:background-color var(--taller-fast) var(--taller-ease),color var(--taller-fast) var(--taller-ease),border-color var(--taller-fast) var(--taller-ease)}
+body.catalog-home .circuit-card:not(.catalog-featured):is(:hover,:focus-within) .circuit-card-action{background:var(--appearance-accent);color:var(--appearance-on-accent);border-color:var(--appearance-accent)}
+body.catalog-home .circuit-grid .circuit-card{transition:transform var(--taller-fast) var(--taller-ease),box-shadow .2s var(--taller-ease),border-color .2s var(--taller-ease)}
+body.catalog-home .circuit-grid .circuit-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--appearance-accent) 40%,var(--appearance-border))}
+@media (prefers-reduced-motion:reduce){body.catalog-home .circuit-grid .circuit-card:hover{transform:none}}
+body.catalog-home .catalog-featured .circuit-card-action{box-shadow:0 1px 0 #ffffff2e inset,0 10px 24px -8px color-mix(in srgb,var(--appearance-accent) 65%,transparent)}
+/* La vista 3D de cada tarjeta se lee como una mesa de luz: borde interior suave */
+body.catalog-home .circuit-card-preview{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--appearance-ink) 8%,transparent)}

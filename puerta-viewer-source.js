@@ -38,9 +38,10 @@ export function createViewer({container, model, point, hole, onConnection, onPin
   controls.zoomToCursor = true;
   // Counter boards use an image-based studio environment so metal legs, epoxy and
   // electrolytic sleeves get real reflections; lights are reduced to compensate.
-  const studio=counter?new THREE.PMREMGenerator(renderer):null;
-  if(studio){scene.environment=studio.fromScene(new RoomEnvironment(),.04).texture;scene.environmentIntensity=.28;studio.dispose();}
-  scene.add(new THREE.HemisphereLight(0xffffff, 0xb3bcb8, counter?2.05:2.4));
+  // Rediseño 4: todas las placas usan el mismo estudio para que las patas y los cables brillen igual.
+  // Si el equipo (o el renderizador de pruebas) no lo permite, se queda con las luces directas.
+  try{const studio=new THREE.PMREMGenerator(renderer);scene.environment=studio.fromScene(new RoomEnvironment(),.04).texture;scene.environmentIntensity=counter?.28:.2;studio.dispose();}catch{scene.environment=null;}
+  scene.add(new THREE.HemisphereLight(0xfff6ec, 0xb8b2a8, counter?2.05:2.2));
   const light = new THREE.DirectionalLight(0xffffff, 3.2);
   light.position.set(-25, 65, 30);
   scene.add(light);
@@ -196,12 +197,15 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     const label=mesh(new THREE.PlaneGeometry(length-.65,1.75),new THREE.MeshBasicMaterial({map:mark,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1}),center.clone().setY(1.394));
     label.rotation.x=-Math.PI/2;
   }
+  // Sombra amplia bajo cada placa: separa la protoboard del fondo sin luces de sombra en tiempo real.
+  const boardShadowTexture=texture((ctx,w,h)=>{ctx.filter='blur(16px)';ctx.fillStyle='rgba(12,9,6,.5)';ctx.beginPath();ctx.roundRect(w*.13,h*.13,w*.74,h*.74,20);ctx.fill();},256,256);
   const shadowTexture=texture((ctx,w,h)=>{const g=ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);g.addColorStop(0,'#1b322344');g.addColorStop(.5,'#1b32231b');g.addColorStop(1,'#1b322300');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);},128,128);
   function contactShadow(pos,width,depth,parent=scene){const shadow=mesh(new THREE.PlaneGeometry(width,depth),new THREE.MeshBasicMaterial({map:shadowTexture,transparent:true,depthWrite:false}),pos.clone().setY(.045),parent);shadow.rotation.x=-Math.PI/2;shadow.userData.softShadow=true;return shadow;}
   const glowTexture=texture((ctx,w,h)=>{const g=ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);g.addColorStop(0,'#ffca9566');g.addColorStop(.3,'#ff6b4638');g.addColorStop(1,'#ff6b4600');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);},128,128);
   for(const [name,b] of Object.entries(model.boards)) {
     const width=(b.columns-1)*30+70, x=60+b.xOffset, z=145+b.yOffset;
     roundedBox(width/30,1.25,605/30,toWorld([x+width/2,z+302.5],-.625),counter?textured('#f2eee5',.79,.015):plastic,scene,.2);
+    {const under=mesh(new THREE.PlaneGeometry(width/30*1.2,605/30*1.26),new THREE.MeshBasicMaterial({map:boardShadowTexture,transparent:true,depthWrite:false}),toWorld([x+width/2,z+302.5],-1.27),scene);under.rotation.x=-Math.PI/2;under.userData.softShadow=true;under.renderOrder=-1;}
     if(counter)roundedBox((width-65)/30,.12,55/30,toWorld([x+width/2,455.5+b.yOffset],.01),textured('#b9b9af',.91,.012),scene,.06);
     else box((width-45)/30,.06,65/30,toWorld([x+20+(width-45)/2,455.5+b.yOffset],.035),new THREE.MeshStandardMaterial({color:0xd0d8d2,roughness:1}));
     const print=texture((ctx,w,h)=>{
@@ -552,7 +556,7 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     raf=0;if(!active||document.hidden)return;
     moved=false;
     if(cameraTween){
-      const t=THREE.MathUtils.clamp((now-cameraTween.started)/680,0,1),ease=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+      const t=THREE.MathUtils.clamp((now-cameraTween.started)/620,0,1),ease=1-Math.pow(1-t,4); // arranca al instante y frena suave
       camera.position.lerpVectors(cameraTween.fromPos,cameraTween.toPos,ease);controls.target.lerpVectors(cameraTween.fromTarget,cameraTween.toTarget,ease);
       if(t===1){cameraTween=null;canvas.dataset.moving='false';}
     }
