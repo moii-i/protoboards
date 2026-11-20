@@ -32,7 +32,7 @@ check(topology===JSON.stringify(model.bindings),'theme changes electrical topolo
 // Navigation may change selection but theme itself must never mark a connection.
 check(progress===JSON.stringify({marked:doorGuide.getState().marked,completed:doorGuide.getState().completed}),'theme changes assembly marks');
 check(document.documentElement.scrollWidth<=innerWidth+1,'horizontal overflow');
-if(result.mode==='preferences'){const saved=JSON.parse(localStorage.getItem('protoboards:appearance:v1'));check(saved.theme==='night','saved night');ws.setPreference('theme','paper');check(getComputedStyle(document.body).color==='rgb(27, 26, 23)','paper restored');ws.setPreference('theme','night');}
+if(result.mode==='preferences'){const saved=JSON.parse(localStorage.getItem('protoboards:appearance:v1'));check(saved.theme==='night','saved night');ws.setPreference('theme','paper');check(getComputedStyle(document.body).color==='rgb(19, 35, 28)','paper restored');ws.setPreference('theme','night');}
 result={...result,passed:failures.length===0,checked,failures,gradients};
 }catch(e){result.error=e.stack||e.message;}const p=document.createElement('pre');p.id='theme-qa-result';p.textContent=JSON.stringify(result);p.style.cssText='position:fixed;bottom:0;left:0;z-index:999999;background:white;color:black;font:9px Arial;max-width:95vw';document.body.append(p);})();</script>`;
 const fixture=path.join(out,'theme-'+mode+'.html'),page=mode==='reference'?'puerta.html':'puerta-catodo.html';

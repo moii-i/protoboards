@@ -3,42 +3,42 @@
     "frames": 13,
     "width": 720,
     "height": 380,
-    "background": "#ece6da",
-    "bytes": 180794
+    "background": "#e7ece6",
+    "bytes": 179742
   },
   "descendente": {
     "frames": 13,
     "width": 720,
     "height": 380,
-    "background": "#ece6da",
-    "bytes": 211658
+    "background": "#e7ece6",
+    "bytes": 252702
   },
   "contador": {
     "frames": 13,
     "width": 720,
     "height": 380,
-    "background": "#ece6da",
-    "bytes": 210302
+    "background": "#e7ece6",
+    "bytes": 250568
   },
   "puerta": {
     "frames": 13,
     "width": 720,
     "height": 380,
-    "background": "#ece6da",
-    "bytes": 124640
+    "background": "#e7ece6",
+    "bytes": 158720
   },
   "letras": {
     "frames": 13,
     "width": 720,
     "height": 380,
-    "background": "#ece6da",
-    "bytes": 269724
+    "background": "#e7ece6",
+    "bytes": 269288
   },
   "seguidor": {
     "frames": 13,
     "width": 720,
     "height": 380,
-    "background": "#ece6da",
-    "bytes": 187642
+    "background": "#e7ece6",
+    "bytes": 187262
   }
 }
