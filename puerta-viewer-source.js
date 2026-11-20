@@ -166,10 +166,11 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     for(const part of [pin,housing,collar]){part.userData={id};pickables.push(part);}
     return plug;
   }
+  const maxAniso=Math.min(4,renderer.capabilities.getMaxAnisotropy?.()||1); // una sola consulta a la GPU
   function texture(draw,width=1024,height=512) {
     const c=document.createElement('canvas');c.width=width;c.height=height;
     draw(c.getContext('2d'),width,height);
-    const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());return t;
+    const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=maxAniso;return t;
   }
   function topLabel(text,position,width,depth,{color='#dbe5e1',background='#222a2d',size=48}={}) {
     const t=texture((ctx,w,h)=>{ctx.fillStyle=background;ctx.fillRect(0,0,w,h);ctx.fillStyle=color;ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='600 '+size+'px Arial';text.split('\n').forEach((line,i,lines)=>ctx.fillText(line,w/2,h/2+(i-(lines.length-1)/2)*size*1.45));},512,256);
@@ -541,19 +542,26 @@ export function createViewer({container, model, point, hole, onConnection, onPin
   controls.addEventListener('change',()=>{moved=true;requestRender();});
   controls.addEventListener('end',()=>{settleFrames=50;requestRender();});
   function requestRender(){if(active&&!document.hidden&&!raf)raf=requestAnimationFrame(frame);}
+  const markerDir=new THREE.Vector3(),markerTmp=new THREE.Vector3();
   function layoutSelectionMarkers(){
     const c=connections.get(selectedId);if(!c?.group.visible)return;
-    const {width,height}=container.getBoundingClientRect();if(!width||!height)return;
+    const width=sizeW,height=sizeH;if(!width||!height)return;
     if(!snapshot?.cableFocus||c.it.kind!=='wire'||routeTween)return;
     // Keep the rings readable in the full assembly and small at pin-level zoom.
     const worldPerPixel=2*Math.tan(camera.fov*Math.PI/360)/height;
+    camera.getWorldDirection(markerDir);
     for(const {ring} of markers){
-      const depth=ring.position.clone().sub(camera.position).dot(camera.getWorldDirection(new THREE.Vector3()));
+      const depth=markerTmp.copy(ring.position).sub(camera.position).dot(markerDir);
       ring.scale.setScalar(THREE.MathUtils.clamp(depth*worldPerPixel*5/.35,1,2.6));
     }
   }
+  // Los shaders se compilan en paralelo antes del primer cuadro; mientras tanto la pantalla de carga sigue animada.
+  let warming=null;
+  try{warming=renderer.compileAsync?.(scene,camera)?.catch(()=>{}).finally(()=>{warming=null;requestRender();})||null;}catch{warming=null;}
+  setTimeout(()=>{if(warming){warming=null;requestRender();}},4000);
   function frame(now){
     raf=0;if(!active||document.hidden)return;
+    if(warming)return;
     moved=false;
     if(cameraTween){
       const t=THREE.MathUtils.clamp((now-cameraTween.started)/620,0,1),ease=1-Math.pow(1-t,4); // arranca al instante y frena suave
@@ -572,6 +580,8 @@ export function createViewer({container, model, point, hole, onConnection, onPin
     lastBox=[...rect];const [x,z,w,d]=rect,center=toWorld([x+w/2,z+d/2],1.6);
     const direction=topView?new THREE.Vector3(0,1,.001):camera.position.clone().sub(controls.target).normalize();
     if(direction.length()<.5)direction.set(.18,1.15,1.2).normalize();
+    // Al enfocar un cable o un paso nunca se mira desde abajo ni desde atrás de la placa: se conserva el lado izquierdo/derecho del usuario.
+    if(!topView&&(direction.y<.45||direction.z<.2))direction.set(THREE.MathUtils.clamp(direction.x,-.55,.55),1.15,1.2).normalize();
     const right=new THREE.Vector3().crossVectors(camera.up,direction).normalize(),up=new THREE.Vector3().crossVectors(direction,right).normalize();
     let distance=8;const tangent=Math.tan(camera.fov*Math.PI/360);
     for(const px of [-w/60,w/60])for(const pz of [-d/60,d/60])for(const py of [-1.6,4]){const v=new THREE.Vector3(px,py,pz);distance=Math.max(distance,v.dot(direction)+1.08*Math.abs(v.dot(right))/(tangent*camera.aspect),v.dot(direction)+1.08*Math.abs(v.dot(up))/tangent);}
@@ -715,8 +725,11 @@ export function createViewer({container, model, point, hole, onConnection, onPin
   updateSignalTrace(studio?.signals||null);
  }
 
-  function resize(){const {width,height}=container.getBoundingClientRect();if(!width||!height)return;camera.aspect=width/height;camera.updateProjectionMatrix();renderer.setSize(width,height,false);traceLayers.forEach(line=>line.material.resolution.set(width,height));for(const line of signalTrace.children)line.material.resolution.set(width,height);requestRender();}
-  const observer=new ResizeObserver(resize);observer.observe(container);
+  // Fluidez: un solo redimensionamiento por cuadro y solo si el tamaño cambió (cada setSize rehace el lienzo WebGL).
+  let sizeW=0,sizeH=0,resizeQueued=0;
+  function queueResize(){if(!resizeQueued)resizeQueued=requestAnimationFrame(()=>{resizeQueued=0;resize();});}
+  function resize(){const box=container.getBoundingClientRect(),width=Math.round(box.width),height=Math.round(box.height);if(!width||!height||width===sizeW&&height===sizeH)return;sizeW=width;sizeH=height;camera.aspect=width/height;camera.updateProjectionMatrix();renderer.setSize(width,height,false);traceLayers.forEach(line=>line.material.resolution.set(width,height));for(const line of signalTrace.children)line.material.resolution.set(width,height);requestRender();}
+  const observer=new ResizeObserver(queueResize);observer.observe(container);
   canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();setActive(false);onFailure('Tu navegador perdió la vista 3D. Puedes seguir en 2D y volver a intentarlo.');});
   const visibility=()=>{if(document.hidden){finishMotion();if(raf)cancelAnimationFrame(raf);raf=0;}else requestRender();};document.addEventListener('visibilitychange',visibility);
   function setActive(value){active=value;componentHologram.setActive(value);if(!value){finishMotion();if(raf)cancelAnimationFrame(raf);raf=0;}else{resize();requestRender();}}
