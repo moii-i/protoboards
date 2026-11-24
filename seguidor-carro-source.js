@@ -40,16 +40,39 @@ export function createAssembly({ container, url, steps, background = '#e7ece6', 
   tape.rotation.x = -Math.PI / 2; tape.position.set(0, .0004, -.06); tape.receiveShadow = true; scene.add(tape);
 
   const parts = []; let current = -1, anim = null, frame = 0, disposed = false, visible = true;
+  // Piezas de fijación (tornillos, tuercas, separadores, sujetadores, ruedas): entran solas por su eje
+  // después de la pieza que sujetan. userData viene de Blender: insert (dirección de llegada en
+  // coordenadas de Blender), dist (mm) y spin (gira como tornillo).
+  const spinQ = new THREE.Quaternion();
+  function collectFixings(node) {
+    const list = [];
+    node.traverse(o => {
+      const d = o.userData; if (o === node || !Array.isArray(d?.insert)) return;
+      const axis = new THREE.Vector3(d.insert[0], d.insert[2], -d.insert[1]).normalize();
+      list.push({ obj: o, home: o.position.clone(), quat: o.quaternion.clone(), axis, dist: (d.dist || 12) / 1000, spin: Boolean(d.spin) });
+    });
+    return list;
+  }
+  function settle(p) { for (const f of p.fixings) { f.obj.visible = true; f.obj.position.copy(f.home); f.obj.quaternion.copy(f.quat); } }
   const tmp = new THREE.Vector3();
   function render() { frame = 0; if (disposed) return; const live = tick(performance.now()); controls.update(); renderer.render(scene, camera); if (live) request(); }
   function request() { if (!frame && visible) frame = requestAnimationFrame(render); }
   controls.addEventListener('change', request);
   function tick(now) {
     if (!anim) return false;
-    const t = Math.min(1, (now - anim.start) / anim.duration), k = ease(t);
+    const elapsed = now - anim.start, t = Math.min(1, elapsed / anim.duration), k = ease(t);
     for (const p of anim.parts) p.node.position.copy(p.home).addScaledVector(p.offset, 1 - k);
     camera.position.lerpVectors(anim.fromCam, anim.toCam, k); controls.target.lerpVectors(anim.fromTarget, anim.toTarget, k);
-    if (t >= 1) { anim = null; return true; }
+    let pending = false;
+    for (const f of anim.fixings) {
+      const ft = (elapsed - f.delay) / 620;
+      if (ft <= 0) { f.obj.visible = false; pending = true; continue; }
+      const fk = ease(Math.min(1, ft)); f.obj.visible = true;
+      f.obj.position.copy(f.home).addScaledVector(f.axis, f.dist * (1 - fk));
+      if (f.spin) f.obj.quaternion.copy(spinQ.setFromAxisAngle(f.axis, (1 - fk) * Math.PI * 6)).multiply(f.quat);
+      if (ft < 1) pending = true; else f.obj.quaternion.copy(f.quat);
+    }
+    if (t >= 1 && !pending) { anim = null; return true; }
     return true;
   }
   function goTo(index) {
@@ -58,12 +81,18 @@ export function createAssembly({ container, url, steps, background = '#e7ece6', 
     parts.forEach((p, i) => {
       const show = i <= (step.parts ?? index);
       if (show && !p.node.visible && i === (step.parts ?? index)) entering.push(p);
-      p.node.visible = show; p.node.position.copy(p.home);
+      p.node.visible = show; p.node.position.copy(p.home); settle(p);
     });
     const animate = motion();
     for (const p of entering) if (animate) p.node.position.copy(p.home).add(p.offset);
+    // Primero llega la pieza principal; luego cada fijación, una tras otra.
+    const fixings = [];
+    for (const p of entering) {
+      const start = p.hasMain ? 520 : 120;
+      p.fixings.forEach((f, i) => { f.delay = start + i * 70; f.obj.visible = !animate; fixings.push(f); });
+    }
     const toCam = new THREE.Vector3(...step.camera), toTarget = new THREE.Vector3(...step.target);
-    if (animate) anim = { start: performance.now(), duration: 720, parts: entering, fromCam: camera.position.clone(), toCam, fromTarget: controls.target.clone(), toTarget };
+    if (animate) anim = { start: performance.now(), duration: 720, parts: entering, fixings, fromCam: camera.position.clone(), toCam, fromTarget: controls.target.clone(), toTarget };
     else { anim = null; camera.position.copy(toCam); controls.target.copy(toTarget); }
     current = index; request();
     return index;
@@ -90,7 +119,9 @@ export function createAssembly({ container, url, steps, background = '#e7ece6', 
     scene.add(root);
     for (let i = 1; root.getObjectByName('paso_' + i); i++) {
       const node = root.getObjectByName('paso_' + i), offset = new THREE.Vector3(...(steps[i - 1]?.offset || [0, .06, 0]));
-      parts.push({ node, home: node.position.clone(), offset });
+      const fixings = collectFixings(node), fixed = new Set(fixings.map(f => f.obj));
+      const hasMain = node.children.some(c => !fixed.has(c));
+      parts.push({ node, home: node.position.clone(), offset, fixings, hasMain });
     }
     goTo(0); onReady?.(parts.length);
   }, undefined, error => onFailure?.(error));
@@ -100,7 +131,7 @@ export function createAssembly({ container, url, steps, background = '#e7ece6', 
     get step() { return current; },
     get parts() { return parts.length; },
     setBackground(color) { scene.background.set(color); request(); },
-    diagnostics() { const info = renderer.info.render; return { calls: info.calls, triangles: info.triangles, step: current, parts: parts.length, visible: parts.map(p => p.node.visible), camera: camera.position.toArray(), target: controls.target.toArray() }; },
+    diagnostics() { const info = renderer.info.render; return { calls: info.calls, triangles: info.triangles, step: current, parts: parts.length, fixings: parts.map(p => p.fixings.length), animating: Boolean(anim), visible: parts.map(p => p.node.visible), camera: camera.position.toArray(), target: controls.target.toArray() }; },
     dispose() { disposed = true; cancelAnimationFrame(frame); ro.disconnect(); io.disconnect(); controls.dispose(); renderer.dispose(); pmrem.dispose(); renderer.domElement.remove(); }
   };
 }

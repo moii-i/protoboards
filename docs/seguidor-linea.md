@@ -62,17 +62,19 @@ Tapete de 1.8 × 1.2 m con forma de riñón (curvas a la izquierda y una a la de
 
 Sección «Dónde va cada pieza» (`#carro`): visor de nueve pasos sobre `protoboard-ah/agv/agv-seguidor.glb` con portada `agv-portada.webp` (render de Blender). Fuente en `modelos/agv-seguidor.blend` y los scripts de `modelos/agv/`, que leen las rutas de la protoboard del propio modelo de la página. Visor: `seguidor-carro-source.js` → `node build-seguidor-carro.cjs` → `seguidor-carro-3d.js`; pasos y cámaras en `seguidor-carro.mjs`.
 
-- Kit 2WD: placa de acrílico de 3 mm a 46 mm del piso, motores TT bajo la placa con dos soportes y dos tornillos M3 × 30 cada uno, ruedas de 66 mm atrás y rueda loca de bola adelante con separadores de unos 30 mm.
-- Sensores **en espejo**, con el TCRT5000 de cada módulo hacia el centro: es la única forma de que dos módulos de 14 mm de ancho queden a 12 mm. Un separador de latón por módulo; cara del sensor a 3–8 mm del piso, 128 mm delante del eje.
-- Arriba: portapilas 4 × AA atrás, protoboard al centro (fila a al frente, columna 1 a la izquierda; SW1 en la esquina frontal izquierda) y pila de 9 V al frente, todo con cinta doble cara.
-- Cables: los seis de los sensores bajan por la ranura frontal; los de cada motor suben por un agujero lateral; pilas al final.
+- Kit ZK-2WD (manual del fabricante): placa de acrílico de 3 mm a 44 mm del piso. Cada motor TT va bajo la placa entre dos sujetadores de acrílico en T, con el encoder en el eje interior y dos tornillos M3 × 30 de fuera hacia dentro con tuerca. Ruedas de 65 mm a 139 mm entre centros. Rueda loca giratoria adelante sobre 4 postes de latón L12 con 8 tornillos M3 × 6.
+- Sensores **en espejo**, con el TCRT5000 de cada módulo hacia el centro: es la única forma de que dos módulos de 14 mm de ancho queden a 12 mm. Un poste de latón M3 hembra-hembra de 30 mm por módulo (tornillo M3 × 6 arriba y abajo); TCRT5000 a unos 5 mm del piso, 128 mm delante del eje. Módulo modelado: MH-Sensor-Series de UNIT (PCB azul 32 × 14 mm, 4 pines VCC GND D0 A0; A0 queda libre).
+- Arriba: protoboard atrás sobre el eje (fila a al frente, columna 1 a la izquierda; SW1 en la esquina frontal izquierda), portapilas 4 × AA al centro con dos tornillos M3 × 6 de cabeza plana y tuerca, y pila de 9 V al frente derecho con cinta doble cara. Esta distribución evita las barras de los sujetadores y las cabezas de los tornillos de la rueda loca.
+- Cables: los de los sensores bajan por las dos ranuras frontales; los de cada motor suben por su agujero; pilas al final. Interruptor del kit sin usar.
+- Modelo: `blender -b -P modelos/agv/run.py -- s1 s2 s9 s10 guardar portada` regenera el .blend, el GLB y la portada. Cada tornillo, tuerca, poste, sujetador, encoder y rueda se exporta como nodo con `insert`/`dist`/`spin` y el visor lo anima atornillándose.
 
 ## Compras
 
 | Pieza | Para qué | Dónde |
 | --- | --- | --- |
-| 3 sensores seguidores de línea con DO (2 + 1 de repuesto) | SI, SD | Steren [ARD-377](https://www.steren.com.mx/sensor-seguidor-de-linea.html) ($39, LM393); UNIT [TCRT5000](https://uelectronics.com/producto/sensor-seguidor-de-linea-tcrt5000-optico-infrarrojo/) |
-| Kit chasis 2WD: 2 motores TT, 2 ruedas, rueda loca, portapilas 4 × AA | Tracción | [Mercado Libre](https://listado.mercadolibre.com.mx/chasis-carro-robot-2wd) (desde unos $135); UNIT [chasis 2WD](https://uelectronics.com/producto/kit-chasis-de-aluminio-para-robot-movil/) |
+| 3 sensores TCRT5000 con DO (2 + 1 de repuesto) | SI, SD | UNIT [TCRT5000 MH-Sensor-Series](https://uelectronics.com/producto/sensor-seguidor-de-linea-tcrt5000-optico-infrarrojo/) (el del modelo 3D: 14 mm de ancho, 4 pines); Steren [ARD-377](https://www.steren.com.mx/sensor-seguidor-de-linea.html) ($39, LM393) también sirve, pero es negro, más angosto y de 3 pines: revisa la separación de 12 mm |
+| Kit ZK-2WD: placa, 2 motores TT, 2 encoders, 2 ruedas, rueda loca, portapilas 4 × AA, 4 sujetadores, 4 M3 × 30, 8 M3 × 6, tuercas y 4 postes L12 | Tracción | UNIT [Kit carrito robot seguidor](https://uelectronics.com/producto/kit-carrito-robot-seguidor-lineas-con-accesorios/) ($117, [diagrama de armado](https://uelectronics.com/wp-content/uploads/2018/10/manual.jpg)); [Mercado Libre](https://listado.mercadolibre.com.mx/chasis-carro-robot-2wd) |
+| 2 postes de latón M3 hembra-hembra de 30 mm, 4 tornillos M3 × 6 y 2 M3 × 6 de cabeza plana | Sensores y portapilas | Ferreterías y tiendas de electrónica |
 | 7805 TO-220, cerámicos 0.33 µF (334) y 0.1 µF (104) | 5 V de la lógica | UNIT [L7805CV](https://uelectronics.com/producto/l7805cv-regulador-5v-1-5a/); refaccionarias del centro |
 | Interruptor deslizable 1P2T de 2.54 mm | SW1 | UNIT [1 polo 2 tiros](https://uelectronics.com/producto/interruptor-1-polo-2-tiros-3p-2-54mm-pitch/). Sin compra: un interruptor del DIP4 + 1 kΩ de SEL a +5 V (ON = NEGRA) |
 | Pila de 9 V con broche, 4 pilas AA, cables dupont macho-hembra | Energía y conexiones | Steren |

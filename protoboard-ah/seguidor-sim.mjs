@@ -9,10 +9,10 @@
 
 // Medidas del modelo 3D (modelos/agv-seguidor.blend): kit 2WD con rueda loca adelante.
 export const car={
-  track:134,        // separación entre centros de las ruedas
+  track:139,        // separación entre centros de las ruedas (kit ZK-2WD)
   sensorAhead:128,  // de eje a sensores
   sensorGap:12,     // entre centros de los dos sensores (menor que la cinta)
-  wheel:66,         // diámetro de rueda TT
+  wheel:65,         // diámetro de rueda del kit
   rear:62,length:200,width:116
 };
 export const mat={width:1800,height:1200,line:19};

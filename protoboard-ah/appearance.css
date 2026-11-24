@@ -707,3 +707,9 @@ body.catalog-home .circuit-card-preview{box-shadow:inset 0 0 0 1px color-mix(in 
 @media (prefers-reduced-motion:reduce){.design-enhanced .showcase-load-sweep{animation:none;opacity:0}.design-enhanced .showcase-load-line::after{animation-duration:2.4s}}
 /* Lupa retirada (resultaba molesta): ni el interruptor ni el panel se muestran. */
 .loupe-toggle,.detail-loupe,.map-loupe{display:none!important}
+
+/* Información secundaria plegada bajo los visores (no compite con el montaje). */
+.logic-more{margin-top:16px;border:1px solid var(--appearance-border);border-radius:var(--taller-radius);background:var(--appearance-surface);padding:0 16px}
+.logic-more>summary{cursor:pointer;padding:12px 0;font-weight:750;color:var(--appearance-ink);list-style-position:inside}
+.logic-more[open]>summary{border-bottom:1px solid var(--appearance-border);margin-bottom:12px}
+.logic-more>.logic-grid:last-of-type,.logic-more>details:last-child{margin-bottom:14px}

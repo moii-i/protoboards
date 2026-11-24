@@ -138,7 +138,7 @@ window.DOOR_VARIANT = 'contador';
 el('assemblyRetry').onclick = () => location.reload();
 const wires = model.items.filter(item => item.kind === 'wire').length;
 for (const node of [el('followerWires'), ...document.querySelectorAll('[data-follower-wires]')]) if (node) node.textContent = String(wires);
-for (const label of ['1 × 74LS86 (dos de sus cuatro XOR)', '1 × L293D (puente H con diodos)', '1 × regulador 7805 (U3, TO-220)', '1 × capacitor cerámico 0.33 µF (C1) y 1 × 0.1 µF (C2)', '1 × interruptor deslizable 1P2T (SW1)', '2 × sensores seguidores de línea con salida digital', '2 × motorreductores TT con ruedas y 1 rueda loca', '1 × portapilas 4 × AA (6 V) y 1 pila de 9 V con broche', '1 × protoboard de 400 puntos', wires + ' jumpers y 14 cables dupont macho-hembra']) {
+for (const label of ['1 × 74LS86 (dos de sus cuatro XOR)', '1 × L293D (puente H con diodos)', '1 × regulador 7805 (U3, TO-220)', '1 × capacitor cerámico 0.33 µF (C1) y 1 × 0.1 µF (C2)', '1 × interruptor deslizable 1P2T (SW1)', '2 × sensores TCRT5000 (MH-Sensor-Series, salida D0)', '1 × kit chasis ZK-2WD: 2 motores TT, 2 ruedas, rueda loca, portapilas 4 × AA y su tornillería', '2 × postes de latón M3 hembra-hembra de 30 mm y 6 × tornillos M3 × 6 (4 cabeza redonda, 2 cabeza plana)', '1 × pila de 9 V con broche', '1 × protoboard de 400 puntos', wires + ' jumpers y 14 cables dupont macho-hembra']) {
   const item = document.createElement('li');
   item.textContent = label;
   el('assemblyMaterials').append(item);

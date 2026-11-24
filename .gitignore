@@ -12,3 +12,5 @@ outputs/
 Thumbs.db
 protoboard-ah/puerta.js
 protoboard-ah/puerta-viewer.js
+modelos/agv/revision/
+*.blend1

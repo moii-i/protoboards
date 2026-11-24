@@ -98,10 +98,15 @@ def cyl(name, r, depth, loc, m, axis='Z', parent=None, verts=32, bevel=0.0):
     return link(o, parent)
 
 def boolean(target, cutter, op='DIFFERENCE'):
+    keep = target.data.materials[0] if target.data.materials else None
     mod = target.modifiers.new('bool', 'BOOLEAN'); mod.object = cutter; mod.operation = op; mod.solver = 'EXACT'
     bpy.context.view_layer.objects.active = target
     bpy.ops.object.modifier_apply(modifier=mod.name)
     bpy.data.objects.remove(cutter, do_unlink=True)
+    # Las caras del corte heredan el material del cortador: la pieza conserva el suyo.
+    if keep is not None and len(target.data.materials) > 1:
+        target.data.materials.clear(); target.data.materials.append(keep)
+        target.data.polygons.foreach_set('material_index', [0] * len(target.data.polygons))
 
 def apply_mods(o):
     bpy.context.view_layer.objects.active = o
@@ -146,3 +151,77 @@ def poly(name, points_mm, radius, m, parent=None):
     bpy.context.view_layer.objects.active = o; o.select_set(True)
     bpy.ops.object.convert(target='MESH'); o.select_set(False)
     assign(o, m); return link(o, parent)
+
+# ---------- Tornillería con malla compartida (una malla por tipo, muchas instancias) ----------
+# Cada pieza de fijación guarda en sus propiedades de dónde entra (insert, en mm y coordenadas
+# de Blender), cuánto recorre (dist) y si gira al entrar (spin). El exportador las deja como
+# nodos propios con esas propiedades y el visor web las anima atornillándose.
+PROTOS = {}
+
+def _proto(key, build):
+    if key in PROTOS and PROTOS[key].name in bpy.data.objects: return PROTOS[key]
+    o = build(); o.name = 'Prototipo ' + key; o['prototype'] = True
+    apply_mods(o)
+    # La malla queda referida al origen del mundo: la cabeza (o la cara superior) en (0, 0, 0).
+    bpy.ops.object.select_all(action='DESELECT'); o.select_set(True); bpy.context.view_layer.objects.active = o
+    bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+    o.hide_render = True; o.hide_viewport = True
+    PROTOS[key] = o; return o
+
+def _cross_recess(head, top_z, r):
+    for rot in (0, math.pi / 2):
+        c = box('c', (r * 1.25, .7, 1.4), (0, 0, top_z), M_STEEL_CUT())
+        c.rotation_euler = (0, 0, rot); bpy.context.view_layer.objects.active = c; bpy.ops.object.transform_apply(rotation=True)
+        boolean(head, c)
+
+def M_STEEL_CUT():
+    return bpy.data.materials.get('Acero') or mat('Acero', (0.78, 0.78, 0.80), rough=.28, metal=1)
+
+def pan_screw(length, m):
+    """Tornillo M3 de cabeza redonda con ranura en cruz. Cabeza en el origen; la caña baja por −Z."""
+    def build():
+        head = cyl('cabeza', 2.75, 2.1, (0, 0, 1.05), m, verts=28, bevel=.6); apply_mods(head)
+        _cross_recess(head, 2.1, 2.75)
+        shank = cyl('caña', 1.45, length, (0, 0, -length / 2), m, verts=14)
+        # Rosca sugerida: anillos finos cada 0.5 mm (solo geometría barata).
+        rings = [cyl('rosca', 1.5, .18, (0, 0, -1 - i * .5), m, verts=14) for i in range(int((length - 1.5) / .5))]
+        bpy.ops.object.select_all(action='DESELECT')
+        for o in [head, shank] + rings: o.select_set(True)
+        bpy.context.view_layer.objects.active = head; bpy.ops.object.join(); return head
+    return _proto('M3x%g' % length, build)
+
+def countersunk_screw(length, m):
+    def build():
+        bpy.ops.mesh.primitive_cone_add(vertices=28, radius1=1.45 * MM, radius2=2.9 * MM, depth=1.7 * MM, location=v(0, 0, -.85))
+        head = bpy.context.active_object; assign(head, m); _cross_recess(head, 0, 2.9)
+        shank = cyl('caña', 1.45, length - 1.7, (0, 0, -1.7 - (length - 1.7) / 2), m, verts=14)
+        bpy.ops.object.select_all(action='DESELECT'); head.select_set(True); shank.select_set(True)
+        bpy.context.view_layer.objects.active = head; bpy.ops.object.join(); return head
+    return _proto('M3x%g plano' % length, build)
+
+def hex_nut(m):
+    def build():
+        n = cyl('tuerca', 3.175, 2.4, (0, 0, -1.2), m, verts=6, bevel=.25); apply_mods(n)
+        boolean(n, cyl('c', 1.3, 4, (0, 0, -1.2), m, verts=16)); return n
+    return _proto('tuerca M3', build)
+
+def standoff(length, m):
+    """Separador hexagonal de latón hembra-hembra (5 mm entre caras). Origen arriba; baja por −Z."""
+    def build():
+        s = cyl('separador', 2.887, length, (0, 0, -length / 2), m, verts=6, bevel=.2); apply_mods(s)
+        boolean(s, cyl('c', 1.25, length + 2, (0, 0, -length / 2), m, verts=14)); return s
+    return _proto('separador %g' % length, build)
+
+def place(proto, name, loc, direction, parent, insert=None, dist=12, spin=True):
+    """Instancia (malla compartida) con la caña hacia 'direction'. insert: de dónde llega."""
+    o = bpy.data.objects.new(name, proto.data); bpy.context.scene.collection.objects.link(o)
+    d = Vector(direction).normalized()
+    q = Vector((0, 0, -1)).rotation_difference(d)
+    o.rotation_mode = 'QUATERNION'; o.rotation_quaternion = q; o.location = v(*loc)
+    o.matrix_world = Matrix.Translation(v(*loc)) @ q.to_matrix().to_4x4()  # sin esperar al depsgraph
+    o['fixing'] = True; o['insert'] = list(insert if insert is not None else (-d).to_tuple()); o['dist'] = dist; o['spin'] = spin
+    return link(o, parent)
+
+def mark_insert(o, insert, dist=20, spin=False):
+    """Pieza que entra sola (sujetadores, ruedas, encoders) en vez de con todo su paso."""
+    o['fixing'] = True; o['insert'] = list(insert); o['dist'] = dist; o['spin'] = spin; return o

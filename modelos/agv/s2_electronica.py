@@ -1,6 +1,10 @@
 # Pasos 5–8: sensores, pilas, protoboard con el circuito de la guía y cables dupont.
+# Piezas fieles a las de la lista de compras: módulo MH-Sensor-Series (TCRT5000 + LM393, 4 pines),
+# SN74LS86N y L293D en DIP, L7805CV en TO-220, cerámicos 334/104, interruptor SS12D00,
+# portapilas 4 × AA abierto, pila de 9 V con broche y protoboard de 400 puntos (82.5 × 54.5 mm).
 import bpy, math, json
 import numpy as np
+from mathutils import Vector, Matrix
 exec(open(LIB, encoding='utf-8').read())
 M = materials()
 for name in ('S5_Sensores', 'S6_Baterias', 'S7_Protoboard', 'S8_Cables'):
@@ -9,151 +13,235 @@ for name in ('S5_Sensores', 'S6_Baterias', 'S7_Protoboard', 'S8_Cables'):
         for c in list(e.children_recursive): bpy.data.objects.remove(c, do_unlink=True)
         bpy.data.objects.remove(e, do_unlink=True)
 DATA = json.load(open(BOARD_JSON, encoding='utf-8'))
+PB, PT = 44.0, 47.0
+zinc = mat('Acero zincado', (0.70, 0.71, 0.73), rough=.32, metal=1)
 foam = mat('Cinta doble cara', (0.55, 0.56, 0.58), rough=.9)
+silk = mat('Serigrafía blanca', (0.95, 0.95, 0.93), rough=.6)
+gold = mat('Pin dorado', (0.92, 0.72, 0.30), rough=.25, metal=1)
+smd_black = mat('SMD negro', (0.04, 0.04, 0.045), rough=.4)
+led_green = mat('LED verde', (0.1, 0.85, 0.2), rough=.1, transmission=.5)
+blue_disc = mat('Cerámico azul', (0.10, 0.25, 0.62), rough=.4)
+spring = mat('Resorte', (0.80, 0.80, 0.82), rough=.25, metal=1)
+screw6, post30, nut = pan_screw(6, zinc), standoff(30, M['brass']), hex_nut(zinc)
+flat6 = countersunk_screw(6, zinc)
 
-# ---------- Sensores en espejo: TCRT5000 hacia el centro, 12 mm entre ellos ----------
+def join(objs, name, parent):
+    objs = [o for o in objs if o]
+    bpy.ops.object.select_all(action='DESELECT')
+    for o in objs: apply_mods(o); o.select_set(True)
+    bpy.context.view_layer.objects.active = objs[0]
+    if len(objs) > 1: bpy.ops.object.join()
+    o = bpy.context.view_layer.objects.active; o.name = name
+    o.parent = None
+    return link(o, parent)
+
+def flat_text(name, body, loc, size, m, parent, rot=(0, 0, 0)):
+    o = text(name, body, loc, size, m, parent)
+    o.rotation_euler = rot; return o
+
+# ---------- Paso 5: módulos MH-Sensor-Series en espejo (giro de 180°, no reflejo) ----------
 S5 = group('S5_Sensores')
 SENSOR_PINS = {}
-for side, key, name in ((-1, 'SI', 'izquierdo'), (1, 'SD', 'derecho')):
-    pcb = box('PCB sensor ' + name, (32, 14, 1.6), (side * 18, 128, 14.8), M['pcb'], S5, bevel=.3)
-    box('TCRT5000 ' + name, (5.8, 10.2, 6.4), (side * 6, 128, 10.8), M['black'], S5, bevel=.4)
-    cyl('Emisor IR ' + name, 2.4, 1.2, (side * 6, 125.6, 7.2), M['ir_blue'], parent=S5, verts=24)
-    cyl('Receptor IR ' + name, 2.4, 1.2, (side * 6, 130.4, 7.2), M['ir_black'], parent=S5, verts=24)
-    box('Trimpot ' + name, (6.5, 6.5, 4.5), (side * 13.5, 128, 17.85), M['pot_blue'], S5, bevel=.4)
-    cyl('Tornillo del trimpot ' + name, 1.6, .8, (side * 13.5, 128, 20.4), M['brass'], parent=S5, verts=20)
-    box('LM393 ' + name, (4, 5, 1.5), (side * 24, 124, 16.35), M['epoxy'], S5, bevel=.2)
-    for dy, mm in ((131.5, M['led_red']), (125, M['led_red'])): box('LED SMD ' + name, (1.6, .8, .6), (side * 25.5, dy, 15.9), mm, S5)
-    for i, (pin, y) in enumerate((('VCC', 124.5), ('GND', 128), ('OUT', 131.5))):
-        box('Pin ' + pin + ' ' + name, (.64, .64, 9), (side * 31, y, 19.6), M['tin'], S5)
-        box('Base del pin ' + name, (2.5, 2.5, 2.5), (side * 31, y, 16.9), M['black'], S5)
-        SENSOR_PINS[(key, pin)] = (side * 31, y, 24)
-    cyl('Separador de latón 30 mm ' + name, 2.6, 30.4, (side * 18, 128, 30.8), M['brass'], parent=S5, verts=6)
-    cyl('Tornillo inferior ' + name, 2.7, 1.8, (side * 18, 128, 13.1), M['steel'], parent=S5, verts=20, bevel=.4)
-    cyl('Tornillo superior ' + name, 2.7, 1.8, (side * 18, 128, 49.9), M['steel'], parent=S5, verts=20, bevel=.4)
+PIN_ORDER = ('VCC', 'GND', 'D0', 'A0')
+def sensor_module(side, key, label):
+    """Se construye del lado derecho (TCRT5000 hacia el centro, pines hacia fuera) y se gira 180° para el izquierdo."""
+    cx, cy, zb, zt = 18.0, 128.0, 12.4, 14.0
+    parts = []
+    pcb = box('PCB MH-Sensor ' + label, (32, 14, 1.6), (cx, cy, (zb + zt) / 2), M['pcb'], bevel=.35); apply_mods(pcb)
+    boolean(pcb, cyl('c', 1.6, 4, (cx, cy, 13.2), M['steel'], verts=20)); parts.append(pcb)
+    # Cara del sensor (abajo): TCRT5000, encabezado de 4 pines y serigrafía.
+    tcrt = box('TCRT5000 ' + label, (5.8, 10.2, 7), (cx - 16 + 4, cy, zb - 3.5), M['black'], bevel=.35); apply_mods(tcrt)
+    boolean(tcrt, box('c', (6.5, .9, 4.5), (cx - 16 + 4, cy, zb - 7), M['steel']))  # separador entre emisor y receptor
+    parts.append(tcrt)
+    for dy, m in ((-2.6, M['ir_blue']), (2.6, M['ir_black'])):
+        parts.append(cyl('Lente ' + label, 1.75, 1.2, (cx - 16 + 4, cy + dy, zb - 7.2), m, verts=24, bevel=.5))
+    hx = cx + 16 - 1.6
+    parts.append(box('Cuerpo del encabezado ' + label, (2.54, 10.16, 2.54), (hx, cy, zb - 1.27), M['black'], bevel=.2))
+    for i, pin in enumerate(PIN_ORDER):
+        py = cy - 3.81 + i * 2.54
+        parts.append(box('Pin ' + pin, (.64, .64, 4.2), (hx, py, zb - .3), gold))
+        parts.append(box('Pin ' + pin, (8.5, .64, .64), (hx + 4.0, py, zb - 1.27), gold))
+        SENSOR_PINS[(key, pin)] = (hx + 8.2, py, zb - 1.27)
+    for i, pin in enumerate(PIN_ORDER):
+        t = flat_text('Serigrafía ' + pin, pin, (hx - 3.4, cy - 3.81 + i * 2.54, zb - .01), .9, silk, None, rot=(math.pi, 0, 0)); parts.append(t)
+    parts.append(flat_text('Serigrafía MH', 'MH-Sensor-Series', (cx + 1.5, cy - 5.2, zb - .01), 1.2, silk, None, rot=(math.pi, 0, 0)))
+    # Cara superior: trimpot 3296W, LM393 (SOIC-8), LED de encendido y de salida, resistencias SMD.
+    pot = box('Trimpot 3296W ' + label, (9.5, 4.8, 9.7), (cx - 9.5, cy + 3.5, zt + 4.85), M['pot_blue'], bevel=.4); parts.append(pot)
+    for k in range(6): parts.append(box('Estría del trimpot', (.4, 4.9, 9), (cx - 13.2 + k * 1.5, cy + 3.5, zt + 4.85), M['pot_blue']))
+    parts.append(cyl('Tornillo del trimpot ' + label, 1.1, .8, (cx - 13.0, cy + 3.5, zt + 10.0), M['brass'], verts=16))
+    parts.append(box('LM393 ' + label, (4.9, 3.9, 1.5), (cx + 6.5, cy - 2.5, zt + .85), smd_black, bevel=.15))
+    for k in range(4):
+        for s in (-1, 1): parts.append(box('Pata SOIC', (.4, 1.2, .25), (cx + 4.6 + k * 1.27, cy - 2.5 + s * 2.4, zt + .2), M['tin']))
+    parts.append(box('LED encendido', (1.6, .8, .6), (cx + 12, cy + 4.2, zt + .3), M['led_red']))
+    parts.append(box('LED salida D0', (1.6, .8, .6), (cx + 12, cy + 1.8, zt + .3), led_green))
+    for k in range(3): parts.append(box('Resistencia SMD', (1.6, .8, .45), (cx + 1.5 + k * 2.4, cy + 4.5, zt + .25), smd_black))
+    obj = join(parts, 'Sensor MH-Sensor-Series ' + label, None)
+    if side < 0:
+        bpy.context.view_layer.update()
+        rot = Matrix.Translation(v(0, cy, 0)) @ Matrix.Rotation(math.pi, 4, 'Z') @ Matrix.Translation(v(0, -cy, 0))
+        obj.matrix_world = rot @ obj.matrix_world
+        for pin in PIN_ORDER:
+            x, y, z = SENSOR_PINS[(key, pin)]; SENSOR_PINS[(key, pin)] = (-x, 2 * cy - y, z)
+    link(obj, S5)
+    x = side * cx
+    place(post30, 'Separador de latón 30 mm', (x, cy, PB), (0, 0, -1), S5, insert=(0, 0, -1), dist=34)
+    place(screw6, 'Tornillo M3 × 6 (placa)', (x, cy, PT), (0, 0, -1), S5, insert=(0, 0, 1), dist=12)
+    place(screw6, 'Tornillo M3 × 6 (sensor)', (x, cy, zb), (0, 0, 1), S5, insert=(0, 0, -1), dist=12)
+sensor_module(1, 'SD', 'derecho')
+sensor_module(-1, 'SI', 'izquierdo')
 
-# ---------- Pilas: 4 × AA atrás y 9 V al frente ----------
+# ---------- Paso 6: portapilas 4 × AA atornillado y pila de 9 V con broche ----------
 S6 = group('S6_Baterias')
-box('Cinta del portapilas', (54, 58, .8), (0, -30, 49.4), foam, S6)
-holder = box('Portapilas 4 × AA', (58, 62, 15), (0, -30, 57.3), M['black'], S6, bevel=1.2)
-apply_mods(holder)
-boolean(holder, box('c', (55, 56, 15), (0, -30, 61.2), M['steel']))
+HX, HY, HB = 0.0, 50.0, PT
+frame = box('Portapilas 4 × AA', (58, 62, 15), (HX, HY, HB + 7.5), M['black'], bevel=1); apply_mods(frame)
+boolean(frame, box('c', (55.6, 57, 15), (HX, HY, HB + 8.7), M['steel']))          # hueco de las pilas
+for x in (-14.5, 0, 14.5): frame_div = box('Divisor', (1, 56, 5), (HX + x, HY, HB + 3.7), M['black'], S6)
+link(frame, S6)
 for i, x in enumerate((-21.75, -7.25, 7.25, 21.75)):
-    cell = cyl('Pila AA', 7.25, 50.5, (x, -30, 58.5), M['aa'], axis='Y', parent=S6, verts=40, bevel=.6)
-    cyl('Franja de la pila AA', 7.3, 6, (x, -30 + (18 if i % 2 else -18), 58.5), M['aa_gold'], axis='Y', parent=S6, verts=40)
-    cyl('Polo de la pila AA', 2.6, 1.6, (x, -30 + (26 if i % 2 else -26), 58.5), M['steel'], axis='Y', parent=S6, verts=20)
-box('Cinta de la pila 9 V', (44, 22, .8), (0, 79.25, 49.4), foam, S6)
-nine = box('Pila 9 V', (48.5, 26.5, 17.5), (0, 79.25, 58.55), M['nine'], S6, bevel=1.5)
-box('Etiqueta 9 V', (30, 26.7, 9), (-4, 79.25, 58.55), M['label'], S6)
-text('Texto 9 V', '9 V', (-4, 79.25, 67.4), 7, M['nine'], S6)
-for dy, r, verts in ((-6.35, 4, 6), (6.35, 3.2, 24)):
-    cyl('Borne 9 V', r, 3, (25.8, 79.25 + dy, 58.55), M['steel'], axis='X', parent=S6, verts=verts)
-box('Broche de 9 V', (6, 24, 12), (30.3, 79.25, 58.55), M['black'], S6, bevel=1)
+    up = i % 2 == 0                                                                # polaridad alterna
+    cyl('Pila AA', 7.25, 50.5, (x, HY, HB + 9.45), M['aa'], axis='Y', parent=S6, verts=40, bevel=.6)
+    cyl('Franja de la pila AA', 7.3, 8, (x, HY + (20 if up else -20), HB + 9.45), M['aa_gold'], axis='Y', parent=S6, verts=40)
+    cyl('Polo positivo', 2.6, 1.4, (x, HY + (26 if up else -26), HB + 9.45), M['steel'], axis='Y', parent=S6, verts=20)
+    for k in range(5):                                                             # resorte en el polo negativo
+        cyl('Resorte', 4.2 - k * .3, .5, (x, HY + (-27.6 + k * .9 if up else 27.6 - k * .9), HB + 9.45), spring, axis='Y', parent=S6, verts=20)
+    box('Contacto plano', (7, .4, 7), (x, HY + (28.3 if up else -28.3), HB + 9.45), M['steel'], S6)
+for y in (30, 70):
+    place(flat6, 'Tornillo M3 × 6 cabeza plana', (0, y, HB + 2.2), (0, 0, -1), S6, insert=(0, 0, 1), dist=14)
+    place(nut, 'Tuerca M3', (0, y, PB), (0, 0, -1), S6, insert=(0, 0, -1), dist=10)
+# Pila de 9 V al frente derecho, sobre cinta doble cara, terminales hacia atrás.
+NX, NY = 51.25, 110.25
+box('Cinta de la pila 9 V', (22, 44, .8), (NX, NY, PT + .4), foam, S6)
+nine = box('Pila 9 V', (26.5, 48.5, 17.5), (NX, NY, PT + .8 + 8.75), M['nine'], S6, bevel=1.5)
+box('Etiqueta 9 V', (26.7, 30, 9), (NX, NY + 4, PT + .8 + 8.75), M['label'], S6)
+flat_text('Texto 9 V', '9V', (NX, NY + 4, PT + 18.32), 7, M['nine'], S6, rot=(0, 0, math.pi / 2))
+for dx, r, verts in ((-6.35, 4, 6), (6.35, 3.2, 24)):
+    cyl('Borne 9 V', r, 3, (NX + dx, NY - 25.75, PT + .8 + 8.75), M['steel'], axis='Y', parent=S6, verts=verts)
+box('Broche de 9 V', (24, 6, 12), (NX, NY - 30.2, PT + .8 + 8.75), M['black'], S6, bevel=1)
 
-# ---------- Protoboard de 400 puntos con el circuito de la guía ----------
+# ---------- Paso 7: protoboard de 400 puntos con el circuito de la guía ----------
 S7 = group('S7_Protoboard')
-K = 2.54 / 30; CX, CY, TOP = 530, 447.5, 57.5; BY = 31.5
+K = 2.54 / 30; CXm, CYm = 530, 447.5; BX, BY = 0.0, -30.75
+BW, BD, BH = 82.5, 54.5, 8.5
+TOP = PT + .8 + BH
 ROW = {'+T': 185, '-T': 215, 'a': 290, 'b': 320, 'c': 350, 'd': 380, 'e': 410, 'f': 500, 'g': 530, 'h': 560, 'i': 590, 'j': 620, '-B': 680, '+B': 710}
-def px(x, y, z=TOP): return ((x - CX) * K, BY - (y - CY) * K, z)
+def px(x, y, z=TOP): return (BX + (x - CXm) * K, BY - (y - CYm) * K, z)
 def hole_xy(h, z=TOP):
     _, row, col = h; return px(95 + (col - 1) * 30, ROW[row], z)
-box('Adhesivo de la protoboard', (78, 50, .8), (0, BY, 49.4), foam, S7)
-body = box('Protoboard 400 puntos', (79.6, 51.2, 7.7), (0, BY, 53.65), M['board'], S7, bevel=.8)
-# Textura de la cara superior: agujeros, rieles y canal central (misma geometría que el mapa 2D).
-W, H = 2048, 1318
+box('Adhesivo de la protoboard', (BW - 3, BD - 3, .8), (BX, BY, PT + .4), foam, S7)
+box('Protoboard 400 puntos', (BW, BD, BH), (BX, BY, PT + .8 + BH / 2), M['board'], S7, bevel=.8)
+W, H = 2048, int(2048 * BD / BW)
 img = bpy.data.images.get('protoboard_400.png') or bpy.data.images.new('protoboard_400.png', W, H)
-a = np.ones((H, W, 4), dtype=np.float32); a[..., :3] = (0.94, 0.93, 0.89)
-sx, sy = W / 940, H / 605
+a = np.ones((H, W, 4), dtype=np.float32); a[..., :3] = (0.95, 0.94, 0.90)
+UW, UH = BW / K, BD / K; U0, V0 = CXm - UW / 2, CYm - UH / 2
 def rect(x0, y0, x1, y1, c):
-    r0, r1 = int(H - (y1 - 145) * sy), int(H - (y0 - 145) * sy); c0, c1 = int((x0 - 60) * sx), int((x1 - 60) * sx)
+    r0, r1 = int(H - (y1 - V0) / UH * H), int(H - (y0 - V0) / UH * H); c0, c1 = int((x0 - U0) / UW * W), int((x1 - U0) / UW * W)
     a[max(0, r0):max(0, r1), max(0, c0):max(0, c1), :3] = c
-rect(80, 431, 980, 479, (0.80, 0.80, 0.76))
-rect(80, 449, 980, 461, (0.70, 0.70, 0.66))
-for y, c in ((172, (0.72, 0.25, 0.30)), (228, (0.23, 0.41, 0.56)), (667, (0.23, 0.41, 0.56)), (723, (0.72, 0.25, 0.30))): rect(82, y - 1.5, 978, y + 1.5, c)
+rect(U0, 431, U0 + UW, 479, (0.84, 0.84, 0.80)); rect(U0, 451, U0 + UW, 459, (0.72, 0.72, 0.68))
+for y, c in ((168, (0.78, 0.18, 0.22)), (232, (0.17, 0.36, 0.62)), (663, (0.17, 0.36, 0.62)), (727, (0.78, 0.18, 0.22))): rect(70, y - 2, 990, y + 2, c)
 rails = [c for c in range(2, 31) if (c - 2) % 6 < 5]
 for row, y in ROW.items():
-    cols = rails if len(row) > 1 else range(1, 31)
-    for c in cols:
+    for c in (rails if len(row) > 1 else range(1, 31)):
         x = 95 + (c - 1) * 30
-        rect(x - 7, y - 7, x + 7, y + 7, (0.62, 0.62, 0.58)); rect(x - 4.5, y - 4.5, x + 4.5, y + 4.5, (0.08, 0.08, 0.08))
+        rect(x - 7.5, y - 7.5, x + 7.5, y + 7.5, (0.66, 0.66, 0.62)); rect(x - 4.8, y - 4.8, x + 4.8, y + 4.8, (0.06, 0.06, 0.06))
 img.pixels.foreach_set(a.ravel()); img.update(); img.pack()
 face_mat = bpy.data.materials.get('Protoboard serigrafía') or mat('Protoboard serigrafía', (1, 1, 1), rough=.62)
 tex = face_mat.node_tree.nodes.get('Textura') or face_mat.node_tree.nodes.new('ShaderNodeTexImage'); tex.name = 'Textura'; tex.image = img
 face_mat.node_tree.links.new(tex.outputs['Color'], face_mat.node_tree.nodes['Principled BSDF'].inputs['Base Color'])
-bpy.ops.mesh.primitive_plane_add(size=1, location=v(0, BY, TOP + .02)); top = bpy.context.active_object
-top.name = 'Cara de la protoboard'; top.scale = (79.6 * MM, 51.2 * MM, 1); bpy.ops.object.transform_apply(scale=True)
+bpy.ops.mesh.primitive_plane_add(size=1, location=v(BX, BY, TOP + .02)); top = bpy.context.active_object
+top.name = 'Cara de la protoboard'; top.scale = (BW * MM, BD * MM, 1); bpy.ops.object.transform_apply(scale=True)
 assign(top, face_mat); link(top, S7)
 
-def leg(h, height=3.2, parent=S7, m=None):
-    x, y, _ = hole_xy(h); box('Pata', (.5, .5, height + 1.2), (x, y, TOP + height / 2 - .6), m or M['tin'], parent)
-for chip in DATA['chips']:
+def dip(chip):
+    """DIP de plástico negro: muesca y punto del pin 1, patas con hombro ancho y punta angosta."""
     n = chip['pins'] // 2; x0 = 95 + (chip['start'] - 1) * 30; x1 = x0 + (n - 1) * 30
-    cx, cy, _ = px((x0 + x1) / 2, 455); length = (n - 1) * 2.54 + 2.6
-    dip = box(chip['id'] + ' ' + chip['label'], (length, 6.4, 3.3), (cx, cy, TOP + 2.65), M['epoxy'], S7, bevel=.35)
-    apply_mods(dip)
-    boolean(dip, cyl('c', 1, 6, (cx - length / 2, cy, TOP + 4.3), M['steel'], verts=20))
-    cyl('Marca pin 1', .55, .1, (cx - length / 2 + 1.6, cy - 1.8, TOP + 4.31), M['label'], parent=S7, verts=16)
-    text('Rótulo ' + chip['id'], chip['label'], (cx, cy + .6, TOP + 4.32), 1.5 if len(chip['label']) > 6 else 1.9, M['label'], S7)
+    cx, cy, _ = px((x0 + x1) / 2, 455); length = 19.3 if n == 7 else 19.8
+    parts = []
+    body = box('cuerpo', (length, 6.35, 3.3), (cx, cy, TOP + .5 + 1.65), M['epoxy'], bevel=.45); apply_mods(body)
+    boolean(body, cyl('c', .95, 3, (cx - length / 2, cy, TOP + 3.8), M['steel'], verts=24))        # muesca
+    boolean(body, cyl('c', .6, .4, (cx - length / 2 + 1.6, cy - 1.9, TOP + 3.8), M['steel'], verts=20))  # punto del pin 1
+    parts.append(body)
     for p in range(1, chip['pins'] + 1):
         row = 'f' if p <= n else 'e'; col = chip['start'] + (p - 1 if p <= n else chip['pins'] - p)
-        x, y, _ = hole_xy(('A', row, col)); toward = 1 if row == 'f' else -1
-        box('Pata ' + chip['id'], (.5, .3, 4), (x, y, TOP + 1.2), M['tin'], S7)
-        box('Hombro ' + chip['id'], (.5, 1.2, .3), (x, y + toward * .5, TOP + 3.1), M['tin'], S7)
+        x, y, _ = hole_xy(('A', row, col)); s = 1 if row == 'e' else -1     # e arriba (frente): +Y
+        parts.append(box('hombro', (1.52, .7, .25), (x, cy + s * 3.5, TOP + 2.2), M['tin']))
+        parts.append(box('pata', (1.52, .25, 1.7), (x, y, TOP + 1.35), M['tin']))
+        parts.append(box('punta', (.46, .25, 3.2), (x, y, TOP - 1.1), M['tin']))
+    o = join(parts, chip['id'] + ' ' + chip['label'], S7)
+    text('Marca ' + chip['id'], chip['label'], (cx + .4, cy + .3, TOP + 3.81), 1.25 if len(chip['label']) > 6 else 1.6, silk, S7)
+    return o
+for chip in DATA['chips']: dip(chip)
 
 items = {it['id']: it for it in DATA['items']}
-reg = items['P_U3']
-legs = [reg['a'], reg['routed'][0], reg['b']]
-pts = [hole_xy(h) for h in legs]; rx = sum(p[0] for p in pts) / 3; ry = pts[0][1]
-for h in legs: leg(h, 5)
-box('U3 7805', (10.2, 4.5, 9), (rx, ry, TOP + 9.5), M['epoxy'], S7, bevel=.4)
-tab = box('Pestaña del 7805', (10.2, 1.3, 15.5), (rx, ry + 2.9, TOP + 12.8), M['steel'], S7)
-apply_mods(tab); boolean(tab, cyl('c', 1.8, 6, (rx, ry + 2.9, TOP + 17.3), M['steel'], axis='Y', verts=24))
-text('Rótulo 7805', '7805', (rx, ry - 2.27, TOP + 10), 2.2, M['label'], S7, rot_z=0).rotation_euler = (math.pi / 2, 0, math.pi)
-for key, label in (('P_C1', '334'), ('P_C2', '104')):
+def legs(item): return [item['a']] + [r for r in item['routed']] + [item['b']]
+# L7805CV en TO-220: cara impresa al frente, pestaña metálica perforada atrás.
+reg = items['P_U3']; pts = [hole_xy(h) for h in legs(reg)]; rx = sum(p[0] for p in pts) / 3; ry = pts[0][1]
+parts = [box('cuerpo TO-220', (10, 4.5, 9.2), (rx, ry, TOP + 3 + 4.6), M['epoxy'], bevel=.3)]
+tab = box('pestaña', (10, 1.3, 15.6), (rx, ry - 2.9, TOP + 3 + 7.8), M['tin']); apply_mods(tab)
+boolean(tab, cyl('c', 1.8, 6, (rx, ry - 2.9, TOP + 3 + 12.8), M['steel'], axis='Y', verts=24)); parts.append(tab)
+for x, y, _ in pts:
+    parts.append(box('hombro TO-220', (1.3, .5, 1.6), (x, y, TOP + 2.2), M['tin']))
+    parts.append(box('pata TO-220', (.8, .5, 5.2), (x, y, TOP - 1.2), M['tin']))
+join(parts, 'U3 L7805CV', S7)
+t = text('Marca 7805', 'L7805CV', (rx, ry + 2.27, TOP + 3 + 6.2), 1.4, silk, S7); t.rotation_euler = (math.pi / 2, 0, math.pi)
+# Cerámicos: C1 334 (amarillo) y C2 104 (azul), de pie.
+for key, label, m in (('P_C1', '334', M['ceramic']), ('P_C2', '104', blue_disc)):
     c = items[key]; a1, b1 = hole_xy(c['a']), hole_xy(c['b']); mx, my = (a1[0] + b1[0]) / 2, (a1[1] + b1[1]) / 2
-    for h in (c['a'], c['b']): leg(h, 3.5)
-    disc = cyl(c['partId'] + ' ' + label, 2.6, 1.6, (mx, my, TOP + 5.6), M['ceramic'], axis='Y', parent=S7, verts=32, bevel=.5)
-sw = items['P_SW1']; legs = [sw['a'], sw['routed'][0], sw['b']]; pts = [hole_xy(h) for h in legs]
-sx0 = sum(p[0] for p in pts) / 3; sy0 = pts[0][1]
-for h in legs: leg(h, 1.5)
-box('SW1 selector', (8.6, 3.6, 3.6), (sx0, sy0, TOP + 2.6), M['black'], S7, bevel=.3)
-box('Cubierta metálica SW1', (8.8, 3.8, .3), (sx0, sy0, TOP + 4.5), M['steel'], S7)
-box('Palanca SW1 (NEGRA)', (1.6, 1.6, 3.6), (sx0 - 1.9, sy0, TOP + 6.3), M['black'], S7, bevel=.3)
-# Jumpers: mismas rutas que el mapa 2D.
+    parts = [cyl('disco', 2.6, 2.4, (mx, my, TOP + 6.5), m, axis='Y', verts=32, bevel=.7)]
+    for x, y, _ in (a1, b1): parts.append(box('pata', (.5, .5, 7.5), (x, y, TOP + 1.2), M['tin']))
+    join(parts, c['partId'] + ' ' + label, S7)
+    t = text('Marca ' + label, label, (mx, my + 1.25, TOP + 6.6), 1.4, silk, S7); t.rotation_euler = (math.pi / 2, 0, math.pi)
+# SW1: interruptor deslizable SS12D00 (1P2T, 3 patas a 2.54 mm), palanca en NEGRA.
+sw = items['P_SW1']; pts = [hole_xy(h) for h in legs(sw)]; sx0 = sum(p[0] for p in pts) / 3; sy0 = pts[0][1]
+parts = [box('base', (8.6, 3.6, 3.2), (sx0, sy0, TOP + 1.6), M['black'], bevel=.2),
+         box('tapa metálica', (8.7, 3.7, .3), (sx0, sy0, TOP + 3.35), zinc),
+         box('pestaña', (.3, 3.7, 2.8), (sx0 - 4.35, sy0, TOP + 2), zinc), box('pestaña', (.3, 3.7, 2.8), (sx0 + 4.35, sy0, TOP + 2), zinc),
+         box('palanca', (1.5, 1.5, 4), (sx0 - 1.5, sy0, TOP + 5.5), M['black'], bevel=.2)]
+for x, y, _ in pts: parts.append(box('pata', (.5, .3, 4), (x, y, TOP - 1), M['tin']))
+join(parts, 'SW1 SS12D00 (NEGRA)', S7)
+# Jumpers rígidos: mismas rutas que el mapa 2D, con las puntas peladas en el agujero.
 WIRE = {}
 def wire_mat(color):
-    if color not in WIRE: r, g, b = (int(color[i:i + 2], 16) / 255 for i in (1, 3, 5)); WIRE[color] = mat('Jumper ' + color, ((r * .85) ** 2.2, (g * .85) ** 2.2, (b * .85) ** 2.2), rough=.42)
+    if color not in WIRE:
+        r, g, b = (int(color[i:i + 2], 16) / 255 for i in (1, 3, 5)); WIRE[color] = mat('Jumper ' + color, ((r * .85) ** 2.2, (g * .85) ** 2.2, (b * .85) ** 2.2), rough=.42)
     return WIRE[color]
 for it in DATA['items']:
     if it['kind'] != 'wire': continue
     z = TOP + 1.1 + (it['routeHeight'] - .72) * 2.4
-    route = it['route']; a1 = hole_xy(it['a']); b1 = hole_xy(it['b'])
-    path = [(a1[0], a1[1], TOP - 1.5), (a1[0], a1[1], z)] + [px(x, y, z) for x, y in route[1:-1]] + [(b1[0], b1[1], z), (b1[0], b1[1], TOP - 1.5)]
+    a1, b1 = hole_xy(it['a']), hole_xy(it['b'])
+    path = [(a1[0], a1[1], TOP + .3), (a1[0], a1[1], z)] + [px(x, y, z) for x, y in it['route'][1:-1]] + [(b1[0], b1[1], z), (b1[0], b1[1], TOP + .3)]
     poly('Jumper ' + it['id'] + ' ' + it['net'], path, .42, wire_mat(it['color']), S7)
+    for x, y, _ in (a1, b1): box('Punta pelada', (.5, .5, 3), (x, y, TOP - 1.2), M['tin'], S7)
 
-# ---------- Cables dupont a sensores, motores y pilas ----------
+# ---------- Paso 8: cables dupont (macho en la protoboard, hembra en los sensores) ----------
 S8 = group('S8_Cables')
 color = {'#c6303b': M['wire_red'], '#25282b': M['wire_black'], '#d9b31f': M['wire_yellow']}
-def dupont(h_or_point, top=True):
-    x, y, z = h_or_point
-    box('Conector dupont', (2.5, 2.5, 14), (x, y, z + 7), M['black'], S8, bevel=.2)
-    return (x, y, z + 14)
+def male(x, y):
+    box('Conector dupont macho', (2.5, 2.5, 14), (x, y, TOP + 7.6), M['black'], S8, bevel=.2)
+    box('Pin dupont', (.64, .64, 4), (x, y, TOP - 1.2), gold, S8)
+    return (x, y, TOP + 14.6)
+def female_horizontal(x, y, z, sx):
+    # x: punta del pin; la hembra cubre el pin desde el cuerpo del encabezado.
+    box('Conector dupont hembra', (14, 2.5, 2.5), (x, y, z), M['black'], S8, bevel=.2)
+    return (x + sx * 7, y, z)
 for it in DATA['items']:
     if not it['lead']: continue
-    hx, hy, _ = hole_xy(it['a']); top = dupont((hx, hy, TOP - 1))
+    hx, hy, _ = hole_xy(it['a']); top = male(hx, hy)
     mod, pin, m = it['module'], it['pin'], color.get(it['color'], M['wire_black'])
+    rise = (hx, hy + 3, top[2] + 6)
     if mod in ('SI', 'SD'):
-        side = -1 if mod == 'SI' else 1; px0, py0, pz0 = SENSOR_PINS[(mod, pin)]
-        end = dupont((px0, py0, pz0))
-        path = [top, (hx, hy + 6, top[2] + 6), (side * 10 + hx * .3, 100, 76), (side * (14 + {'VCC': 0, 'GND': 2, 'OUT': 4}[pin]), 108, 52), (side * 22, 112, 42), end]
+        sx = -1 if mod == 'SI' else 1; px0, py0, pz0 = SENSOR_PINS[(mod, 'D0' if pin == 'OUT' else pin)]
+        end = female_horizontal(px0, py0, pz0, sx)
+        lane = sx * (29 + {'VCC': 0, 'GND': 1.2, 'OUT': 2.4}[pin])
+        path = [top, rise, (lane, -10, 67), (lane, 120, 67), (lane, 142, 54), (lane, 142, 38), (sx * 46, py0 + 8, 18), end]
     elif mod in ('MI', 'MD'):
-        side = -1 if mod == 'MI' else 1; tz = 38 if pin == 'A' else 28
-        end = (side * 33 + side * 1.5, 67.5, tz)
-        path = [top, (hx, hy + 4, top[2] + 6), (side * 40, 56, 66), (side * 40, 52, 47), (side * 38, 64, 42), end]
+        sx = -1 if mod == 'MI' else 1; tz = 32.5 + (4.5 if pin == 'A' else -4.5)
+        end = (sx * 39.6, 62.6, tz)
+        path = [top, rise, (sx * 42, -5, 66), (sx * 42, 60, 60), (sx * 42, 66, 46), (sx * 42, 66, 40), end]
     elif mod == 'BM':
-        dx = 4 if pin == '+' else -4; end = (dx, 1.5, 60)
-        path = [top, (hx, hy - 3, top[2] + 3), (dx * 2 + 10, 3, 66), end]
+        dx = 4 if pin == '+' else -4; end = (dx * 4, 19.5, PT + 10)
+        path = [top, rise, (dx * 4, 4, 64), end]
     else:
-        dy = -3 if pin == '+' else 3; end = (31, 79.25 + dy, 64)
-        path = [top, (hx + 2, hy + 6, top[2] + 4), (33, 74 + dy, 72), end]
-    tube('Cable ' + it['module'] + ' ' + it['pin'], path, .7, m, S8, resolution=10)
-result = {'objects': len(bpy.data.objects)}
+        dx = -3 if pin == '+' else 3; end = (NX + dx * 2, NY - 33.2, PT + 9.5)
+        path = [top, rise, (36, 0, 70), (NX + dx * 2, 60, 66), end]
+    tube('Cable ' + mod + ' ' + pin, path, .7, m, S8, resolution=12)
+result = {'objects': len(bpy.data.objects), 'sensor_pins': {k[0] + '.' + k[1]: [round(c, 1) for c in v] for k, v in SENSOR_PINS.items()}}
