@@ -713,3 +713,5 @@ body.catalog-home .circuit-card-preview{box-shadow:inset 0 0 0 1px color-mix(in 
 .logic-more>summary{cursor:pointer;padding:12px 0;font-weight:750;color:var(--appearance-ink);list-style-position:inside}
 .logic-more[open]>summary{border-bottom:1px solid var(--appearance-border);margin-bottom:12px}
 .logic-more>.logic-grid:last-of-type,.logic-more>details:last-child{margin-bottom:14px}
+.resource-more{margin:18px 0 22px}
+.resource-more>.resource-grid{margin:4px 0 16px}

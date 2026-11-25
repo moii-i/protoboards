@@ -37,7 +37,7 @@ if(nav){
 if(!isCatalog){
  const main=document.querySelector('main.wrap'),picker=document.querySelector('.circuit-picker');
  const breadcrumb=document.createElement('nav');breadcrumb.className='design-breadcrumb';breadcrumb.setAttribute('aria-label','Ruta de navegación');breadcrumb.innerHTML='<a href="/circuitos">Tus circuitos</a>'+icon('arrow')+'<span aria-current="page"></span>';breadcrumb.lastElementChild.textContent={puerta:'Control de puerta',555:'Temporizador NE555',letras:'Letras A–H',contador:'Contador 0–9',descendente:'Contador 9–0',seguidor:'AGV seguidor de línea'}[kind];main?.prepend(breadcrumb);
- if(picker)picker.innerHTML='<span>Montajes</span>'+[['seguidor','/seguidor','chip','Seguidor de línea','5 V · 6 V'],['descendente','/contador-descendente','chip','Contador 9-0','5 V'],['contador','/contador','chip','Contador 0-9','5 V'],['letras','/','chip','Letras A–H','5 V'],['555','/555','clock','NE555','9 V'],['puerta',doorHref,'door','Puerta automática','5 V']].map(([k,href,i,label,voltage])=>'<a data-circuit="'+k+'" href="'+href+'"'+(k===kind?' aria-current="page"':'')+'>'+icon(i)+label+'<small>'+voltage+'</small></a>').join('');
+ if(picker)picker.innerHTML='<span>Montajes</span>'+[['seguidor','/seguidor','chip','Seguidor de línea','6 V'],['descendente','/contador-descendente','chip','Contador 9-0','5 V'],['contador','/contador','chip','Contador 0-9','5 V'],['letras','/','chip','Letras A–H','5 V'],['555','/555','clock','NE555','9 V'],['puerta',doorHref,'door','Puerta automática','5 V']].map(([k,href,i,label,voltage])=>'<a data-circuit="'+k+'" href="'+href+'"'+(k===kind?' aria-current="page"':'')+'>'+icon(i)+label+'<small>'+voltage+'</small></a>').join('');
  const start=document.querySelector('.hero-start');if(start)start.innerHTML='Empezar / continuar '+icon('arrow');
  const footer=document.createElement('footer');footer.className='design-footer';footer.innerHTML='<div><strong>Protoboards</strong> · by moi &amp; chat</div><span><a href="/circuitos">Todos los circuitos</a><a href="#montaje">Volver al montaje ↑</a></span><div>Aprende conectando, a tu ritmo.</div>';main?.append(footer);
  setJSON('protoboards:last-circuit:v1',{kind,variant:doorVariant});
@@ -269,3 +269,9 @@ function tallerTurntables(){
  }).catch(()=>{});
 }
 })();
+
+// Los bloques plegados bajo el visor se abren solos si un enlace o la dirección (#id) apunta dentro de ellos.
+(()=>{const reveal=id=>{const t=id?document.getElementById(id):null,d=t?.closest('details.logic-more:not([open])');if(d)d.open=true;return d;};
+document.addEventListener('click',e=>{const a=e.target.closest?.('a[href^="#"]');if(a)reveal(decodeURIComponent(a.getAttribute('href').slice(1)));},true);
+const fromHash=()=>{const id=decodeURIComponent(location.hash.slice(1));if(reveal(id))requestAnimationFrame(()=>document.getElementById(id)?.scrollIntoView());};
+addEventListener('hashchange',fromHash);if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fromHash);else fromHash();})();
