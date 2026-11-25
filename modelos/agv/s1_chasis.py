@@ -9,8 +9,10 @@ clear_scene()
 M = materials()
 PB, PT = 44.0, 47.0          # cara inferior y superior de la placa
 AXLE_Z = 32.5                # rueda de 65 mm
-GB_IN, GB_OUT = 30.2, 49.0   # caras de la caja reductora (18.8 mm), lado derecho
-WHEEL_X = 69.5             # 139 mm entre centros de las ruedas
+GB_IN, GB_OUT = 29.2, 48.0   # caras de la caja reductora (18.8 mm), lado derecho
+WHEEL_X = 68.5             # 137 mm entre centros de las ruedas
+BODY, REAR = 53.0, -78.0     # placa angosta de 106 mm; extremo trasero (rueda loca)
+TIP_X, TIP_Y, FRONT = 73.5, 89.5, 132.0   # tope frontal de 147 mm de ancho
 FAST_Y, HOLE_Z = 18.5, (24.5, 40.5)
 zinc = mat('Acero zincado', (0.70, 0.71, 0.73), rough=.32, metal=1)
 nylon = mat('Nylon blanco', (0.90, 0.90, 0.88), rough=.35, transmission=.25)
@@ -21,15 +23,11 @@ def arc(cx, cy, r, a0, a1, n=10):
     return [(cx + r * math.cos(math.radians(a0 + (a1 - a0) * i / n)), cy + r * math.sin(math.radians(a0 + (a1 - a0) * i / n))) for i in range(n + 1)]
 
 def outline():
-    """Contorno de la placa ZK-2WD: 150 mm de ancho, 210 de largo, muescas para las ruedas."""
-    p = [(0, -60)]
-    p += arc(55, -45, 15, -90, 0, 6)
-    p += [(70, -36), (59, -36)] + arc(59, -32, 4, 270, 180, 4)[1:]
-    p += [(55, 34)] + arc(59, 34, 4, 180, 90, 4)[1:] + [(75, 38), (75, 112)]
-    p += arc(37, 112, 38, 0, 90, 12)
-    p += arc(-37, 112, 38, 90, 180, 12)
-    p += [(-75, 38), (-59, 38)] + arc(-59, 34, 4, 90, 0, 4)[1:] + [(-55, -32)] + arc(-59, -32, 4, 0, -90, 4)[1:]
-    p += [(-70, -36)] + arc(-55, -45, 15, 180, 270, 6)
+    """Contorno de la placa (medido en la foto del chasis armado): cuerpo angosto de 106 mm con las
+    ruedas por fuera, tope frontal curvo de 147 mm y extremo trasero redondeado; 210 mm de largo."""
+    right = arc(BODY - 10, REAR + 10, 10, -90, 0, 6) + [(BODY, 84), (70, 86)] + arc(70, TIP_Y, 3.5, -90, 0, 4)[1:]
+    front = [(TIP_X * math.cos(math.pi * i / 40), TIP_Y + (FRONT - TIP_Y) * math.sin(math.pi * i / 40)) for i in range(41)]
+    p = [(0, REAR)] + right + front[1:] + [(-x, y) for x, y in reversed(right)]
     out = []
     for q in p:
         if not out or (abs(out[-1][0] - q[0]) > 1e-6 or abs(out[-1][1] - q[1]) > 1e-6): out.append(q)
@@ -47,22 +45,50 @@ me = bpy.data.meshes.new('Chasis'); bm.to_mesh(me); bm.free()
 plate = bpy.data.objects.new('Chasis acrílico ZK-2WD', me); bpy.context.scene.collection.objects.link(plate)
 assign(plate, M['acrylic'])
 cutters = []
-def hole(x, y, r): cutters.append(cyl('c', r, 12, (x, y, PB + 1.5), M['steel'], verts=24))
+def hole(x, y, r): cutters.append(cyl('c', r, 12, (x, y, PB + 1.5), M['steel'], verts=16 if r < 2 else 32))
 def slot(x, y, w, h): cutters.append(box('c', (w, h, 12), (x, y, PB + 1.5), M['steel']))
+def prism(pts):
+    """Un solo cortador con el contorno completo (cruces y ranuras redondas): el booleano no falla
+    con piezas encimadas ni tangentes."""
+    bm = bmesh.new(); f = bm.faces.new([bm.verts.new((x * MM, y * MM, (PB - 4.5) * MM)) for x, y in pts])
+    e = bmesh.ops.extrude_face_region(bm, geom=[f])
+    bmesh.ops.translate(bm, vec=(0, 0, 12 * MM), verts=[g for g in e['geom'] if isinstance(g, bmesh.types.BMVert)])
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    me = bpy.data.meshes.new('c'); bm.to_mesh(me); bm.free()
+    o = bpy.data.objects.new('c', me); bpy.context.scene.collection.objects.link(o); assign(o, M['steel']); cutters.append(o)
+def cross(x, y, a, b, x0, x1, c):
+    """Ranura vertical de ±a × ±b con brazo horizontal de x0 a x1 y ±c."""
+    x0, x1 = min(x0, x - a), max(x1, x + a)
+    pts = [(x - a, y - b), (x + a, y - b), (x + a, y - c), (x1, y - c), (x1, y + c), (x + a, y + c), (x + a, y + b),
+           (x - a, y + b), (x - a, y + c), (x0, y + c), (x0, y - c), (x - a, y - c)]
+    prism([p for i, p in enumerate(pts) if p != pts[i - 1]])
+def oval(x, y, length, width, angle=0, n=10):
+    s, r = length / 2 - width / 2, width / 2; ca, sa = math.cos(angle), math.sin(angle)
+    local = [(s + r * math.cos(t), r * math.sin(t)) for t in (math.pi * (i / n - .5) for i in range(n + 1))]
+    local += [(-s - r * math.cos(t), -r * math.sin(t)) for t in (math.pi * (i / n - .5) for i in range(n + 1))]
+    prism([(x + u * ca - w * sa, y + u * sa + w * ca) for u, w in local])
+CASTER_Y = -62.0
 for sx in (-1, 1):
     for fx in (GB_IN - 1.5, GB_OUT + 1.5):                 # ranuras en cruz de los sujetadores
-        slot(sx * fx, FAST_Y, 3.4, 8.4); slot(sx * fx, FAST_Y, 6.5 if fx > 40 else 9, 3.4)  # brazo de la cruz
-    hole(sx * 42, 66, 3.5)                                 # cables de los motores
-    hole(sx * 18, 128, 1.6)                                # postes de los sensores
-    slot(sx * 30, 142, 12, 5)                              # cables de los sensores
-    for dy in (-11.5, 11.5): hole(sx * 11.5, 96 + dy, 1.6)  # rueda loca
-    for y in (-52, 120): hole(sx * 62, y, 1.6)            # agujeros de montaje del kit
-    for y in (55, 75, 95): slot(sx * 66, y, 3, 9)          # ranuras laterales del kit
-for y in (30, 70): hole(0, y, 1.6)                          # tornillos del portapilas
-hole(0, -14, 11)                                           # ventana central del kit
-for x in (-24, -12, 0, 12, 24): slot(x, 146, 7, 2.5)       # ranuras frontales
+        x = sx * fx; arm = (x - 4.5, x + 4.5) if fx < 40 else ((x - 3.5, x + 1.7) if sx > 0 else (x - 1.7, x + 3.5))
+        cross(x, FAST_Y, 1.7, 4.2, arm[0], arm[1], 1.7)
+    hole(sx * 34, 64, 3)                                   # cables de los motores, junto a la lata
+    cross(sx * 22, 47, 3, 10, sx * 22 - 6.5, sx * 22 + 6.5, 3)   # ventanas en cruz junto a los motores
+    oval(sx * 19, 118, 30, 4.5)                            # ranuras de los sensores en el tope
+    oval(sx * 54, 105, 26, 4.5, angle=sx * -0.54)          # ranuras diagonales del tope
+    for t in (.48, .66, .84): hole(sx * 69 * math.cos(t), TIP_Y + 38 * math.sin(t), 1.6)
+    for x in (28, 35, 42): slot(sx * x, 94, 4.5, 9)        # tres ventanas por lado: cables de los sensores
+    for x, y in ((9, 126), (25, 108), (46, 78), (46, 70), (40, 52), (40, 40), (10, 47), (14, 6), (46, -24), (46, -62), (32, -72)):
+        hole(sx * x, y, 1.6)
+    oval(sx * 18, -23, 15, 4.5)                            # óvalos detrás del eje
+    for y in (-34, -40, -46): slot(sx * 42, y, 8, 3)       # rejilla trasera
+    for dy in (-11.5, 11.5): hole(sx * 11.5, CASTER_Y + dy, 1.6)   # rueda loca
+hole(0, 100, 9.5)                                          # ventana redonda del tope
+slot(0, 18, 9, 12)                                         # ventana central entre los motores
+for y in (39, 79): hole(0, y, 1.6)                          # tornillos del portapilas
+hole(0, 58, 1.6)
 for c in cutters: boolean(plate, c)
-bev = plate.modifiers.new('bevel', 'BEVEL'); bev.width = .5 * MM; bev.segments = 2; bev.limit_method = 'ANGLE'
+bev = plate.modifiers.new('bevel', 'BEVEL'); bev.width = .5 * MM; bev.segments = 1; bev.limit_method = 'ANGLE'
 apply_mods(plate); link(plate, S1)
 
 def t_fastener(name, x):
@@ -103,10 +129,10 @@ for sx, name in ((-1, 'izquierdo'), (1, 'derecho')):
     for dz in (-4.5, 4.5): box('Terminal de latón ' + name, (2.4, 3, .4), (cx, 61.8, AXLE_Z + dz), M['brass'], S2)
     box('Abrazadera del motor ' + name, (16.6, 4, 21), (cx, 44, AXLE_Z), white, S2, bevel=.8)
     # Encoder de 20 ranuras en el eje interior.
-    disc = cyl('Encoder ' + name, 12, 1.2, (sx * (GB_IN - 6.5), 0, AXLE_Z), encoder, axis='X', verts=48)
+    disc = cyl('Encoder ' + name, 11.4, 1.2, (sx * (GB_IN - 6.5), 0, AXLE_Z), encoder, axis='X', verts=48)
     for i in range(20):
         a = 2 * math.pi * i / 20
-        cut = box('c', (4, 2.2, 3.6), (sx * (GB_IN - 6.5), 9.6 * math.cos(a), AXLE_Z + 9.6 * math.sin(a)), M['steel'])
+        cut = box('c', (4, 2.2, 3.6), (sx * (GB_IN - 6.5), 9.2 * math.cos(a), AXLE_Z + 9.2 * math.sin(a)), M['steel'])
         cut.rotation_euler = (a, 0, 0); boolean(disc, cut)
     boolean(disc, cyl('c', 2.8, 4, (sx * (GB_IN - 6.5), 0, AXLE_Z), M['steel'], axis='X', verts=16))
     mark_insert(link(disc, S2), (-sx, 0, 0), dist=14)
@@ -154,7 +180,7 @@ for sx, name in ((-1, 'izquierda'), (1, 'derecha')):
 
 # ---------- Paso 4: rueda loca giratoria con 4 postes L12 y 8 tornillos M3 × 6 ----------
 S4 = group('S4_RuedaLoca')
-CX, CY, PLATE_TOP = 0.0, 96.0, 32.0
+CX, CY, PLATE_TOP = 0.0, CASTER_Y, 32.0                   # atrás, en el extremo angosto
 base = box('Placa de la rueda loca', (31, 31, 1.4), (CX, CY, PLATE_TOP - .7), zinc, bevel=1.5); apply_mods(base)
 for sx in (-1, 1):
     for sy in (-1, 1): boolean(base, cyl('c', 1.7, 4, (CX + sx * 11.5, CY + sy * 11.5, PLATE_TOP), zinc, verts=16))

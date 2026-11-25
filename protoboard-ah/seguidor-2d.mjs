@@ -24,7 +24,7 @@ function baseboard(){
     for(const column of rail?railColumns:Array.from({length:columns},(_,i)=>i+1))svg+=pin(['A',row,column]);
   }
   for(let c=1;c<=columns;c++)if(c===1||c%5===0){const [x]=point(['A','a',c]);svg+=text(c,x,270,'board-column')+text(c,x,647,'board-column');}
-  for(const [row,color,name] of [['+T','#b92c49','+5 V'],['-T','#246190','GND'],['+B','#c4661f','VM 6 V'],['-B','#246190','GND']]){
+  for(const [row,color,name] of [['+T','#b92c49','+6 V'],['-T','#246190','GND'],['+B','#b92c49','+6 V'],['-B','#246190','GND']]){
     const [,y]=point(['A',row,1]);
     svg+=text(name,right-28,y+4,'board-print','end').replace('class="board-print"',`class="board-print" fill="${color}"`);
   }
@@ -38,7 +38,7 @@ function moduleArt(m,[x,y],above){
   if(m.type==='sensor')return `<g transform="${at(x,y)}"><rect x="-58" y="-22" width="116" height="44" rx="6" fill="#1d5fa8" stroke="#123f72" stroke-width="2"/><circle cx="-34" cy="-2" r="9" fill="#23308f"/><circle cx="-12" cy="-2" r="9" fill="#141414"/><rect x="8" y="-12" width="22" height="22" rx="3" fill="#20262c"/><circle cx="44" cy="-6" r="6" fill="#c9a256"/>${label(m.name,42)}</g>`;
   if(m.type==='motor')return `<g transform="${at(x,y)}"><rect x="-44" y="-36" width="88" height="72" rx="8" fill="#f2d548" stroke="#c4a52c" stroke-width="2"/><rect x="${x<0?-70:44}" y="-48" width="26" height="96" rx="6" fill="#26292d"/><circle cx="0" cy="0" r="12" fill="#e6c63c" stroke="#b39223"/>${label(m.name,64)}</g>`;
   if(m.type==='battery')return `<g transform="${at(x,y)}"><rect x="-130" y="-34" width="260" height="68" rx="8" fill="#24272b"/>${[0,1,2,3].map(i=>`<rect x="${-118+i*60}" y="-22" width="52" height="44" rx="10" fill="#c8a640"/><rect x="${-118+i*60}" y="-22" width="12" height="44" rx="4" fill="#9a7f2c"/>`).join('')}${label(m.name+' · '+m.value,58)}</g>`;
-  return `<g transform="${at(x,y)}"><rect x="-26" y="-34" width="52" height="68" rx="6" fill="#2d3a46"/><rect x="-18" y="-44" width="14" height="12" rx="3" fill="#b9c1c4"/><rect x="4" y="-44" width="14" height="12" rx="3" fill="#b9c1c4"/>${text('9 V',0,6,'led-number')}${label(m.name,58)}</g>`;
+  return '';
 }
 
 // Un cable dupont sale de su agujero hacia el borde más cercano de la placa y la rodea
@@ -70,7 +70,7 @@ export function passive(item){
   const legs=[item.a,...(item.routedPins||[]).map(([h])=>h),item.b].map(point);
   const cx=legs.reduce((s,p)=>s+p[0],0)/legs.length,cy=legs[0][1];
   if(item.kind==='reg')return `<g><rect x="${cx-50}" y="${cy-17}" width="100" height="7" rx="2" fill="url(#tabMetal)"/><rect x="${cx-52}" y="${cy-11}" width="104" height="22" rx="4" fill="url(#chipMold)"/>${text('7805',cx,cy+5,'led-number')}${['IN','GND','OUT'].map((n,i)=>text(n,legs[i][0],cy+28,'lead-pin')).join('')}</g>`;
-  if(item.kind==='slide')return `<g class="follower-slide">${legs.map(([lx,ly])=>`<path d="M${lx} ${ly}V${ly-6}" stroke="url(#metalLead)" stroke-width="6"/>`).join('')}<rect x="${cx-48}" y="${cy-24}" width="96" height="34" rx="5" fill="#2a2e33" stroke="#0f1113" stroke-width="2"/><rect x="${cx-40}" y="${cy-16}" width="80" height="18" rx="3" fill="#c4c9cc"/><rect class="follower-lever" x="${cx-36}" y="${cy-19}" width="28" height="24" rx="4" fill="#f0eee6" stroke="#8a8f92"/>${text('NEGRA',cx-56,cy-30,'lead-pin','start')}${text('BLANCA',cx+56,cy-30,'lead-pin','end')}</g>`;
+  if(item.kind==='slide'){const [left,right]=item.value.split(' | ');return `<g class="follower-slide" data-slide="${item.partId}">${legs.map(([lx,ly])=>`<path d="M${lx} ${ly}V${ly-6}" stroke="url(#metalLead)" stroke-width="6"/>`).join('')}<rect x="${cx-48}" y="${cy-24}" width="96" height="34" rx="5" fill="#2a2e33" stroke="#0f1113" stroke-width="2"/><rect x="${cx-40}" y="${cy-16}" width="80" height="18" rx="3" fill="#c4c9cc"/><rect class="follower-lever" x="${cx-36}" y="${cy-19}" width="28" height="24" rx="4" fill="#f0eee6" stroke="#8a8f92"/>${text(left,cx-56,cy-30,'lead-pin','start')}${text(right,cx+56,cy-30,'lead-pin','end')}${text(item.partId,cx,cy+28,'lead-pin')}</g>`;}
   if(item.kind==='cap'){
     const [[ax,ay],[bx,by]]=[point(item.a),point(item.b)],x=(ax+bx)/2,y=(ay+by)/2;
     return `<path d="M${ax} ${ay}L${x-6} ${y-8}M${bx} ${by}L${x+6} ${y-8}" stroke="url(#metalLead)" stroke-width="5"/><ellipse cx="${x}" cy="${y-12}" rx="20" ry="14" fill="#bc7a47" stroke="#795338" stroke-width="2"/>${text(item.value==='0.1 µF'?'104':'334',x,y-8,'led-number')}`;

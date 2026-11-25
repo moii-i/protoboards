@@ -399,14 +399,14 @@ export function createViewer({container, model, point, hole, onConnection, onPin
       componentHologram.register({id:it.partId||it.id,connectionId:it.id,type:'chip',title:'U3 · Regulador 7805',detail:'IN 9 V · GND · OUT +5 V',anchor:center.clone().setY(6.2),hitPoint:center.clone().setY(2.3),group});
     }
     if(it.kind==='slide'){
-      // Selector deslizable de 1 polo y 2 tiros (paso 2,54 mm): palanca a la izquierda = NEGRA.
+      // Deslizable de 1 polo y 2 tiros (paso 2,54 mm): palanca a la izquierda (NEGRA en SW1, ON en SW2).
       const legs=[a,...(it.routedPins||[]).map(([h])=>hpos(h)),b],center=legs.reduce((sum,p)=>sum.add(p),new THREE.Vector3()).multiplyScalar(1/legs.length);
       const body=roundedBox(3.4,1.5,1.7,center.clone().setY(.95),new THREE.MeshStandardMaterial({color:0x2a2e33,roughness:.5}),group,.1);body.userData={id:it.id};pickables.push(body);
       roundedBox(3.5,.12,1.8,center.clone().setY(1.72),new THREE.MeshStandardMaterial({color:0xc4c9cc,metalness:.85,roughness:.25}),group,.04);
       const lever=roundedBox(.7,.9,.6,center.clone().add(new THREE.Vector3(-.55,2.2,0)),new THREE.MeshStandardMaterial({color:0xf0eee6,roughness:.4}),group,.08);lever.userData={id:it.id,slideLever:true};pickables.push(lever);
       for(const leg of legs)lead([leg,leg.clone().setY(.3)],group,.06);
       contactShadow(center,4,2.4,group);
-      componentHologram.register({id:it.partId||it.id,connectionId:it.id,type:'switch',title:'SW1 · Selector de línea',detail:'Izquierda: NEGRA (SEL = 0) · Derecha: BLANCA (SEL = 1)',anchor:center.clone().setY(3),hitPoint:center.clone(),group});
+      componentHologram.register({id:it.partId||it.id,connectionId:it.id,type:'switch',title:it.hologram?.title||'SW1 · Selector de línea',detail:it.hologram?.detail||'Izquierda: NEGRA (SEL = 0) · Derecha: BLANCA (SEL = 1)',anchor:center.clone().setY(3),hitPoint:center.clone(),group});
     }
     if(it.kind==='pot'){
       const center=mid.clone().setY(1.02),body=roundedBox(2.65,1.35,1.6,center,new THREE.MeshStandardMaterial({color:0x176994,roughness:.36}),group,.11);body.userData={id:it.id};pickables.push(body);box(2.44,.08,1.42,center.clone().setY(.39),new THREE.MeshStandardMaterial({color:0x10415e}),group);

@@ -2,7 +2,7 @@
 // Mismas reglas que contador-ruteo.mjs (tiras compartidas, rutas ortogonales que
 // esquivan encapsulados), con tres diferencias:
 //   · 30 columnas y rieles continuos (sin corte central);
-//   · tres potenciales: +T = 5 V lógica, +B = VM de motores, −T y −B = GND;
+//   · una sola fuente: +T y +B = VCC (4 × AA tras SW2), −T y −B = GND;
 //   · los cables externos (sensores, motores, baterías) entran directo a una tira.
 const rowY={'+T':185,'-T':215,a:290,b:320,c:350,d:380,e:410,f:500,g:530,h:560,i:590,j:620,'-B':680,'+B':710};
 export const columns=30;
@@ -13,7 +13,7 @@ export const strip=([,row,col])=>row.length===1?`${row<'f'?'T':'B'}:${col}`:row;
 export const address=([,row,col])=>`${row} · ${col}`;
 export const dipHole=(c,p)=>hole(p>c.pins/2?'e':'f',c.start+(p>c.pins/2?c.pins-p:p-1));
 export const part=(id,kind,value,a,b,fromNet,toNet,extra={})=>({id:'P_'+id,partId:id,kind,value,a,b,stage:0,label:`${id} · ${value}`,fromNet,toNet,...extra});
-export const railNets={'+T':'VCC','-T':'GND','+B':'VM','-B':'GND'};
+export const railNets={'+T':'VCC','-T':'GND','+B':'VCC','-B':'GND'};
 
 function compress(points){
   const clean=points.filter((p,i)=>!i||p[0]!==points[i-1][0]||p[1]!==points[i-1][1]);
@@ -100,14 +100,15 @@ export function routeBoard({chips,passives,leads=[],bodies,colors,stageFor}){
     let routeHeight=.72;
     while(used.has(routeHeight))routeHeight=Math.round((routeHeight+.32)*100)/100;
     attach(a,net,label);attach(b,net,label);
-    const w={id:'W'+String(wires.length+1).padStart(2,'0'),kind:'wire',net,signal:net,fromRef,toRef,color:colors[net]||'#166e65',routingClass:['VCC','GND','VM'].includes(net)?'power':'signal',a,b,route,routeHeight,stage,label};
+    const w={id:'W'+String(wires.length+1).padStart(2,'0'),kind:'wire',net,signal:net,fromRef,toRef,color:colors[net]||'#166e65',routingClass:['VCC','GND'].includes(net)?'power':'signal',a,b,route,routeHeight,stage,label};
     wires.push(w);items.push(w);
   }
-  // Las dos tierras se unen una sola vez; 5 V y VM nunca se tocan.
-  const groundColumn=railColumns.filter(c=>free(hole('-T',c))&&free(hole('-B',c))).at(-1);
-  const groundTop=hole('-T',groundColumn),groundBottom=hole('-B',groundColumn);
-  bridge(groundTop,groundBottom,'GND','GND · unir riel superior e inferior',1,'-T','-B');
-  const power=new Set(['VCC','GND','VM']);
+  // Cada par de rieles se une una sola vez, en las últimas columnas libres: GND y VCC.
+  for(const [top,bottom,net] of [['-T','-B','GND'],['+T','+B','VCC']]){
+    const column=railColumns.filter(c=>['-T','-B','+T','+B'].every(r=>free(hole(r,c)))).at(-1);
+    bridge(hole(top,column),hole(bottom,column),net,net+' · unir riel superior e inferior',1,top,bottom);
+  }
+  const power=new Set(['VCC','GND']);
   for(const net of [...new Set([...nodes.values()].map(n=>n.net))]){
     const parts=[...nodes.values()].filter(n=>n.net===net);
     const connected=power.has(net)?parts.filter(n=>n.h[1].length>1):parts.slice(0,1);

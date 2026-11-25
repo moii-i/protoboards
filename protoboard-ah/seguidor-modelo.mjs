@@ -7,15 +7,17 @@
 //     li ld = 1 1 → avanza · 1 0 → gira a la izquierda · 0 1 → a la derecha · 0 0 → frena (línea perdida)
 // Los dos sensores van sobre la cinta (separación menor que su ancho). Dos de las
 // cuatro XOR resuelven todo; las otras dos quedan con sus entradas a GND.
+// Alimentación única (como el carrito ya entregado): 4 × AA → SW2 → los dos rieles rojos.
+// Sin pila de 9 V ni regulador: lógica, sensores y motores comparten los ~6 V.
 import {columns,railColumns,point,hole,address,dipHole,part,packageBodies,partBodies,routeBoard} from './seguidor-ruteo.mjs';
 export {columns,railColumns,point,address,dipHole};
 
 export const chips=[
   {id:'U1',label:'SN74LS86N',name:'XOR · selector de línea',start:4,nets:['GND','GND',null,'GND','GND',null,'GND','MI','SD','SEL','MD','SEL','SI','VCC']},
-  {id:'U2',label:'L293D',name:'Puente H · dos motores',start:14,nets:['VCC','MD','MDA','GND','GND','MDB','GND','VM','VCC','MI','MIA','GND','GND','MIB','GND','VCC']},
+  {id:'U2',label:'L293D',name:'Puente H · dos motores',start:14,nets:['VCC','MD','MDA','GND','GND','MDB','GND','VCC','VCC','MI','MIA','GND','GND','MIB','GND','VCC']},
 ].map(c=>({...c,board:'A',pins:c.nets.length}));
 
-export const colors={VCC:'#b92c49',GND:'#246190',VM:'#c4661f',V9:'#8e2f6a',SEL:'#a03370',SI:'#2f8a57',SD:'#2f6fb0',MI:'#6a4bb0',MD:'#a7741a',MIA:'#6b6f73',MIB:'#6b6f73',MDA:'#6b6f73',MDB:'#6b6f73'};
+export const colors={VCC:'#b92c49',GND:'#246190',BAT:'#c4661f',SEL:'#a03370',SI:'#2f8a57',SD:'#2f6fb0',MI:'#6a4bb0',MD:'#a7741a',MIA:'#6b6f73',MIB:'#6b6f73',MDA:'#6b6f73',MDB:'#6b6f73'};
 
 // Módulos fuera de la placa. anchor: punto (coordenadas del mapa) donde vive el módulo.
 export const modules={
@@ -23,8 +25,7 @@ export const modules={
   SD:{name:'Sensor derecho',value:'TCRT5000 · LM393',type:'sensor',anchor:[430,40]},
   MI:{name:'Motor izquierdo',value:'Motorreductor TT',type:'motor',anchor:[-110,330]},
   MD:{name:'Motor derecho',value:'Motorreductor TT',type:'motor',anchor:[1180,600]},
-  BM:{name:'Pilas de motores',value:'4 × AA · 6 V',type:'battery',anchor:[700,880]},
-  BL:{name:'Pila de lógica',value:'9 V',type:'battery9',anchor:[880,40]},
+  BM:{name:'Portapilas',value:'4 × AA · 6 V',type:'battery',anchor:[880,40]},
 };
 const lead=(module,pin,h,net,stage,color)=>({id:'X_'+module+'_'+pin,kind:'link',lead:true,partId:module,module,pin,a:h,b:h,net,stage,color:color||colors[net],anchor:modules[module].anchor,label:modules[module].name+' · '+pin});
 // Dupont: rojo a +5 V, negro a GND, amarillo a la señal. Cada uno entra a la tira de su pata.
@@ -33,29 +34,27 @@ export const leads=[
   lead('SD','VCC',hole('+T',11),'VCC',4,'#c6303b'),lead('SD','GND',hole('-T',12),'GND',4,'#25282b'),lead('SD','OUT',hole('a',9),'SD',4,'#d9b31f'),
   lead('MI','A',hole('a',19),'MIA',5,'#c6303b'),lead('MI','B',hole('a',16),'MIB',5,'#25282b'),
   lead('MD','A',hole('j',16),'MDA',5,'#c6303b'),lead('MD','B',hole('j',19),'MDB',5,'#25282b'),
-  lead('BM','+',hole('+B',26),'VM',5,'#c6303b'),lead('BM','−',hole('-B',26),'GND',5,'#25282b'),
-  lead('BL','+',hole('c',25),'V9',5,'#c6303b'),lead('BL','−',hole('-T',28),'GND',5,'#25282b'),
+  lead('BM','+',hole('a',25),'BAT',5,'#c6303b'),lead('BM','−',hole('-T',28),'GND',5,'#25282b'),
 ];
 // slot: orden del cable dentro de su módulo, para separar cables paralelos al dibujarlos.
 leads.forEach((l,i)=>{const group=leads.filter(x=>x.module===l.module);l.firstOfModule=group[0]===l;l.slot=group.indexOf(l);l.slots=group.length;});
 
 export const stages=[
-  ['Coloca las piezas','Muescas a la izquierda. Coloca el 74LS86, el L293D, el regulador 7805 con la cara metálica hacia atrás, C1, C2 y el selector SW1 en la esquina frontal izquierda.'],
-  ['Alimentación','+5 V del 7805 al riel rojo superior, GND a los dos rieles azules unidos y VM al riel rojo inferior. 5 V y VM nunca se unen. VCC y GND de cada integrado.'],
+  ['Coloca las piezas','Muescas a la izquierda. Coloca el 74LS86, el L293D, el selector SW1 en la esquina frontal izquierda y el interruptor de encendido SW2 a la derecha, con la palanca en OFF.'],
+  ['Alimentación','Une los dos rieles rojos y los dos azules con un jumper cada uno. El común de SW2 va al riel rojo: en ON pasa la corriente de las pilas y en OFF la corta. VCC y GND de cada integrado.'],
   ['Selector y compuertas XOR','SW1 entrega SEL: 0 V en NEGRA y 5 V en BLANCA. SEL llega a una entrada de cada XOR usada (pines 10 y 12). Las cuatro entradas sobrantes van a GND.'],
   ['Puente H','Cada XOR manda al motor del lado contrario: pin 11 (MD) al pin 2 del L293D y pin 8 (MI) al pin 10. EN1 y EN2 a +5 V; 2A y 4A a GND.'],
   ['Sensores','Tres cables dupont por sensor: VCC al riel rojo superior, GND al azul y OUT a la tira de su compuerta (izquierdo → pin 13, derecho → pin 9).'],
-  ['Motores y pilas','Motor izquierdo a los pines 11 y 14 del L293D; derecho a los pines 3 y 6. Al final, las 4 AA al riel de VM y la pila de 9 V al 7805.'],
-  ['Prueba en pista','Selector en NEGRA sobre cinta negra: avanza. Saca un sensor de la línea: gira hacia el otro lado. Saca los dos: frena. Repite en BLANCA sobre cinta blanca.'],
+  ['Motores y pilas','Motor izquierdo a los pines 11 y 14 del L293D; derecho a los pines 3 y 6. Al final, con SW2 en OFF: rojo del portapilas a la tira de SW2 (a25) y negro al riel azul.'],
+  ['Prueba en pista','Pasa SW2 a ON. Selector en NEGRA sobre cinta negra: avanza. Saca un sensor de la línea: gira hacia el otro lado. Saca los dos: frena. Repite en BLANCA sobre cinta blanca.'],
 ];
 
 function buildPassives(){
   return [
-    part('U3','reg','7805',hole('d',25),hole('d',27),'V9','VCC',{routedPins:[[hole('d',26),'GND','U3.2 (GND)']],label:'U3 · 7805 · regulador 5 V'}),
-    part('C1','cap','0.33 µF',hole('b',25),hole('b',26),'V9','GND',{label:'C1 · 0.33 µF · entrada del 7805'}),
-    part('C2','cap','0.1 µF',hole('a',26),hole('a',27),'GND','VCC',{label:'C2 · 0.1 µF · salida del 7805'}),
     // Selector deslizable de 1 polo 2 tiros: palanca a la izquierda = GND (NEGRA), a la derecha = 5 V (BLANCA).
-    part('SW1','slide','NEGRA | BLANCA',hole('b',2),hole('b',4),'GND','VCC',{routedPins:[[hole('b',3),'SEL','SW1.2 (común)']],label:'SW1 · selector de línea'}),
+    part('SW1','slide','NEGRA | BLANCA',hole('b',2),hole('b',4),'GND','VCC',{routedPins:[[hole('b',3),'SEL','SW1.2 (común)']],label:'SW1 · selector de línea',hologram:{title:'SW1 · Selector de línea',detail:'Izquierda: NEGRA (SEL = 0) · Derecha: BLANCA (SEL = 1)'}}),
+    // Encendido con otro deslizable igual: palanca a la izquierda (ON) une las pilas (BAT) con el común (VCC).
+    part('SW2','slide','ON | OFF',hole('c',25),hole('c',27),'BAT',null,{routedPins:[[hole('c',26),'VCC','SW2.2 (común)']],label:'SW2 · encendido',hologram:{title:'SW2 · Encendido',detail:'Izquierda: ON (pilas a los rieles rojos) · Derecha: OFF'}}),
   ];
 }
 

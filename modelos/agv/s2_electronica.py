@@ -1,7 +1,8 @@
 # Pasos 5–8: sensores, pilas, protoboard con el circuito de la guía y cables dupont.
 # Piezas fieles a las de la lista de compras: módulo MH-Sensor-Series (TCRT5000 + LM393, 4 pines),
-# SN74LS86N y L293D en DIP, L7805CV en TO-220, cerámicos 334/104, interruptor SS12D00,
-# portapilas 4 × AA abierto, pila de 9 V con broche y protoboard de 400 puntos (82.5 × 54.5 mm).
+# SN74LS86N y L293D en DIP, dos interruptores SS12D00 (SW1 selector y SW2 encendido),
+# portapilas 4 × AA abierto (única fuente) y protoboard de 400 puntos (82.5 × 54.5 mm).
+# Acomodo del chasis de la foto: sensores bajo el tope frontal, portapilas al frente, protoboard atrás.
 import bpy, math, json
 import numpy as np
 from mathutils import Vector, Matrix
@@ -43,9 +44,10 @@ def flat_text(name, body, loc, size, m, parent, rot=(0, 0, 0)):
 S5 = group('S5_Sensores')
 SENSOR_PINS = {}
 PIN_ORDER = ('VCC', 'GND', 'D0', 'A0')
+SENSOR_Y = 118.0                                            # poste en la ranura del tope, 118 mm delante del eje
 def sensor_module(side, key, label):
     """Se construye del lado derecho (TCRT5000 hacia el centro, pines hacia fuera) y se gira 180° para el izquierdo."""
-    cx, cy, zb, zt = 18.0, 128.0, 12.4, 14.0
+    cx, cy, zb, zt = 18.0, SENSOR_Y, 12.4, 14.0
     parts = []
     pcb = box('PCB MH-Sensor ' + label, (32, 14, 1.6), (cx, cy, (zb + zt) / 2), M['pcb'], bevel=.35); apply_mods(pcb)
     boolean(pcb, cyl('c', 1.6, 4, (cx, cy, 13.2), M['steel'], verts=20)); parts.append(pcb)
@@ -90,9 +92,9 @@ def sensor_module(side, key, label):
 sensor_module(1, 'SD', 'derecho')
 sensor_module(-1, 'SI', 'izquierdo')
 
-# ---------- Paso 6: portapilas 4 × AA atornillado y pila de 9 V con broche ----------
+# ---------- Paso 6: portapilas 4 × AA al frente, atornillado (única fuente) ----------
 S6 = group('S6_Baterias')
-HX, HY, HB = 0.0, 50.0, PT
+HX, HY, HB = 0.0, 59.0, PT
 frame = box('Portapilas 4 × AA', (58, 62, 15), (HX, HY, HB + 7.5), M['black'], bevel=1); apply_mods(frame)
 boolean(frame, box('c', (55.6, 57, 15), (HX, HY, HB + 8.7), M['steel']))          # hueco de las pilas
 for x in (-14.5, 0, 14.5): frame_div = box('Divisor', (1, 56, 5), (HX + x, HY, HB + 3.7), M['black'], S6)
@@ -105,22 +107,15 @@ for i, x in enumerate((-21.75, -7.25, 7.25, 21.75)):
     for k in range(5):                                                             # resorte en el polo negativo
         cyl('Resorte', 4.2 - k * .3, .5, (x, HY + (-27.6 + k * .9 if up else 27.6 - k * .9), HB + 9.45), spring, axis='Y', parent=S6, verts=20)
     box('Contacto plano', (7, .4, 7), (x, HY + (28.3 if up else -28.3), HB + 9.45), M['steel'], S6)
-for y in (30, 70):
+for y in (HY - 20, HY + 20):
     place(flat6, 'Tornillo M3 × 6 cabeza plana', (0, y, HB + 2.2), (0, 0, -1), S6, insert=(0, 0, 1), dist=14)
     place(nut, 'Tuerca M3', (0, y, PB), (0, 0, -1), S6, insert=(0, 0, -1), dist=10)
-# Pila de 9 V al frente derecho, sobre cinta doble cara, terminales hacia atrás.
-NX, NY = 51.25, 110.25
-box('Cinta de la pila 9 V', (22, 44, .8), (NX, NY, PT + .4), foam, S6)
-nine = box('Pila 9 V', (26.5, 48.5, 17.5), (NX, NY, PT + .8 + 8.75), M['nine'], S6, bevel=1.5)
-box('Etiqueta 9 V', (26.7, 30, 9), (NX, NY + 4, PT + .8 + 8.75), M['label'], S6)
-flat_text('Texto 9 V', '9V', (NX, NY + 4, PT + 18.32), 7, M['nine'], S6, rot=(0, 0, math.pi / 2))
-for dx, r, verts in ((-6.35, 4, 6), (6.35, 3.2, 24)):
-    cyl('Borne 9 V', r, 3, (NX + dx, NY - 25.75, PT + .8 + 8.75), M['steel'], axis='Y', parent=S6, verts=verts)
-box('Broche de 9 V', (24, 6, 12), (NX, NY - 30.2, PT + .8 + 8.75), M['black'], S6, bevel=1)
+# Cables propios del portapilas: salen por su extremo trasero, rojo (+) y negro (−).
+HOLDER_WIRE = {'+': (4.0, HY - 31.5, HB + 10), '−': (-4.0, HY - 31.5, HB + 10)}
 
 # ---------- Paso 7: protoboard de 400 puntos con el circuito de la guía ----------
 S7 = group('S7_Protoboard')
-K = 2.54 / 30; CXm, CYm = 530, 447.5; BX, BY = 0.0, -30.75
+K = 2.54 / 30; CXm, CYm = 530, 447.5; BX, BY = 0.0, -17.25   # entre los sujetadores y la rueda loca
 BW, BD, BH = 82.5, 54.5, 8.5
 TOP = PT + .8 + BH
 ROW = {'+T': 185, '-T': 215, 'a': 290, 'b': 320, 'c': 350, 'd': 380, 'e': 410, 'f': 500, 'g': 530, 'h': 560, 'i': 590, 'j': 620, '-B': 680, '+B': 710}
@@ -173,31 +168,17 @@ for chip in DATA['chips']: dip(chip)
 
 items = {it['id']: it for it in DATA['items']}
 def legs(item): return [item['a']] + [r for r in item['routed']] + [item['b']]
-# L7805CV en TO-220: cara impresa al frente, pestaña metálica perforada atrás.
-reg = items['P_U3']; pts = [hole_xy(h) for h in legs(reg)]; rx = sum(p[0] for p in pts) / 3; ry = pts[0][1]
-parts = [box('cuerpo TO-220', (10, 4.5, 9.2), (rx, ry, TOP + 3 + 4.6), M['epoxy'], bevel=.3)]
-tab = box('pestaña', (10, 1.3, 15.6), (rx, ry - 2.9, TOP + 3 + 7.8), M['tin']); apply_mods(tab)
-boolean(tab, cyl('c', 1.8, 6, (rx, ry - 2.9, TOP + 3 + 12.8), M['steel'], axis='Y', verts=24)); parts.append(tab)
-for x, y, _ in pts:
-    parts.append(box('hombro TO-220', (1.3, .5, 1.6), (x, y, TOP + 2.2), M['tin']))
-    parts.append(box('pata TO-220', (.8, .5, 5.2), (x, y, TOP - 1.2), M['tin']))
-join(parts, 'U3 L7805CV', S7)
-t = text('Marca 7805', 'L7805CV', (rx, ry + 2.27, TOP + 3 + 6.2), 1.4, silk, S7); t.rotation_euler = (math.pi / 2, 0, math.pi)
-# Cerámicos: C1 334 (amarillo) y C2 104 (azul), de pie.
-for key, label, m in (('P_C1', '334', M['ceramic']), ('P_C2', '104', blue_disc)):
-    c = items[key]; a1, b1 = hole_xy(c['a']), hole_xy(c['b']); mx, my = (a1[0] + b1[0]) / 2, (a1[1] + b1[1]) / 2
-    parts = [cyl('disco', 2.6, 2.4, (mx, my, TOP + 6.5), m, axis='Y', verts=32, bevel=.7)]
-    for x, y, _ in (a1, b1): parts.append(box('pata', (.5, .5, 7.5), (x, y, TOP + 1.2), M['tin']))
-    join(parts, c['partId'] + ' ' + label, S7)
-    t = text('Marca ' + label, label, (mx, my + 1.25, TOP + 6.6), 1.4, silk, S7); t.rotation_euler = (math.pi / 2, 0, math.pi)
-# SW1: interruptor deslizable SS12D00 (1P2T, 3 patas a 2.54 mm), palanca en NEGRA.
-sw = items['P_SW1']; pts = [hole_xy(h) for h in legs(sw)]; sx0 = sum(p[0] for p in pts) / 3; sy0 = pts[0][1]
-parts = [box('base', (8.6, 3.6, 3.2), (sx0, sy0, TOP + 1.6), M['black'], bevel=.2),
-         box('tapa metálica', (8.7, 3.7, .3), (sx0, sy0, TOP + 3.35), zinc),
-         box('pestaña', (.3, 3.7, 2.8), (sx0 - 4.35, sy0, TOP + 2), zinc), box('pestaña', (.3, 3.7, 2.8), (sx0 + 4.35, sy0, TOP + 2), zinc),
-         box('palanca', (1.5, 1.5, 4), (sx0 - 1.5, sy0, TOP + 5.5), M['black'], bevel=.2)]
-for x, y, _ in pts: parts.append(box('pata', (.5, .3, 4), (x, y, TOP - 1), M['tin']))
-join(parts, 'SW1 SS12D00 (NEGRA)', S7)
+# SW1 (selector) y SW2 (encendido): deslizables SS12D00 (1P2T, 3 patas a 2.54 mm), palanca a la izquierda.
+def slide_switch(item, name):
+    pts = [hole_xy(h) for h in legs(item)]; sx0 = sum(p[0] for p in pts) / 3; sy0 = pts[0][1]
+    parts = [box('base', (8.6, 3.6, 3.2), (sx0, sy0, TOP + 1.6), M['black'], bevel=.2),
+             box('tapa metálica', (8.7, 3.7, .3), (sx0, sy0, TOP + 3.35), zinc),
+             box('pestaña', (.3, 3.7, 2.8), (sx0 - 4.35, sy0, TOP + 2), zinc), box('pestaña', (.3, 3.7, 2.8), (sx0 + 4.35, sy0, TOP + 2), zinc),
+             box('palanca', (1.5, 1.5, 4), (sx0 - 1.5, sy0, TOP + 5.5), M['black'], bevel=.2)]
+    for x, y, _ in pts: parts.append(box('pata', (.5, .3, 4), (x, y, TOP - 1), M['tin']))
+    join(parts, name, S7)
+slide_switch(items['P_SW1'], 'SW1 SS12D00 selector (NEGRA)')
+slide_switch(items['P_SW2'], 'SW2 SS12D00 encendido (ON)')
 # Jumpers rígidos: mismas rutas que el mapa 2D, con las puntas peladas en el agujero.
 WIRE = {}
 def wire_mat(color):
@@ -223,25 +204,26 @@ def female_horizontal(x, y, z, sx):
     # x: punta del pin; la hembra cubre el pin desde el cuerpo del encabezado.
     box('Conector dupont hembra', (14, 2.5, 2.5), (x, y, z), M['black'], S8, bevel=.2)
     return (x + sx * 7, y, z)
+SLOT = {'VCC': 42, 'GND': 35, 'OUT': 28}                 # ventanas del tope por donde bajan
+LANE = {'VCC': 38.6, 'GND': 37.3, 'OUT': 36.0}
 for it in DATA['items']:
     if not it['lead']: continue
     hx, hy, _ = hole_xy(it['a']); top = male(hx, hy)
     mod, pin, m = it['module'], it['pin'], color.get(it['color'], M['wire_black'])
-    rise = (hx, hy + 3, top[2] + 6)
+    rise = (hx, hy + 3, top[2] + 5)
     if mod in ('SI', 'SD'):
+        # Por fuera del portapilas hasta el tope, bajan por su ventana y llegan al pin bajo el tope.
         sx = -1 if mod == 'SI' else 1; px0, py0, pz0 = SENSOR_PINS[(mod, 'D0' if pin == 'OUT' else pin)]
-        end = female_horizontal(px0, py0, pz0, sx)
-        lane = sx * (29 + {'VCC': 0, 'GND': 1.2, 'OUT': 2.4}[pin])
-        path = [top, rise, (lane, -10, 67), (lane, 120, 67), (lane, 142, 54), (lane, 142, 38), (sx * 46, py0 + 8, 18), end]
+        end = female_horizontal(px0, py0, pz0, sx); lane, slot_x = sx * LANE[pin], sx * SLOT[pin]
+        path = [top, rise, (lane, hy + 14, 72), (lane, 84, 70), (slot_x, 94, 58), (slot_x, 94, 38), (sx * 47, py0 - 8, 20), end]
     elif mod in ('MI', 'MD'):
+        # Bajan por el agujero junto a la lata de su motor hasta las terminales.
         sx = -1 if mod == 'MI' else 1; tz = 32.5 + (4.5 if pin == 'A' else -4.5)
-        end = (sx * 39.6, 62.6, tz)
-        path = [top, rise, (sx * 42, -5, 66), (sx * 42, 60, 60), (sx * 42, 66, 46), (sx * 42, 66, 40), end]
-    elif mod == 'BM':
-        dx = 4 if pin == '+' else -4; end = (dx * 4, 19.5, PT + 10)
-        path = [top, rise, (dx * 4, 4, 64), end]
+        end = (sx * 38.6, 62.6, tz)
+        path = [top, rise, (sx * 33, hy + 12, 72), (sx * 33, 56, 68), (sx * 34, 64, 54), (sx * 34, 64, 40), (sx * 36.5, 64, tz), end]
     else:
-        dx = -3 if pin == '+' else 3; end = (NX + dx * 2, NY - 33.2, PT + 9.5)
-        path = [top, rise, (36, 0, 70), (NX + dx * 2, 60, 66), end]
+        # Cables del portapilas: de su extremo trasero a la tira de SW2 (+) y al riel azul (−).
+        start = HOLDER_WIRE[pin]
+        path = [top, rise, (hx, 16, 70), (start[0], 22, 64), start]
     tube('Cable ' + mod + ' ' + pin, path, .7, m, S8, resolution=12)
 result = {'objects': len(bpy.data.objects), 'sensor_pins': {k[0] + '.' + k[1]: [round(c, 1) for c in v] for k, v in SENSOR_PINS.items()}}
