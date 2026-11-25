@@ -75,6 +75,17 @@ for(const p of [1,2,7,9,10,15])assert(driven.has(l293.nets[p-1]),`L293D pin ${p}
 // Cada cable externo llega a la red que dice su etiqueta.
 for(const l of links)assert.equal(byRoot.get(root(strip(l.a))),l.net,`${l.label} fuera de su red`);
 
+// Motores en espejo: son iguales y van girados 180°, así que la rueda avanza con el rojo positivo en el izquierdo
+// y con el negro positivo en el derecho. Con los dos sensores sobre la línea, las dos ruedas deben avanzar.
+{
+  const RED='#c6303b',v=createLogic(physical,leads).evaluate({SI:1,SD:1,SEL:0}).nets;
+  const wheel=(id,redForward)=>{const ls=leads.filter(l=>l.module===id),red=v[ls.find(l=>l.color===RED).net],black=v[ls.find(l=>l.color!==RED).net];return red===black?'freno':(red>black)===redForward?'adelante':'atrás';};
+  assert.deepEqual([wheel('MI',true),wheel('MD',false)],['adelante','adelante'],'Motores en espejo: una rueda iría hacia atrás');
+  for(const p of [7,15])assert.equal(l293.nets[p-1],'GND','L293D pin '+p+' (2A/4A) debe ir a GND: al aire el TTL lo lee como 1 y la rueda retrocede');
+  const reverse=[0,1].flatMap(SEL=>[0,1].flatMap(SI=>[0,1].map(SD=>createLogic(physical,leads).evaluate({SI,SD,SEL})))).some(o=>o.left==='reversa'||o.right==='reversa');
+  assert(!reverse,'El circuito nunca manda reversa a un motor');
+}
+
 // Tabla de verdad desde las patas físicas.
 const logic=createLogic(physical,leads);
 const expected={avanza:[1,1],izquierda:[1,0],derecha:[0,1],alto:[0,0]};

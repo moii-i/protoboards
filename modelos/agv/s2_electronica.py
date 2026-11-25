@@ -218,7 +218,8 @@ for it in DATA['items']:
         path = [top, rise, (lane, hy + 14, 72), (lane, 84, 70), (slot_x, 94, 58), (slot_x, 94, 38), (sx * 47, py0 - 8, 20), end]
     elif mod in ('MI', 'MD'):
         # Bajan por el agujero junto a la lata de su motor hasta las terminales.
-        sx = -1 if mod == 'MI' else 1; tz = 32.5 + (4.5 if pin == 'A' else -4.5)
+        # Motores iguales: el rojo va a la terminal de arriba en los dos; el derecho lo cruza en la protoboard.
+        sx = -1 if mod == 'MI' else 1; tz = 32.5 + (4.5 if it['color'] == '#c6303b' else -4.5)
         end = (sx * 38.6, 62.6, tz)
         path = [top, rise, (sx * 33, hy + 12, 72), (sx * 33, 56, 68), (sx * 34, 64, 54), (sx * 34, 64, 40), (sx * 36.5, 64, tz), end]
     else:

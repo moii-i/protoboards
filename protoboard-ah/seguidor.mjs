@@ -62,7 +62,7 @@ Object.assign(model, {
     'SEL llega a los pines 10 y 12 del 74LS86. Pines 1, 2, 4 y 5 a GND. Mide SEL: 0 V en NEGRA y unos 6 V en BLANCA.',
     'Pin 11 del 74LS86 al pin 2 del L293D; pin 8 al pin 10. EN1 (1) y EN2 (9) al riel rojo. 2A (7) y 4A (15) a GND.',
     'Sensor izquierdo al pin 13 y derecho al pin 9. Con el sensor sobre negro su LED se apaga y la salida mide casi lo mismo que el riel rojo.',
-    'Motor izquierdo en los pines 11 y 14; derecho en 3 y 6. Portapilas al final, con SW2 en OFF. Si una rueda gira hacia atrás, intercambia sus dos cables.',
+    'Izquierdo: rojo al pin 11 y negro al 14. Derecho, en espejo: negro al pin 3 y rojo al 6. Portapilas al final, con SW2 en OFF. Con el carrito levantado y los dos sensores sobre negro, las dos ruedas deben girar hacia adelante.',
     'Pasa SW2 a ON. Pon el carrito sobre la cinta negra con SW1 en NEGRA: avanza y corrige. Cambia a cinta blanca y SW1 en BLANCA sin mover ningún cable.'
   ],
   reviewChecks: [
@@ -71,14 +71,14 @@ Object.assign(model, {
     ['SEL cambia de 0 V a unos 6 V con SW1.', 'Las entradas sobrantes del 74LS86 están en GND.'],
     ['Cada XOR llega al motor del lado contrario.', 'EN1 y EN2 en el riel rojo; 2A y 4A en GND.'],
     ['Ajusté el potenciómetro de cada sensor sobre la pista.', 'Los dos sensores caben dentro de la cinta.'],
-    ['Las dos ruedas giran hacia adelante.', 'Conecté las pilas al final y SW2 enciende y apaga todo.'],
+    ['Con los dos sensores sobre negro, las dos ruedas giran hacia adelante.', 'Conecté las pilas al final y SW2 enciende y apaga todo.'],
     ['Siguió la línea negra y la blanca.', 'Al sacarlo de la línea se detuvo.']
   ],
   diagnostics: {
     still: [[1, 'Alimentación', 'Con SW2 en ON mide unos 6 V en el pin 14 del 74LS86 y en los pines 16 y 8 del L293D. Si no llega, revisa SW2 (rojo del portapilas en a25), el puente entre los rieles rojos y el de los azules.'], [3, 'Habilitación', 'EN1 (pin 1) y EN2 (pin 9) del L293D deben estar en el riel rojo.'], [4, 'Sensores', 'Con los dos sensores sobre la cinta, MI (pin 8) y MD (pin 11) deben medir casi lo mismo que el riel rojo. Si miden 0, revisa SW1 y el ajuste de los sensores.']],
     spin: [[4, 'Un sensor fijo', 'Pasa la mano bajo cada sensor: su LED debe cambiar. Si uno no cambia, gira su potenciómetro o revisa su cable OUT.'], [3, 'Cruce de salidas', 'El pin 11 (MD) va al pin 2 del L293D y el pin 8 (MI) al pin 10. Si están al revés, el carrito gira hacia afuera.']],
     away: [[3, 'Motores cruzados', 'El sensor derecho manda al motor izquierdo. Si el carrito huye de la línea, intercambia los cables de los dos motores entre sí (izquierdo ↔ derecho).'], [6, 'Velocidad', 'Si llega tarde a las curvas, reduce la velocidad: usa pilas recargables de 1.2 V (4.8 V) o acerca los sensores al eje.']],
-    back: [[5, 'Polaridad del motor', 'Intercambia los dos cables de ese motor en la protoboard. No cambia la lógica.']],
+    back: [[5, 'Motores en espejo', 'El circuito nunca manda reversa: si una rueda va hacia atrás, es la polaridad de ese motor. Los motores van girados 180°, así que con el rojo igual en los dos uno retrocede. Levanta el carrito, pon los dos sensores sobre negro e intercambia solo los dos cables del motor que gira hacia atrás (izquierdo: a19 ↔ a16; derecho: j16 ↔ j19). Si las dos van hacia atrás, intercambia los de ambos. No cambia la lógica.'], [3, 'Entradas sin conectar', '2A (pin 7) y 4A (pin 15) del L293D deben ir a GND. Si una queda al aire, el TTL la lee como 1 y esa rueda retrocede cuando debería frenar.']],
     white: [[2, 'Selector', 'Con SW1 en BLANCA, SEL debe medir lo mismo que el riel rojo. Revisa el tiro derecho de SW1 (columna 4, la misma tira que el pin 14).'], [4, 'Calibración', 'Sobre fondo negro y cinta blanca el contraste cambia: ajusta el potenciómetro de cada sensor en esa pista.']],
     reset: [[6, 'Pilas bajas', 'Lógica y motores comparten las 4 AA. Si el carrito se reinicia o duda al arrancar, cambia las pilas: con menos de 4.8 V el 74LS86 deja de responder bien.'], [1, 'Tierra común', 'Un solo jumper une los rieles azules; sin él, las señales del 74LS86 no tienen referencia para el L293D.']]
   },

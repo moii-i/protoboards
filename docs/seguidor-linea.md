@@ -42,7 +42,7 @@ U1 74LS86 en la columna 4, U2 L293D en la 14, SW1 (selector) en b2–b4 y SW2 (e
 - 74LS86: 1, 2, 4, 5 y 7 a GND · 8 MI · 9 SD · 10 SEL · 11 MD · 12 SEL · 13 SI · 14 VCC · 3 y 6 libres.
 - L293D: 1 y 9 (EN) al riel rojo · 2 MD · 3/6 motor derecho · 4, 5, 12, 13 GND · 7 y 15 (2A, 4A) GND · 8 VCC (motores) · 10 MI · 11/14 motor izquierdo · 16 VCC (lógica).
 - Rieles: +T y +B = VCC (unos 6 V de las 4 × AA después de SW2), unidos por un jumper en la columna 29; −T y −B = GND, unidos en la 30.
-- Cables externos directo a la tira de su pata (sin jumper): sensor izquierdo OUT → a5 (pin 13), derecho OUT → a9 (pin 9); motor izquierdo → a19 y a16; derecho → j16 y j19; portapilas: rojo → a25 (tira de SW2), negro → −T28.
+- Cables externos directo a la tira de su pata (sin jumper): sensor izquierdo OUT → a5 (pin 13), derecho OUT → a9 (pin 9); motor izquierdo → rojo a19 (pin 11), negro a16 (pin 14); derecho, en espejo, → negro j16 (pin 3), rojo j19 (pin 6); portapilas: rojo → a25 (tira de SW2), negro → −T28.
 
 ## Potencia
 

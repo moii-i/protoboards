@@ -32,8 +32,10 @@ const lead=(module,pin,h,net,stage,color)=>({id:'X_'+module+'_'+pin,kind:'link',
 export const leads=[
   lead('SI','VCC',hole('+T',9),'VCC',4,'#c6303b'),lead('SI','GND',hole('-T',10),'GND',4,'#25282b'),lead('SI','OUT',hole('a',5),'SI',4,'#d9b31f'),
   lead('SD','VCC',hole('+T',11),'VCC',4,'#c6303b'),lead('SD','GND',hole('-T',12),'GND',4,'#25282b'),lead('SD','OUT',hole('a',9),'SD',4,'#d9b31f'),
+  // Los dos motores TT son iguales y van en espejo (girados 180°): con el rojo al mismo potencial en los dos,
+  // uno avanzaría y el otro retrocedería. Por eso el derecho lleva los colores cruzados: negro a A (pin 3), rojo a B (pin 6).
   lead('MI','A',hole('a',19),'MIA',5,'#c6303b'),lead('MI','B',hole('a',16),'MIB',5,'#25282b'),
-  lead('MD','A',hole('j',16),'MDA',5,'#c6303b'),lead('MD','B',hole('j',19),'MDB',5,'#25282b'),
+  lead('MD','A',hole('j',16),'MDA',5,'#25282b'),lead('MD','B',hole('j',19),'MDB',5,'#c6303b'),
   lead('BM','+',hole('a',25),'BAT',5,'#c6303b'),lead('BM','−',hole('-T',28),'GND',5,'#25282b'),
 ];
 // slot: orden del cable dentro de su módulo, para separar cables paralelos al dibujarlos.
@@ -45,7 +47,7 @@ export const stages=[
   ['Selector y compuertas XOR','SW1 entrega SEL: 0 V en NEGRA y 5 V en BLANCA. SEL llega a una entrada de cada XOR usada (pines 10 y 12). Las cuatro entradas sobrantes van a GND.'],
   ['Puente H','Cada XOR manda al motor del lado contrario: pin 11 (MD) al pin 2 del L293D y pin 8 (MI) al pin 10. EN1 y EN2 a +5 V; 2A y 4A a GND.'],
   ['Sensores','Tres cables dupont por sensor: VCC al riel rojo superior, GND al azul y OUT a la tira de su compuerta (izquierdo → pin 13, derecho → pin 9).'],
-  ['Motores y pilas','Motor izquierdo a los pines 11 y 14 del L293D; derecho a los pines 3 y 6. Al final, con SW2 en OFF: rojo del portapilas a la tira de SW2 (a25) y negro al riel azul.'],
+  ['Motores y pilas','Motor izquierdo: rojo al pin 11 (a19) y negro al 14 (a16). Motor derecho al revés, porque va en espejo: negro al pin 3 (j16) y rojo al 6 (j19). Al final, con SW2 en OFF: rojo del portapilas a la tira de SW2 (a25) y negro al riel azul.'],
   ['Prueba en pista','Pasa SW2 a ON. Selector en NEGRA sobre cinta negra: avanza. Saca un sensor de la línea: gira hacia el otro lado. Saca los dos: frena. Repite en BLANCA sobre cinta blanca.'],
 ];
 
