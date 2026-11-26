@@ -33,9 +33,13 @@
       <p>En 2D, usa la rueda para acercarte y arrastra para mover la placa. En 3D, arrastra para girar el montaje.</p>
       <a href="#ayuda">Abrir comprobaciones por síntoma ↗</a>
     </div>`;
-  const materialList = document.getElementById('assemblyMaterials').cloneNode(true);
-  materialList.removeAttribute('id');
-  guide.querySelector('#ccGuideMaterials').prepend(materialList);
+  // Letras no tiene #assemblyMaterials: usa la lista de piezas de su sección de materiales.
+  const materialSource = document.getElementById('assemblyMaterials') || document.querySelector('#materiales .parts');
+  if (materialSource) {
+    const materialList = materialSource.cloneNode(true);
+    materialList.removeAttribute('id');
+    guide.querySelector('#ccGuideMaterials').prepend(materialList);
+  }
   guide.querySelector('#ccGuideStep').append(document.getElementById('stageText'), stepInfo.querySelector('.step-summary'));
   stepInfo.hidden = true;
   doorWorkspace.registerTool(guide);
