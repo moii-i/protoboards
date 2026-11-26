@@ -149,11 +149,13 @@ mountAssembly(el('carro'));
 // Pista: comparte el selector con la prueba del visor.
 track = mountTrack({
   canvas: el('simCanvas'),
+  stage3d: el('sim3d'),
   evaluate: logic.evaluate,
   selector: test.SEL,
   onSelector: v => { if (v !== test.SEL) setSelector(v); },
   onReading: ({ SEL, SI, SD }) => highlightTruth(SEL, SI, SD, 'sim')
 });
+window.followerTrack = track;
 
 for (const button of document.querySelectorAll('[data-follower-sel]')) button.onclick = () => { stop(); setSelector(Number(button.dataset.followerSel)); };
 for (const button of document.querySelectorAll('[data-follower-sensor]')) button.onclick = () => {

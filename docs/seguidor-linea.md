@@ -56,7 +56,7 @@ Módulo con TCRT5000 (o el ARD-377 de Steren) y comparador LM393, salida digital
 
 ## Simulación del recorrido
 
-Tapete de 1.8 × 1.2 m con forma de riñón (curvas a la izquierda y una a la derecha), cinta de 19 mm. Tracción diferencial con las medidas del modelo 3D: ruedas a 137 mm entre centros y sensores 118 mm delante del eje. Cada rueda pasa de 0 a su velocidad con un retardo de 70 ms. La lógica sale de `createLogic` con las redes de las patas. `verify-seguidor.mjs` da más de tres vueltas en los dos modos a 250, 320 y 450 mm/s y con un motor 10 % más lento, y comprueba que frena con el selector equivocado y al sacar el carrito de la línea.
+Vista 3D (por defecto) con el modelo real del carrito, o vista desde arriba; las dos dibujan la misma simulación. Video: `node tools/grabar-recorrido.cjs <cuadros> <video.mp4> 24` graba las dos pistas a 30 fps desde la vista 3D. Tapete de 1.8 × 1.2 m con forma de riñón (curvas a la izquierda y una a la derecha), cinta de 19 mm. Tracción diferencial con las medidas del modelo 3D: ruedas a 137 mm entre centros y sensores 118 mm delante del eje. Cada rueda pasa de 0 a su velocidad con un retardo de 70 ms. La lógica sale de `createLogic` con las redes de las patas. `verify-seguidor.mjs` da más de tres vueltas en los dos modos a 250, 320 y 450 mm/s y con un motor 10 % más lento, y comprueba que frena con el selector equivocado y al sacar el carrito de la línea.
 
 ## Ensamblado del carrito (modelo 3D)
 

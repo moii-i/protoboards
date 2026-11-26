@@ -54,8 +54,8 @@ export function mountAssembly(section) {
   function load() {
     if (loading) return loading;
     status.textContent = 'Cargando el modelo 3D del carrito…';
-    loading = import('./seguidor-carro-3d.js?v=3').then(({ createAssembly }) => new Promise((resolve, reject) => {
-      viewer = createAssembly({ container: stage, url: './agv/agv-seguidor.glb?v=3', steps: assemblySteps, background: canvasColor(), motion,
+    loading = import('./seguidor-carro-3d.js?v=4').then(({ createAssembly }) => new Promise((resolve, reject) => {
+      viewer = createAssembly({ container: stage, url: './agv/agv-seguidor.glb?v=4', steps: assemblySteps, background: canvasColor(), motion,
         onReady: () => { section.classList.add('is-ready'); status.textContent = ''; viewer.goTo(step); resolve(viewer); },
         onFailure: error => { status.textContent = 'No se pudo cargar el modelo 3D. La imagen muestra el carrito armado.'; reject(error); } });
       window.agvAssembly = viewer;
